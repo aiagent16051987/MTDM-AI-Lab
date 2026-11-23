@@ -36,7 +36,11 @@ C1 out 0 1u
 .end
 `);
 const frequencies = ac.ac?.frequencies;
-console.log("AC_RESULT_SHAPE", Object.keys(ac.ac ?? {}), Object.getOwnPropertyNames(Object.getPrototypeOf(ac.ac ?? {})));\nconst magnitude = ac.ac?.magnitude?.("out");
+const acResult = ac.ac;
+console.log("AC_RESULT_SHAPE", Object.keys(acResult ?? {}), Object.getOwnPropertyNames(Object.getPrototypeOf(acResult ?? {})));
+console.log("AC_MAGNITUDE_TYPE", typeof acResult?.magnitude, "AC_VOLTAGE_TYPE", typeof acResult?.voltage);
+const magnitude = typeof acResult?.magnitude === "function" ? acResult.magnitude("out") : acResult?.magnitude?.out;
+
 assert(frequencies?.length > 10 && magnitude?.length === frequencies.length, "RC AC sweep: returned matching frequency and magnitude samples");
 assert(magnitude[0] > magnitude.at(-1), "RC AC sweep: low-frequency gain exceeds high-frequency gain");
 
