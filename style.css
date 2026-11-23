@@ -90,3 +90,8 @@
 .print-workflow-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 @media(max-width:900px){.printing-layout{grid-template-columns:1fr}.print-workflow{grid-template-columns:repeat(2,1fr)}.print-process-grid{grid-template-columns:repeat(2,1fr)}.print-workflow-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.print-dimensions,.print-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.print-process-grid,.print-workflow-grid{grid-template-columns:1fr}.print3d-view{height:300px}}
+
+/* Navigation hardening */
+main .workspace[hidden]{display:none!important}
+main .workspace.active:not([hidden]){display:block!important}
+.tabs .tab{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
