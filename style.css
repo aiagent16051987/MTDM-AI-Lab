@@ -111,3 +111,17 @@ main .workspace.active:not([hidden]){display:block!important}
 .iot-learning-grid b{display:block;color:var(--cyan);font-size:11px;margin-bottom:6px}
 .iot-learning-grid span{font-size:10px;line-height:1.55;color:#a8b8ca}
 @media(max-width:650px){.iot-thresholds{grid-template-columns:1fr}.iot-learning-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* AI dataset and evaluation */
+.ai-dataset-stats,.ai-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.ai-dataset-stats>div,.ai-metrics>div{background:#0a1422;border:1px solid #23364c;border-radius:8px;padding:10px}
+.ai-dataset-stats small,.ai-metrics small{display:block;color:#91a3bb;font-size:9px;margin-bottom:6px}
+.ai-dataset-stats b,.ai-metrics b{font-size:15px;color:var(--cyan)}
+.ai-evaluation{margin-top:16px}
+.ai-metrics{grid-template-columns:repeat(4,1fr)}
+.ai-confusion{overflow-x:auto;margin:12px 0}
+.ai-confusion table{width:100%;border-collapse:collapse;font-size:11px;text-align:center}
+.ai-confusion th,.ai-confusion td{padding:10px;border:1px solid #2a3b52}
+.ai-confusion th{color:#8fe6dc;background:#102335}
+.ai-confusion td{color:#e1eaf4;font-variant-numeric:tabular-nums}
+@media(max-width:600px){.ai-metrics{grid-template-columns:repeat(2,1fr)}}
