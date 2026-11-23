@@ -47,7 +47,14 @@
       </div>
       <div class="sim-layout">
         <div class="panel editor-panel">
-          <div class="panel-head"><strong>NETLIST EDITOR</strong><div class="head-actions"><button id="loadExample" class="subtle-btn">Load RC example</button><button id="loadDivider" class="subtle-btn">Voltage divider</button></div></div>
+          <div class="panel-head"><strong>NETLIST EDITOR</strong><span class="status">BEGINNER → ADVANCED</span></div>
+          <div class="experiment-bar" aria-label="Guided circuit experiments">
+            <button id="loadDivider" class="subtle-btn">1 · Voltage divider</button>
+            <button id="loadExample" class="subtle-btn">2 · RC time response</button>
+            <button id="loadAcExample" class="subtle-btn">3 · Filter frequency</button>
+            <button id="loadRlcExample" class="subtle-btn">4 · RLC resonance</button>
+          </div>
+          <p id="circuitGuide" class="circuit-guide" aria-live="polite">Choose an experiment. Each one loads a circuit, explains the physics and lets you run the SPICE analysis.</p>
           <textarea id="netlist" spellcheck="false" aria-label="SPICE netlist">* MTDM AI Lab - RC low-pass transient test
 V1 in 0 DC 5
 R1 in out 1k
@@ -61,7 +68,8 @@ C1 out 0 1u
           <div class="panel-head"><strong>SIMULATION OUTPUT</strong><span id="simStatus" class="status">READY</span></div>
           <div class="metrics" id="metrics"><div><small>ENGINE</small><b>SPICE-TS</b></div><div><small>ANALYSIS</small><b>Awaiting run</b></div><div><small>PROBE</small><b id="probeMetric">out</b></div></div>
           <div class="chart-wrap"><canvas id="waveChart" aria-label="Simulation waveform chart"></canvas><div id="chartEmpty" class="chart-empty">Run a netlist to view voltage waveforms</div></div>
-          <pre id="simLog" class="log" aria-live="polite">Ready. Choose an example or enter a SPICE netlist.</pre>
+          <div class="result-actions"><button id="exportCsv" class="subtle-btn" disabled>Export results CSV</button><span id="resultSummary" class="hint">No simulation results yet.</span></div>
+          <pre id="simLog" class="log" aria-live="polite">Ready. Choose an experiment or enter a SPICE netlist.</pre>
         </div>
       </div>
       <div class="notice"><b>Engineering note</b><span>This is a software simulation environment, not hardware certification. Validate component ratings, thermal limits, PCB layout, protection and real measurements before building power electronics.</span></div>
