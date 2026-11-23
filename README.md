@@ -60,3 +60,8 @@ The seventh workspace adds an interactive local-only 2D swarm robotics prototype
 The Research Hub also tracks 12 emerging-technology topics and clearly distinguishes prototype, existing/upgrade and planned modules. See [RESEARCH_SAFETY.md](./RESEARCH_SAFETY.md) for project-wide safety, privacy, security, scientific-integrity and release gates.
 
 These are educational models, not medical, biological, industrial or engineering certifications. The policy is not legal advice; applicable laws and specialist requirements must be reviewed before public deployment or real-world use.
+
+
+## Guided electronics experiments
+
+The Electronics workspace includes guided voltage-divider, RC transient, RC low-pass AC sweep and series-RLC transient experiments. Each experiment displays the circuit principle and relevant first-order theory, then runs the netlist through the browser SPICE engine. Transient and AC sample data can be exported as CSV. Results are numerical simulation outputs, not hardware measurements or safety certification.
