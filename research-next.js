@@ -103,7 +103,7 @@ function drawLIF(canvas,result,threshold) {
   ctx.fillStyle="#9aadc2";ctx.font="10px sans-serif";ctx.fillText("Membrane voltage (normalized)",pad.l,11);ctx.fillText("Time →",w-48,h-7);
 }
 
-(() => {
+if (typeof document !== "undefined") (() => {
   const $=id=>document.getElementById(id);
   const canvas=$("quantumBlochCanvas");
   if(canvas){
