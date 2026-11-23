@@ -36,7 +36,6 @@ C1 out 0 1u
 .end
 `);
 const acResult = ac.ac;
-console.log("AC_RESULT_SHAPE", Object.keys(acResult ?? {}), Object.getOwnPropertyNames(Object.getPrototypeOf(acResult ?? {})));
 const acVoltage = Array.from(acResult.voltage("out"));
 const magnitude = acVoltage.map(sample => sample.magnitude);
 assert(magnitude.length === acResult.frequencies.length && magnitude.every(Number.isFinite), "RC AC sweep: returned voltage magnitudes for every frequency");
