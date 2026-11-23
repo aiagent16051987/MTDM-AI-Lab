@@ -1,30 +1,33 @@
 # MTDM AI Lab Studio
 
-A static, browser-based engineering workspace hosted with GitHub Pages.
+A static browser workspace for electronics, IoT and AI experiments, deployed on GitHub Pages.
 
 ## Workspaces
 
-- **Electronics:** educational DC resistor-network solver and first-order RC transient demonstration.
+- **Electronics:** SPICE netlist editor powered by `@spice-ts/core`, with DC operating point, transient and AC small-signal analysis.
 - **IoT:** local synthetic sensor stream and optional MQTT over WebSocket.
 - **AI:** TensorFlow.js neural classifier trained on synthetic voltage/current/temperature examples.
 
 ## Deploy
 
-1. Open repository **Settings → Pages**.
-2. Under **Build and deployment → Source**, choose **GitHub Actions**.
-3. The workflow deploys on pushes to `main`; check the **Actions** tab for status.
-4. After a successful run, visit `https://aiagent16051987.github.io/MTDM-AI-Lab/`.
+Pushes to `main` run automated SPICE smoke tests, build the static site with Vite, and deploy `dist/` to GitHub Pages.
 
-GitHub's official guide: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+Live site: https://aiagent16051987.github.io/MTDM-AI-Lab/
 
-## Important scope and safety
+## Circuit simulator
 
-The built-in circuit solver is an educational subset, **not a full SPICE implementation**. It currently supports simple resistor networks with one ideal independent voltage source and a first-order RC transient with one grounded capacitor. It does not support semiconductor models, nonlinear convergence, AC sweep, arbitrary controlled sources, or general multi-capacitor circuits. It must not be used to certify chargers, batteries, mains circuits, or safety-critical hardware.
+The circuit tab uses the MIT-licensed `@spice-ts/core` TypeScript SPICE engine. It parses SPICE netlists and supports DC operating point, DC sweep, transient and AC analysis, plus resistor, capacitor, inductor, independent sources, diode, BJT, MOSFET and controlled-source models. Advanced device models and convergence can still have simulator-specific limitations; check the engine documentation and validate important designs against independent tools and hardware measurements.
 
-The IoT tab uses a public MQTT broker by default. Public broker traffic is not private; do not send secrets or personal data.
+Engine documentation: https://github.com/spicets/spice-ts
 
-The AI classifier uses synthetic data and is for demonstrating an ML workflow only. It is not a validated fault detector and must not control protection functions.
+The CI smoke tests check a 12 V resistor divider, an RC transient response and an RC AC frequency sweep. Passing these tests confirms only those reference cases, not production readiness or safety certification.
 
-## Runtime
+## IoT and AI limitations
 
-No MTDM-owned backend or database is required. The page loads TensorFlow.js and MQTT.js from public CDNs, so those tabs need internet access. The circuit solver is a small custom educational solver, not spice-ts; full SPICE engine integration is a future milestone. The electronics demo runs locally in the browser.
+The IoT tab uses a public MQTT broker by default. Public broker traffic is not private; do not send secrets, credentials or personal data.
+
+The AI classifier uses synthetic data and is for demonstrating an ML workflow only. It is not a validated fault detector and must not control charger, battery, mains or other safety-critical protection functions.
+
+## Runtime and privacy
+
+No MTDM-owned backend or database is required. Circuit simulation runs in the browser. TensorFlow.js and MQTT.js are loaded from public CDNs, so their tabs require internet access. No user project is intentionally uploaded to an MTDM server.
