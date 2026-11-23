@@ -12,7 +12,7 @@ const hh=applySingleQubitGate(applySingleQubitGate(zero,"H",1),"H",1);
 close(measurementProbabilities(hh)[0],1);
 const measured=measureTwoQubit(bell,()=>.8);
 assert.equal(measured.result,3);close(measurementProbabilities(measured.state)[3],1);
-const lif=simulateLIF({steps:500,dt:.01,tau:.1,threshold:1,reset:0,refractory:4,current:.8});
+const lif=simulateLIF({steps:500,dt:.01,tau:.1,threshold:1,reset:0,refractory:4,current:1.4});
 assert.ok(lif.spikes.length>0);assert.equal(lif.voltage.length,500);
 assert.ok(lif.spikes.every((x,i)=>i===0||x-lif.spikes[i-1]>=5));
 assert.throws(()=>simulateLIF({steps:5001}),RangeError);
