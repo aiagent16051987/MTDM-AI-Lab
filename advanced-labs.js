@@ -81,7 +81,6 @@ const log = (id, value) => { const el = $(id); if (el) el.textContent = value; }
     a=result===0?[1,0]:[0,0];b=result===1?[1,0]:[0,0];render();
     log("quantumLog","Measurement result: |"+result+"⟩. State collapsed to measured basis state.");
   };
-  $("quantumBell").onclick=()=>{a=[s,0];b=[0,s];render();log("quantumLog","Prepared one-qubit equal superposition. This is not an entangled Bell pair; a two-qubit CNOT workspace is a later milestone.")};
   render();
 })();
 
