@@ -177,6 +177,7 @@ C1 out 0 1u
             <label>Alignment <output id="swarmAlignmentValue">1.0</output><input id="swarmAlignment" type="range" min="0" max="2" step="0.1" value="1"></label>
             <label>Separation <output id="swarmSeparationValue">1.4</output><input id="swarmSeparation" type="range" min="0" max="3" step="0.1" value="1.4"></label>
           </div>
+          <div class="swarm-toggles"><label><input id="swarmAvoid" type="checkbox" checked> Obstacle avoidance</label><label><input id="swarmTasks" type="checkbox" checked> Three-goal task allocation</label></div>
           <div class="button-row"><button id="swarmStart" class="primary-btn">Start swarm</button><button id="swarmPause" class="subtle-btn">Pause</button><button id="swarmReset" class="subtle-btn">Reset</button></div>
           <div class="metrics"><div><small>AGENTS</small><b id="swarmAgents">32</b></div><div><small>MODEL</small><b>BOIDS</b></div><div><small>EXECUTION</small><b>LOCAL</b></div></div>
           <p class="hint">Use one slider at a time and compare clustering, heading alignment and group dispersion.</p>
