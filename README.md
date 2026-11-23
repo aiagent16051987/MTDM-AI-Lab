@@ -27,4 +27,4 @@ The AI classifier uses synthetic data and is for demonstrating an ML workflow on
 
 ## Runtime
 
-No MTDM-owned backend or database is required. The page loads TensorFlow.js and MQTT.js from public CDNs, so those tabs need internet access. The electronics demo runs locally in the browser.
+No MTDM-owned backend or database is required. The page loads TensorFlow.js and MQTT.js from public CDNs, so those tabs need internet access. The circuit solver is a small custom educational solver, not spice-ts; full SPICE engine integration is a future milestone. The electronics demo runs locally in the browser.
