@@ -65,3 +65,8 @@ These are educational models, not medical, biological, industrial or engineering
 ## Guided electronics experiments
 
 The Electronics workspace includes guided voltage-divider, RC transient, RC low-pass AC sweep and series-RLC transient experiments. Each experiment displays the circuit principle and relevant first-order theory, then runs the netlist through the browser SPICE engine. Transient and AC sample data can be exported as CSV. Results are numerical simulation outputs, not hardware measurements or safety certification.
+
+
+## 3D Printing & Additive Manufacturing Lab
+
+The printing workspace covers material extrusion (FDM/FFF and pellet), vat photopolymerization (SLA/DLP/MSLA), polymer and metal powder-bed fusion (SLS/MJF/LPBF/EB-PBF), binder jetting, material jetting, directed-energy deposition, WAAM, sheet lamination, construction extrusion, research-only bioprinting and hybrid additive manufacturing. It includes an interactive WebGL 3D preview, a simplified process/material compatibility selector and an illustrative volume, mass, time and cost estimator. It is not a CAD kernel, production slicer, machine controller, certified process model or quotation engine.
