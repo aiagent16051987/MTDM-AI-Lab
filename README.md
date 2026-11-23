@@ -31,3 +31,23 @@ The AI classifier uses synthetic data and is for demonstrating an ML workflow on
 ## Runtime and privacy
 
 No MTDM-owned backend or database is required. Circuit simulation runs in the browser. TensorFlow.js and MQTT.js are loaded from public CDNs, so their tabs require internet access. No user project is intentionally uploaded to an MTDM server.
+
+
+## Expanded research workspaces
+
+The browser UI now includes six learning and prototyping areas:
+
+- **Electronics:** SPICE netlist editor and analysis interface, plus a visual component-to-netlist builder for R, C, L and voltage-source elements. The schematic preview is a connectivity aid, not a full CAD wiring editor.
+- **IoT:** synthetic local sensor stream and MQTT over WebSocket.
+- **AI:** TensorFlow.js classifier trained on synthetic examples.
+- **Robotics:** 2D differential-drive kinematics demonstration.
+- **Quantum:** ideal single-qubit state-vector gates and measurement.
+- **Nano:** small 2D classical Lennard-Jones molecular-dynamics teaching model.
+
+### Scientific scope and limitations
+
+These modules are educational/prototyping tools, not validated engineering or research certification. The robotics module is kinematic rather than full rigid-body dynamics; the quantum module currently models one ideal qubit; the nano module uses a simplified 2D reduced-unit classical model. Safety-critical electronics and publishable scientific results require independent validation and appropriate specialist software.
+
+### Free compute approach
+
+The front end is static-hosted on GitHub Pages. Browser workloads run on the visitor's device; heavier workflows should use optional local open-source tools or user-provided compute rather than an MTDM-operated paid server.
