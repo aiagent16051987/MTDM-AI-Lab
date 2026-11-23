@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <title>MTDM AI Lab Studio</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./"><span class="brand-mark">M</span><span>MTDM <b>AI LAB</b><small>ENGINEERING STUDIO</small></span></a>
+    <div class="top-meta"><span class="live-dot"></span> BROWSER-BASED LAB <span class="version">V3.0</span></div>
+  </header>
+  <main class="shell">
+    <section class="hero">
+      <div><p class="eyebrow">MULTI-TECH DIGITAL MANUFACTURING & AI LABORATORY</p><h1>Build. Simulate. <em>Validate.</em></h1><p class="hero-copy">A practical browser workspace for circuit analysis, connected devices and machine-learning experiments.</p></div>
+      <div class="hero-chip"><span>3</span><small>ENGINEERING<br>WORKSPACES</small></div>
+    </section>
+    <nav class="tabs" aria-label="Lab workspaces">
+      <button class="tab active" data-tab="electronics">01 / Electronics</button>
+      <button class="tab" data-tab="iot">02 / IoT Lab</button>
+      <button class="tab" data-tab="ai">03 / AI Lab</button>
+    </nav>
+    <section id="electronics" class="workspace active">
+      <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>SPICE Simulator</h2><p>Run DC operating-point, transient and AC small-signal analysis in your browser.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
+      <div class="sim-layout">
+        <div class="panel editor-panel">
+          <div class="panel-head"><strong>NETLIST EDITOR</strong><div class="head-actions"><button id="loadExample" class="subtle-btn">Load RC example</button><button id="loadDivider" class="subtle-btn">Voltage divider</button></div></div>
+          <textarea id="netlist" spellcheck="false" aria-label="SPICE netlist">* MTDM AI Lab - RC low-pass transient test
+V1 in 0 PULSE(0 5 0 1n 1n 500u 1m)
+R1 in out 1k
+C1 out 0 1u
+.tran 10u 5m
+.end</textarea>
+          <div class="run-row"><label class="node-label">Probe node <input id="probeNode" value="out" maxlength="32"></label><button id="runSim" class="primary-btn">▶ Run simulation</button></div>
+          <p class="hint">SPICE syntax is processed by the browser engine. Use node <code>0</code> as ground.</p>
+        </div>
+        <div class="panel result-panel">
+          <div class="panel-head"><strong>SIMULATION OUTPUT</strong><span id="simStatus" class="status">READY</span></div>
+          <div class="metrics" id="metrics"><div><small>ENGINE</small><b>SPICE-TS</b></div><div><small>ANALYSIS</small><b>Awaiting run</b></div><div><small>PROBE</small><b id="probeMetric">out</b></div></div>
+          <div class="chart-wrap"><canvas id="waveChart" aria-label="Simulation waveform chart"></canvas><div id="chartEmpty" class="chart-empty">Run a netlist to view voltage waveforms</div></div>
+          <pre id="simLog" class="log" aria-live="polite">Ready. Choose an example or enter a SPICE netlist.</pre>
+        </div>
+      </div>
+      <div class="notice"><b>Engineering note</b><span>This is a software simulation environment, not hardware certification. Validate component ratings, thermal limits, PCB layout, protection and real measurements before building power electronics.</span></div>
+      <div class="resource-row"><a href="https://www.kicad.org/" target="_blank" rel="noreferrer">KiCad PCB design ↗</a><a href="https://wokwi.com/" target="_blank" rel="noreferrer">Wokwi microcontroller simulator ↗</a><a href="https://github.com/spicets/spice-ts" target="_blank" rel="noreferrer">SPICE-TS engine & license ↗</a></div>
+    </section>
+    <section id="iot" class="workspace">
+      <div class="section-head"><div><p class="eyebrow">CONNECTED SYSTEMS</p><h2>IoT Telemetry Lab</h2><p>Generate test sensor data locally or subscribe to a public MQTT broker over WebSocket.</p></div><span class="engine-tag">MQTT / WEBSOCKET</span></div>
+      <div class="iot-grid">
+        <div class="panel">
+          <div class="panel-head"><strong>DEVICE CONNECTION</strong><span id="mqttStatus" class="status">OFFLINE</span></div>
+          <label>Broker WebSocket URL<input id="brokerUrl" value="wss://broker.emqx.io:8084/mqtt"></label>
+          <label>Topic<input id="mqttTopic" value="mtdm-ai-lab/demo/sensors"></label>
+          <div class="button-row"><button id="mqttConnect" class="primary-btn">Connect</button><button id="mqttDisconnect" class="subtle-btn" disabled>Disconnect</button></div>
+          <p class="hint">Public broker traffic is not private. Do not publish credentials, personal data or production device secrets.</p>
+          <div class="divider"></div>
+          <strong class="small-title">LOCAL SENSOR GENERATOR</strong>
+          <div class="button-row"><button id="sensorStart" class="primary-btn">Start stream</button><button id="sensorStop" class="subtle-btn" disabled>Stop</button></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><strong>LIVE TELEMETRY</strong><span class="status" id="sensorStatus">NO DATA</span></div>
+          <div class="sensor-cards"><div><small>VOLTAGE</small><b id="voltageValue">—</b><small>V</small></div><div><small>CURRENT</small><b id="currentValue">—</b><small>A</small></div><div><small>TEMPERATURE</small><b id="tempValue">—</b><small>°C</small></div></div>
+          <div class="chart-wrap compact"><canvas id="sensorChart" aria-label="Sensor telemetry chart"></canvas></div>
+          <pre id="mqttLog" class="log">Waiting for local stream or MQTT messages…</pre>
+        </div>
+      </div>
+    </section>
+    <section id="ai" class="workspace">
+      <div class="section-head"><div><p class="eyebrow">MACHINE LEARNING</p><h2>AI Sensor Classifier</h2><p>Train a small neural network in your browser and classify sensor conditions.</p></div><span class="engine-tag">TENSORFLOW.JS</span></div>
+      <div class="ai-grid">
+        <div class="panel">
+          <div class="panel-head"><strong>MODEL TRAINING</strong><span id="aiStatus" class="status">NOT TRAINED</span></div>
+          <p class="body-copy">The demo creates labelled synthetic examples for three conditions: normal, warning and critical. Training runs locally in this browser session.</p>
+          <button id="trainModel" class="primary-btn full-btn">Train neural network</button>
+          <div class="progress-track"><div id="trainProgress"></div></div>
+          <pre id="aiLog" class="log">Model not trained. Start training to create a classifier.</pre>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><strong>LIVE CLASSIFICATION</strong><span class="status">INFERENCE</span></div>
+          <label>Voltage (V)<input id="aiVoltage" type="number" min="0" max="30" step="0.1" value="5.0"></label>
+          <label>Current (A)<input id="aiCurrent" type="number" min="0" max="10" step="0.01" value="1.2"></label>
+          <label>Temperature (°C)<input id="aiTemp" type="number" min="-20" max="150" step="0.1" value="32"></label>
+          <button id="classify" class="primary-btn full-btn" disabled>Classify sensor state</button>
+          <div id="prediction" class="prediction"><small>MODEL OUTPUT</small><b>Awaiting trained model</b><p>Predictions are illustrative and depend on synthetic training labels.</p></div>
+        </div>
+      </div>
+      <div class="notice"><b>Model limitation</b><span>Synthetic demo data is not a validated fault-detection model. Do not use these predictions for battery, charger, medical or safety-critical protection.</span></div>
+    </section>
+    <footer><span>© MTDM AI Lab · Multi-Tech Digital Manufacturing & AI Laboratory</span><span>Open tools · Browser execution · No MTDM server required</span></footer>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
