@@ -32,14 +32,14 @@ $("schemList").addEventListener("change",e=>{
 });
 $("schemList").addEventListener("click",e=>{const btn=e.target.closest("[data-remove]");if(btn){list.splice(Number(btn.dataset.remove),1);render()}});
 const validNode=n=>n==="0"||/^[A-Za-z_][A-Za-z0-9_]*$/.test(n);
-const validNumber=v=>/^[+-]?(?:\\d+\\.?\\d*|\\.\\d+)(?:e[+-]?\\d+)?(?:meg|[tgkmunpf]|mil)?$/i.test(v);
+const validNumber=v=>/^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?(?:meg|[tgkmunpf]|mil)?$/i.test(v);
 const validValue=c=>{
   const v=c.value.trim();
   if(c.type!=="V")return validNumber(v);
-  if(/^DC\\s+/i.test(v))return validNumber(v.replace(/^DC\\s+/i,""));
-  if(/^AC\\s+/i.test(v))return v.replace(/^AC\\s+/i,"").trim().split(/\\s+/).every(validNumber);
-  const pulse=v.match(/^PULSE\\(([^()]*)\\)$/i);
-  return !!pulse&&pulse[1].trim().split(/[\\s,]+/).length===7&&pulse[1].trim().split(/[\\s,]+/).every(validNumber);
+  if(/^DC\s+/i.test(v))return validNumber(v.replace(/^DC\s+/i,""));
+  if(/^AC\s+/i.test(v))return v.replace(/^AC\s+/i,"").trim().split(/\s+/).every(validNumber);
+  const pulse=v.match(/^PULSE\(([^()]*)\)$/i);
+  return !!pulse&&pulse[1].trim().split(/[\s,]+/).length===7&&pulse[1].trim().split(/[\s,]+/).every(validNumber);
 };
 $("schemGenerate").onclick=()=>{
   const fail=message=>{alert(message);$("simLog").textContent="SCHEMATIC VALIDATION ERROR\\n"+message};
