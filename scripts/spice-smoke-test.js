@@ -38,7 +38,7 @@ C1 out 0 1u
 const frequencies = ac.ac?.frequencies;
 const acResult = ac.ac;
 console.log("AC_RESULT_SHAPE", Object.keys(acResult ?? {}), Object.getOwnPropertyNames(Object.getPrototypeOf(acResult ?? {})));
-console.log("AC_MAGNITUDE_TYPE", typeof acResult?.magnitude, "AC_VOLTAGE_TYPE", typeof acResult?.voltage);
+console.log("AC_MAGNITUDE_TYPE", typeof acResult?.magnitude, "AC_VOLTAGE_TYPE", typeof acResult?.voltage);\nconsole.log("AC_VOLTAGE_SAMPLE", JSON.stringify(Array.from(acResult.voltage("out")).slice(0,3)));
 const magnitude = typeof acResult?.magnitude === "function" ? acResult.magnitude("out") : acResult?.magnitude?.out;
 
 console.log("AC_FREQUENCIES", frequencies?.length, "MAGNITUDE", magnitude?.length, "SAMPLE", magnitude?.[0]);
