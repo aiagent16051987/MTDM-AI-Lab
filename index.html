@@ -25,7 +25,7 @@
       <button class="tab" data-tab="ai">03 / AI Lab</button>
     </nav>
     <section id="electronics" class="workspace active">
-      <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>SPICE Simulator</h2><p>Run DC operating-point, transient and AC small-signal analysis in your browser.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
+      <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>Circuit Simulator</h2><p>Run DC operating-point, transient and AC small-signal analysis in your browser.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
       <div class="sim-layout">
         <div class="panel editor-panel">
           <div class="panel-head"><strong>NETLIST EDITOR</strong><div class="head-actions"><button id="loadExample" class="subtle-btn">Load RC example</button><button id="loadDivider" class="subtle-btn">Voltage divider</button></div></div>
@@ -36,7 +36,7 @@ C1 out 0 1u
 .tran 10u 5m
 .end</textarea>
           <div class="run-row"><label class="node-label">Probe node <input id="probeNode" value="out" maxlength="32"></label><button id="runSim" class="primary-btn">▶ Run simulation</button></div>
-          <p class="hint">SPICE syntax is processed by the browser engine. Use node <code>0</code> as ground.</p>
+          <p class="hint">SPICE-style subset syntax is processed by the browser engine. Use node <code>0</code> as ground.</p>
         </div>
         <div class="panel result-panel">
           <div class="panel-head"><strong>SIMULATION OUTPUT</strong><span id="simStatus" class="status">READY</span></div>
@@ -46,7 +46,7 @@ C1 out 0 1u
         </div>
       </div>
       <div class="notice"><b>Engineering note</b><span>This is a software simulation environment, not hardware certification. Validate component ratings, thermal limits, PCB layout, protection and real measurements before building power electronics.</span></div>
-      <div class="resource-row"><a href="https://www.kicad.org/" target="_blank" rel="noreferrer">KiCad PCB design ↗</a><a href="https://wokwi.com/" target="_blank" rel="noreferrer">Wokwi microcontroller simulator ↗</a><a href="https://github.com/spicets/spice-ts" target="_blank" rel="noreferrer">SPICE-TS engine & license ↗</a></div>
+      <div class="resource-row"><a href="https://www.kicad.org/" target="_blank" rel="noreferrer">KiCad PCB design ↗</a><a href="https://wokwi.com/" target="_blank" rel="noreferrer">Wokwi microcontroller simulator ↗</a><a href="https://github.com/mfiumara/spice-ts" target="_blank" rel="noreferrer">Full SPICE engine research ↗ ↗</a></div>
     </section>
     <section id="iot" class="workspace">
       <div class="section-head"><div><p class="eyebrow">CONNECTED SYSTEMS</p><h2>IoT Telemetry Lab</h2><p>Generate test sensor data locally or subscribe to a public MQTT broker over WebSocket.</p></div><span class="engine-tag">MQTT / WEBSOCKET</span></div>
