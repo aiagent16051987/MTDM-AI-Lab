@@ -1,0 +1,11 @@
+import fs from "node:fs";
+import assert from "node:assert/strict";
+const html=fs.readFileSync(new URL("../index.html",import.meta.url),"utf8");
+const js=fs.readFileSync(new URL("../research-labs.js",import.meta.url),"utf8");
+const policy=fs.readFileSync(new URL("../RESEARCH_SAFETY.md",import.meta.url),"utf8");
+for(const id of ["research","swarmCanvas","swarmCount","swarmCohesion","swarmAlignment","swarmSeparation","swarmStart","swarmPause","swarmReset"]) assert.ok(html.includes('id="'+id+'"'),"Missing UI element: "+id);
+assert.ok(html.includes('data-tab="research"'),"Research tab missing");
+assert.ok(html.includes('src="./research-labs.js"'),"Research script not loaded");
+assert.ok(js.includes("const maxSpeed = 1.8")&&js.includes("perception = 58"),"Bounded swarm model constants missing");
+assert.ok(policy.includes("Simulation first")&&policy.includes("Privacy by default"),"Core policy controls missing");
+console.log("PASS · research UI, bounded swarm model and safety policy structure");
