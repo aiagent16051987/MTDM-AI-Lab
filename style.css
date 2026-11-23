@@ -24,3 +24,21 @@
 .schematic-actions{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-top:13px}
 .schematic-actions label{flex:1;margin:0}
 @media(max-width:760px){.schematic-toolbar{grid-template-columns:1fr 1fr}.schem-row{grid-template-columns:42px 1fr 1fr auto}.schem-row input:nth-of-type(3){grid-column:2/4}.schematic-actions{align-items:stretch;flex-direction:column}.schematic-actions button{width:100%}}
+
+/* Research hub and swarm prototype */
+.research-policy{margin-bottom:22px}.research-guardrails{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.research-guardrails div{background:#0a1422;border:1px solid #23364c;border-radius:8px;padding:11px;display:flex;flex-direction:column;gap:5px}
+.research-guardrails b,.research-notes h3{font-size:12px;color:var(--cyan)}.research-guardrails span,.research-catalog small{font-size:10px;color:var(--muted)}
+.research-policy a{color:#7dd3fc}.research-subhead{margin-top:30px}.research-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr);gap:16px}
+.swarm-canvas{height:370px}.swarm-controls{display:grid;grid-template-columns:1fr 1fr;gap:5px 16px;margin-top:10px}
+.swarm-controls label{display:grid;grid-template-columns:1fr auto;gap:3px;margin:8px 0}.swarm-controls output{color:var(--cyan);font-variant-numeric:tabular-nums}
+.swarm-controls input{grid-column:1/-1;margin:2px 0;accent-color:var(--cyan);padding:0}
+.research-notes h3{margin:18px 0 6px}.research-notes p,.research-notes li{font-size:11px;color:var(--muted)}
+.research-notes ul,.research-notes ol{padding-left:19px}.research-notes .notice{margin-top:20px}
+.research-catalog{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.research-catalog article{display:flex;align-items:center;gap:11px;background:#101c2c;border:1px solid #26364d;border-radius:9px;padding:12px;min-width:0}
+.research-catalog article>span{color:var(--cyan);font:12px ui-monospace,monospace}
+.research-catalog article div{display:flex;flex-direction:column;min-width:0;flex:1}.research-catalog article b{font-size:11px}
+.research-catalog em{font-style:normal;color:#9aabc0;font-size:9px;white-space:nowrap}.research-catalog .track-live{color:var(--cyan)}
+@media(max-width:850px){.research-guardrails{grid-template-columns:repeat(2,1fr)}.research-grid{grid-template-columns:1fr}}
+@media(max-width:580px){.research-catalog,.swarm-controls,.research-guardrails{grid-template-columns:1fr}.swarm-canvas{height:290px}}
