@@ -85,13 +85,88 @@ $("runSim").onclick=async()=>{
  }catch(e){status.textContent="ERROR";lastSeries=null;$("exportCsv").disabled=true;$("resultSummary").textContent="Simulation failed.";log.textContent="SIMULATION ERROR\n"+(e?.message||String(e))+"\n\nCheck SPICE syntax, node names and analysis directive."}
  finally{$("runSim").disabled=false}
 };
-const mqttLog=s=>{$("mqttLog").textContent=(new Date().toLocaleTimeString()+"  "+s+"\n"+$("mqttLog").textContent).slice(0,3000)};
-let client=null,sensorTimer=null,history=[];
-function updateSensor(d){$("voltageValue").textContent=Number(d.voltage).toFixed(2);$("currentValue").textContent=Number(d.current).toFixed(2);$("tempValue").textContent=Number(d.temperature).toFixed(1);history.push({x:history.length,y:Number(d.temperature)});if(history.length>50)history.shift();plot($("sensorChart"),history)}
-$("mqttConnect").onclick=()=>{try{client=mqtt.connect($("brokerUrl").value,{connectTimeout:8000,clean:true,clientId:"mtdm_lab_"+Math.random().toString(16).slice(2)});client.on("connect",()=>{client.subscribe($("mqttTopic").value,e=>{if(e)mqttLog("Subscribe error: "+e.message);else{$("mqttStatus").textContent="CONNECTED";$("mqttDisconnect").disabled=false;mqttLog("Connected and subscribed.")}})});client.on("message",(topic,payload)=>{try{const d=JSON.parse(payload.toString());if(["voltage","current","temperature"].every(k=>Number.isFinite(Number(d[k]))))updateSensor(d);mqttLog(topic+" "+payload.toString())}catch{mqttLog("Non-JSON message received on "+topic)}});client.on("error",e=>mqttLog("MQTT error: "+e.message));client.on("close",()=>{$("mqttStatus").textContent="OFFLINE"})}catch(e){mqttLog(e.message)}};
+const mqttLog=s=>{$("mqttLog").textContent=(new Date().toLocaleTimeString()+"  "+s+"\n"+$("mqttLog").textContent).slice(0,5000)};
+let client=null,sensorTimer=null,history=[],sampleIndex=0;
+const sensorLimits={voltage:[-100,1000],current:[0,1000],temperature:[-100,1000]};
+function validateTelemetry(d){
+ if(!d||typeof d!=="object"||Array.isArray(d))throw Error("Message must be a JSON object.");
+ for(const k of ["voltage","current","temperature"]){
+  const n=Number(d[k]),[lo,hi]=sensorLimits[k];
+  if(d[k]===null||d[k]===""||!Number.isFinite(n)||n<lo||n>hi)throw Error("Invalid "+k+" value; accepted range "+lo+" to "+hi+".");
+ }
+ return {voltage:Number(d.voltage),current:Number(d.current),temperature:Number(d.temperature),timestamp:d.timestamp?String(d.timestamp):new Date().toISOString()};
+}
+function alertTelemetry(d){
+ const alerts=[];
+ for(const [key,id,label] of [["voltage","voltageLimit","Voltage"],["current","currentLimit","Current"],["temperature","temperatureLimit","Temperature"]]){
+  const limit=Number($(id).value);
+  if(Number.isFinite(limit)&&d[key]>limit)alerts.push(label+" high: "+d[key].toFixed(2)+" > "+limit);
+ }
+ $("sensorAlert").textContent=alerts.length?"ALERT · "+alerts.join(" | "):"No threshold alerts.";
+ $("sensorAlert").classList.toggle("is-alert",alerts.length>0);
+}
+function updateSensor(raw,source="local"){
+ const d=validateTelemetry(raw);
+ $("voltageValue").textContent=d.voltage.toFixed(2);$("currentValue").textContent=d.current.toFixed(2);$("tempValue").textContent=d.temperature.toFixed(1);
+ history.push({timestamp:d.timestamp,source,voltage:d.voltage,current:d.current,temperature:d.temperature});
+ if(history.length>2000)history.shift();
+ const points=history.slice(-100).map((p,i)=>({x:i,y:p.temperature}));
+ if(points.length>1)plot($("sensorChart"),points);
+ $("sensorStatus").textContent=source==="mqtt"?"MQTT DATA":"LOCAL STREAM";
+ $("exportTelemetry").disabled=false;alertTelemetry(d);
+}
+function connectMqtt(){
+ const url=$("brokerUrl").value.trim(),topic=$("mqttTopic").value.trim();
+ if(!/^wss:\/\//i.test(url))throw Error("Use a secure WSS:// broker URL.");
+ if(url.length>500||topic.length<1||topic.length>200||/[\u0000-\u001f]/.test(topic))throw Error("Broker URL or topic is invalid.");
+ if(!window.mqtt?.connect)throw Error("MQTT client library did not load. Check internet connection.");
+ if(client)client.end(true);
+ $("mqttStatus").textContent="CONNECTING";
+ client=mqtt.connect(url,{connectTimeout:8000,clean:true,reconnectPeriod:0,clientId:"mtdm_lab_"+Math.random().toString(16).slice(2)});
+ client.on("connect",()=>client.subscribe(topic,{qos:0},e=>{
+  if(e){mqttLog("Subscribe error: "+e.message);return}
+  $("mqttStatus").textContent="CONNECTED";$("mqttDisconnect").disabled=false;mqttLog("Connected securely and subscribed to "+topic);
+ }));
+ client.on("message",(receivedTopic,payload)=>{
+  if(payload.length>4096){mqttLog("Rejected oversized MQTT payload.");return}
+  try{const d=JSON.parse(payload.toString());updateSensor(d,"mqtt");mqttLog("Accepted "+receivedTopic+" · "+payload.toString().slice(0,300))}
+  catch(e){mqttLog("Rejected MQTT message: "+e.message)}
+ });
+ client.on("error",e=>{mqttLog("MQTT error: "+e.message);$("mqttStatus").textContent="ERROR"});
+ client.on("close",()=>{$("mqttStatus").textContent="OFFLINE";$("mqttDisconnect").disabled=true});
+}
+$("mqttConnect").onclick=()=>{try{connectMqtt()}catch(e){$("mqttStatus").textContent="ERROR";mqttLog(e.message)}};
 $("mqttDisconnect").onclick=()=>{client?.end(true);client=null;$("mqttStatus").textContent="OFFLINE";$("mqttDisconnect").disabled=true};
-$("sensorStart").onclick=()=>{if(sensorTimer)return;sensorTimer=setInterval(()=>{const d={voltage:5+(Math.random()-.5)*.12,current:1.1+Math.random()*.25,temperature:29+Math.random()*9};updateSensor(d);$("sensorStatus").textContent="LOCAL STREAM";if(client?.connected)client.publish($("mqttTopic").value,JSON.stringify(d))},1000);$("sensorStart").disabled=true;$("sensorStop").disabled=false};
+function syntheticSample(){
+ const t=sampleIndex++*.1,profile=$("sensorProfile").value;
+ let d={voltage:5+Math.sin(t)*.035+(Math.random()-.5)*.04,current:1.1+Math.sin(t*.7)*.08+(Math.random()-.5)*.08,temperature:30+Math.sin(t*.25)*1.5+(Math.random()-.5)*.5};
+ if(profile==="step"&&sampleIndex>12){d.voltage+=1.1;d.current+=.65;d.temperature+=9}
+ if(profile==="drift"){d.temperature+=Math.min(35,t*.45);d.current+=Math.min(.5,t*.008)}
+ if(profile==="fault"&&Math.floor(sampleIndex/8)%3===1){d.voltage+=1.4;d.current+=1.2;d.temperature+=18}
+ return {...d,timestamp:new Date().toISOString()};
+}
+$("sensorStart").onclick=()=>{
+ if(sensorTimer)return;
+ const tick=()=>{const d=syntheticSample();try{updateSensor(d,"local")}catch(e){mqttLog("Local sample rejected: "+e.message)}
+  if(client?.connected&&$("mqttPublishConsent").checked){
+   try{client.publish($("mqttTopic").value,JSON.stringify(d),{qos:0,retain:false},e=>{if(e)mqttLog("Publish failed: "+e.message)})}
+   catch(e){mqttLog("Publish error: "+e.message)}
+  }
+ };
+ tick();sensorTimer=setInterval(tick,Number($("sensorInterval").value));
+ $("sensorStart").disabled=true;$("sensorStop").disabled=false;
+};
 $("sensorStop").onclick=()=>{clearInterval(sensorTimer);sensorTimer=null;$("sensorStart").disabled=false;$("sensorStop").disabled=true;$("sensorStatus").textContent="STOPPED"};
+$("sensorInterval").addEventListener("change",()=>{if(sensorTimer){clearInterval(sensorTimer);sensorTimer=setInterval(()=>{const d=syntheticSample();updateSensor(d,"local");if(client?.connected&&$("mqttPublishConsent").checked)client.publish($("mqttTopic").value,JSON.stringify(d),{qos:0,retain:false})},Number($("sensorInterval").value))}});
+["voltageLimit","currentLimit","temperatureLimit"].forEach(id=>$(id).addEventListener("change",()=>{if(history.length)alertTelemetry(history.at(-1))}));
+$("exportTelemetry").onclick=()=>{
+ if(!history.length)return;
+ const cols=["timestamp","source","voltage_V","current_A","temperature_C"];
+ const rows=[cols.join(","),...history.map(p=>[p.timestamp,p.source,p.voltage,p.current,p.temperature].map(v=>'"'+String(v).replaceAll('"','""')+'"').join(","))];
+ const blob=new Blob([rows.join("\n")],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="mtdm-iot-telemetry.csv";a.click();URL.revokeObjectURL(url);
+};
+$("clearTelemetry").onclick=()=>{history=[];sampleIndex=0;$("voltageValue").textContent="—";$("currentValue").textContent="—";$("tempValue").textContent="—";$("sensorStatus").textContent="NO DATA";$("sensorAlert").textContent="No threshold alerts.";$("sensorAlert").classList.remove("is-alert");$("exportTelemetry").disabled=true;$("mqttLog").textContent="Telemetry history cleared.";const c=$("sensorChart").getContext("2d");c.clearRect(0,0,$("sensorChart").width,$("sensorChart").height)};
 let model=null;
 $("trainModel").onclick=async()=>{const status=$("aiStatus"),log=$("aiLog");$("trainModel").disabled=true;status.textContent="TRAINING";try{if(!window.tf)throw Error("TensorFlow.js CDN did not load. Check internet connection.");await tf.ready();const xs=[],ys=[];for(let i=0;i<1200;i++){const v=Math.random()*15,a=Math.random()*5,t=20+Math.random()*100;let cls=(t>85||a>4.2||v>13)?2:(t>60||a>3||v>9)?1:0;xs.push([v/15,a/5,t/120]);ys.push(cls)}const x=tf.tensor2d(xs),y=tf.oneHot(tf.tensor1d(ys,"int32"),3);model?.dispose();model=tf.sequential();model.add(tf.layers.dense({inputShape:[3],units:12,activation:"relu"}));model.add(tf.layers.dense({units:8,activation:"relu"}));model.add(tf.layers.dense({units:3,activation:"softmax"}));model.compile({optimizer:tf.train.adam(.01),loss:"categoricalCrossentropy",metrics:["accuracy"]});await model.fit(x,y,{epochs:18,batchSize:32,callbacks:{onEpochEnd:(e,l)=>{$("trainProgress").style.width=((e+1)/18*100)+"%";log.textContent="Epoch "+(e+1)+"/18 · loss "+l.loss.toFixed(4)+" · accuracy "+(l.acc??l.accuracy??0).toFixed(3)}}});x.dispose();y.dispose();status.textContent="TRAINED";$("classify").disabled=false;log.textContent+="\nTraining complete. Synthetic training data only."}catch(e){status.textContent="ERROR";log.textContent=e.message}finally{$("trainModel").disabled=false}};
 $("classify").onclick=()=>{if(!model)return;const v=Number($("aiVoltage").value),a=Number($("aiCurrent").value),t=Number($("aiTemp").value);if(![v,a,t].every(Number.isFinite)||v<0||v>30||a<0||a>10||t< -20||t>150){$("prediction").querySelector("b").textContent="Invalid input";return}const input=tf.tensor2d([[v/15,a/5,t/120]]),out=model.predict(input);const scores=Array.from(out.dataSync()),names=["NORMAL","WARNING","CRITICAL"],best=scores.indexOf(Math.max(...scores));$("prediction").querySelector("b").textContent=names[best]+" · "+(scores[best]*100).toFixed(1)+"%";$("prediction").querySelector("p").textContent="Class probabilities: "+scores.map((x,i)=>names[i]+" "+(x*100).toFixed(1)+"%").join(" | ");input.dispose();out.dispose()};
