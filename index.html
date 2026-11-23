@@ -25,18 +25,18 @@
       <button class="tab" data-tab="ai">03 / AI Lab</button>
     </nav>
     <section id="electronics" class="workspace active">
-      <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>Circuit Simulator</h2><p>Run DC operating-point, transient and AC small-signal analysis in your browser.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
+      <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>Circuit Simulator</h2><p>Run a simple DC resistor-network solution and first-order RC transient analysis.</p></div><span class="engine-tag">EDUCATIONAL SOLVER</span></div>
       <div class="sim-layout">
         <div class="panel editor-panel">
           <div class="panel-head"><strong>NETLIST EDITOR</strong><div class="head-actions"><button id="loadExample" class="subtle-btn">Load RC example</button><button id="loadDivider" class="subtle-btn">Voltage divider</button></div></div>
           <textarea id="netlist" spellcheck="false" aria-label="SPICE netlist">* MTDM AI Lab - RC low-pass transient test
-V1 in 0 PULSE(0 5 0 1n 1n 500u 1m)
+V1 in 0 DC 5
 R1 in out 1k
 C1 out 0 1u
 .tran 10u 5m
 .end</textarea>
           <div class="run-row"><label class="node-label">Probe node <input id="probeNode" value="out" maxlength="32"></label><button id="runSim" class="primary-btn">▶ Run simulation</button></div>
-          <p class="hint">SPICE-style subset syntax is processed by the browser engine. Use node <code>0</code> as ground.</p>
+          <p class="hint">A limited SPICE-like netlist subset is processed locally in your browser. Use node <code>0</code> as ground.</p>
         </div>
         <div class="panel result-panel">
           <div class="panel-head"><strong>SIMULATION OUTPUT</strong><span id="simStatus" class="status">READY</span></div>
