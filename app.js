@@ -82,7 +82,7 @@ $("runSim").onclick=async()=>{
   lastSeries=points.slice();$("exportCsv").disabled=false;
   $("resultSummary").textContent=points.length+" samples · "+analysis;
   $("metrics").children[1].querySelector("b").textContent=analysis;$("probeMetric").textContent=probe;status.textContent="COMPLETE";
- }catch(e){status.textContent="ERROR";log.textContent="SIMULATION ERROR\n"+(e?.message||String(e))+"\n\nCheck SPICE syntax, node names and analysis directive."}
+ }catch(e){status.textContent="ERROR";lastSeries=null;$("exportCsv").disabled=true;$("resultSummary").textContent="Simulation failed.";log.textContent="SIMULATION ERROR\n"+(e?.message||String(e))+"\n\nCheck SPICE syntax, node names and analysis directive."}
  finally{$("runSim").disabled=false}
 };
 const mqttLog=s=>{$("mqttLog").textContent=(new Date().toLocaleTimeString()+"  "+s+"\n"+$("mqttLog").textContent).slice(0,3000)};
