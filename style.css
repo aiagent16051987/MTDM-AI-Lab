@@ -95,3 +95,19 @@
 main .workspace[hidden]{display:none!important}
 main .workspace.active:not([hidden]){display:block!important}
 .tabs .tab{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+
+/* IoT telemetry workbench */
+.iot-check{display:flex!important;align-items:flex-start;gap:8px;font-size:10px!important;line-height:1.5;color:#a8b8ca}
+.iot-check input{width:auto!important;margin:2px 0!important;flex:0 0 auto}
+.iot-thresholds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.iot-thresholds strong{grid-column:1/-1;font-size:11px;color:var(--cyan)}
+.iot-thresholds label{display:grid;gap:4px;font-size:10px;color:#a8b8ca}
+.iot-thresholds input{min-width:0;width:100%;background:#091321;color:var(--text);border:1px solid #2a3b52;border-radius:6px;padding:7px}
+.iot-alert{margin:10px 0;padding:10px;border-radius:7px;background:#102335;border:1px solid #29455e;color:#a8c9df;font-size:11px}
+.iot-alert.is-alert{background:#3a2419;border-color:#b66b35;color:#ffd0a6}
+.iot-learning{margin-top:16px}
+.iot-learning-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.iot-learning-grid article{padding:12px;background:#0a1422;border:1px solid #23364c;border-radius:8px}
+.iot-learning-grid b{display:block;color:var(--cyan);font-size:11px;margin-bottom:6px}
+.iot-learning-grid span{font-size:10px;line-height:1.55;color:#a8b8ca}
+@media(max-width:650px){.iot-thresholds{grid-template-columns:1fr}.iot-learning-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
