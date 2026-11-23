@@ -67,3 +67,26 @@
 .result-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0}
 .result-actions .hint{margin:0}
 @media(max-width:600px){.result-actions{align-items:flex-start;flex-direction:column}}
+
+/* Additive manufacturing workspace */
+.printing-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,1.05fr);gap:16px;align-items:start}
+.print3d-view{height:390px;background:radial-gradient(ellipse at 50% 45%,#182b41,#091321 72%);border:1px solid #263b52;border-radius:9px;overflow:hidden}
+.print3d-view canvas{display:block;width:100%;height:100%}
+.print-shapes{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.print-shapes button.active{border-color:var(--cyan);color:var(--cyan)}
+.print-field{display:grid;gap:5px;margin:10px 0;font-size:11px;color:#b7c8da}
+.print-field select,.print-field input{width:100%;min-width:0;margin:0;padding:9px;background:#091321;color:var(--text);border:1px solid #2a3b52;border-radius:7px;font-size:11px}
+.print-dimensions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.print-workflow{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+.print-workflow div,.print-process-grid article,.print-workflow-grid article{background:#0a1422;border:1px solid #23364c;border-radius:8px;padding:12px;min-width:0}
+.print-workflow b,.print-process-grid b,.print-workflow-grid b{display:block;color:var(--cyan);font-size:11px;margin-bottom:6px}
+.print-workflow span,.print-process-grid span,.print-workflow-grid span{display:block;color:#a8b8ca;font-size:10px;line-height:1.5}
+.print-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin:14px 0}
+.print-metrics>div{background:#0a1422;border:1px solid #23364c;border-radius:8px;padding:12px;min-width:0}
+.print-metrics small{display:block;color:#91a3bb;font-size:9px;margin-bottom:6px}
+.print-metrics b{font-size:14px;overflow-wrap:anywhere}
+.print-process-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.print-process-grid p{font-size:11px;line-height:1.55;color:#a8b8ca;margin:8px 0 0}
+.print-workflow-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media(max-width:900px){.printing-layout{grid-template-columns:1fr}.print-workflow{grid-template-columns:repeat(2,1fr)}.print-process-grid{grid-template-columns:repeat(2,1fr)}.print-workflow-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.print-dimensions,.print-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.print-process-grid,.print-workflow-grid{grid-template-columns:1fr}.print3d-view{height:300px}}
