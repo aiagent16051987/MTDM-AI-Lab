@@ -29,6 +29,21 @@
     </nav>
     <section id="electronics" class="workspace active">
       <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>Circuit Simulator</h2><p>Run real SPICE netlists with DC operating-point, transient and AC small-signal analysis.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
+      <div class="panel schematic-panel">
+        <div class="panel-head"><strong>VISUAL SCHEMATIC BUILDER</strong><span class="status">NETLIST GENERATOR</span></div>
+        <p class="hint">Add components and connect their two terminals by node names. The diagram updates automatically; generate a SPICE netlist to simulate it.</p>
+        <div class="schematic-toolbar">
+          <select id="schemType" aria-label="Component type"><option value="R">Resistor</option><option value="C">Capacitor</option><option value="L">Inductor</option><option value="V">DC voltage source</option></select>
+          <input id="schemValue" value="1k" aria-label="Component value" placeholder="Value e.g. 1k">
+          <input id="schemNodeA" value="in" aria-label="First node" placeholder="Node A">
+          <input id="schemNodeB" value="out" aria-label="Second node" placeholder="Node B">
+          <button id="schemAdd" class="subtle-btn">+ Add component</button>
+        </div>
+        <div id="schemList" class="schem-list" aria-live="polite"></div>
+        <div class="schematic-view"><svg id="schemSvg" viewBox="0 0 760 220" role="img" aria-label="Generated circuit schematic"><text x="24" y="34" fill="#91a3bb">Add a component to begin.</text></svg></div>
+        <div class="schematic-actions"><label>Analysis <select id="schemAnalysis"><option value=".op">DC operating point (.op)</option><option value=".tran 10u 5m">Transient (.tran 10u 5m)</option><option value=".ac dec 20 1 100k">AC sweep (.ac dec 20 1 100k)</option></select></label><button id="schemGenerate" class="primary-btn">Generate netlist</button></div>
+        <p class="hint">Generated circuits use node 0 as ground. Component connectivity is based on node names, not visual wire routing. Check the generated netlist before running.</p>
+      </div>
       <div class="sim-layout">
         <div class="panel editor-panel">
           <div class="panel-head"><strong>NETLIST EDITOR</strong><div class="head-actions"><button id="loadExample" class="subtle-btn">Load RC example</button><button id="loadDivider" class="subtle-btn">Voltage divider</button></div></div>
@@ -141,5 +156,6 @@ C1 out 0 1u
   </main>
   <script type="module" src="./app.js"></script>
   <script type="module" src="./advanced-labs.js"></script>
+  <script type="module" src="./visual-circuit.js"></script>
 </body>
 </html>
