@@ -37,7 +37,7 @@ C1 out 0 1u
 `);
 const acResult = ac.ac;
 console.log("AC_RESULT_SHAPE", Object.keys(acResult ?? {}), Object.getOwnPropertyNames(Object.getPrototypeOf(acResult ?? {})));
-console.log("AC_VOLTAGE_SAMPLE", JSON.stringify(Array.from(acResult.voltage("out")).slice(0, 3)));
+const acVoltage = Array.from(acResult.voltage("out"));\nconst magnitude = acVoltage.map(sample => sample.magnitude);\nassert(magnitude.length === acResult.frequencies.length && magnitude.every(Number.isFinite), "RC AC sweep: returned voltage magnitudes for every frequency");\nassert(magnitude[0] > magnitude.at(-1), "RC AC sweep: low-frequency gain exceeds high-frequency gain");
 assert(acResult?.frequencies?.length > 10, "RC AC sweep: returned frequency points");
 
 process.stdout.write("MTDM AI Lab SPICE smoke tests passed:\n- " + checks.join("\n- ") + "\n");
