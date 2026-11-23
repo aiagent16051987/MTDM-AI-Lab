@@ -36,7 +36,7 @@ C1 out 0 1u
 .end
 `);
 const frequencies = ac.ac?.frequencies;
-const magnitude = ac.ac?.magnitude("out");
+console.log("AC_RESULT_SHAPE", Object.keys(ac.ac ?? {}), Object.getOwnPropertyNames(Object.getPrototypeOf(ac.ac ?? {})));\nconst magnitude = ac.ac?.magnitude?.("out");
 assert(frequencies?.length > 10 && magnitude?.length === frequencies.length, "RC AC sweep: returned matching frequency and magnitude samples");
 assert(magnitude[0] > magnitude.at(-1), "RC AC sweep: low-frequency gain exceeds high-frequency gain");
 
