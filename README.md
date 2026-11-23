@@ -51,3 +51,12 @@ These modules are educational/prototyping tools, not validated engineering or re
 ### Free compute approach
 
 The front end is static-hosted on GitHub Pages. Browser workloads run on the visitor's device; heavier workflows should use optional local open-source tools or user-provided compute rather than an MTDM-operated paid server.
+
+
+## Research Hub and responsible-use baseline
+
+The seventh workspace adds an interactive local-only 2D swarm robotics prototype using a simplified Boids model with bounded agent count/speed and adjustable separation, alignment and cohesion. It is a kinematic teaching model, not a validated robot-fleet controller.
+
+The Research Hub also tracks 12 emerging-technology topics and clearly distinguishes prototype, existing/upgrade and planned modules. See [RESEARCH_SAFETY.md](./RESEARCH_SAFETY.md) for project-wide safety, privacy, security, scientific-integrity and release gates.
+
+These are educational models, not medical, biological, industrial or engineering certifications. The policy is not legal advice; applicable laws and specialist requirements must be reviewed before public deployment or real-world use.
