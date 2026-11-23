@@ -110,27 +110,34 @@ C1 out 0 1u
       <div class="notice"><b>Model boundary</b><span>This is a browser telemetry workbench with synthetic sensors and optional public MQTT access. It is not a certified SCADA, industrial controller, device provisioning system or safety interlock. Do not connect safety-critical equipment.</span></div>
     </section>
     <section id="ai" class="workspace">
-      <div class="section-head"><div><p class="eyebrow">MACHINE LEARNING</p><h2>AI Sensor Classifier</h2><p>Train a small neural network in your browser and classify sensor conditions.</p></div><span class="engine-tag">TENSORFLOW.JS</span></div>
+      <div class="section-head"><div><p class="eyebrow">MACHINE LEARNING · MODEL EVALUATION</p><h2>AI Model Training & Evaluation Lab</h2><p>Train a small classifier, keep test data separate, inspect confusion matrix and evaluate predictions. Everything runs in this browser.</p></div><span class="engine-tag">TENSORFLOW.JS · LOCAL</span></div>
       <div class="ai-grid">
         <div class="panel">
-          <div class="panel-head"><strong>MODEL TRAINING</strong><span id="aiStatus" class="status">NOT TRAINED</span></div>
-          <p class="body-copy">The demo creates labelled synthetic examples for three conditions: normal, warning and critical. Training runs locally in this browser session.</p>
-          <button id="trainModel" class="primary-btn full-btn">Train neural network</button>
+          <div class="panel-head"><strong>DATASET & TRAINING</strong><span id="aiStatus" class="status">NOT TRAINED</span></div>
+          <p class="body-copy">A reproducible synthetic sensor dataset is generated with three deliberately defined classes. Data is split by class into 80% training and 20% holdout test samples before model fitting.</p>
+          <div class="ai-dataset-stats"><div><small>TOTAL SAMPLES</small><b id="aiSampleCount">1,800</b></div><div><small>TRAINING</small><b id="aiTrainCount">1,440</b></div><div><small>HOLDOUT TEST</small><b id="aiTestCount">360</b></div></div>
+          <label>Training epochs <input id="aiEpochs" type="number" min="5" max="60" step="1" value="24"></label>
+          <button id="trainModel" class="primary-btn full-btn">Generate dataset & train model</button>
           <div class="progress-track"><div id="trainProgress"></div></div>
-          <pre id="aiLog" class="log">Model not trained. Start training to create a classifier.</pre>
+          <pre id="aiLog" class="log">No model trained. Generate a dataset and train to begin.</pre>
         </div>
         <div class="panel">
-          <div class="panel-head"><strong>LIVE CLASSIFICATION</strong><span class="status">INFERENCE</span></div>
+          <div class="panel-head"><strong>MODEL INFERENCE</strong><span class="status">PREDICT</span></div>
           <label>Voltage (V)<input id="aiVoltage" type="number" min="0" max="30" step="0.1" value="5.0"></label>
           <label>Current (A)<input id="aiCurrent" type="number" min="0" max="10" step="0.01" value="1.2"></label>
           <label>Temperature (°C)<input id="aiTemp" type="number" min="-20" max="150" step="0.1" value="32"></label>
           <button id="classify" class="primary-btn full-btn" disabled>Classify sensor state</button>
-          <div id="prediction" class="prediction"><small>MODEL OUTPUT</small><b>Awaiting trained model</b><p>Predictions are illustrative and depend on synthetic training labels.</p></div>
+          <div id="prediction" class="prediction"><small>MODEL OUTPUT</small><b>Awaiting trained model</b><p>Output confidence is model probability, not a calibrated safety probability.</p></div>
         </div>
       </div>
-      <div class="notice"><b>Model limitation</b><span>Synthetic demo data is not a validated fault-detection model. Do not use these predictions for battery, charger, medical or safety-critical protection.</span></div>
+      <div class="panel ai-evaluation">
+        <div class="panel-head"><strong>HOLDOUT EVALUATION</strong><span id="aiEvalStatus" class="status">NOT EVALUATED</span></div>
+        <div class="ai-metrics"><div><small>TEST ACCURACY</small><b id="aiAccuracy">—</b></div><div><small>MACRO PRECISION</small><b id="aiPrecision">—</b></div><div><small>MACRO RECALL</small><b id="aiRecall">—</b></div><div><small>MACRO F1</small><b id="aiF1">—</b></div></div>
+        <div id="aiConfusion" class="ai-confusion">Train the model to generate a holdout confusion matrix.</div>
+        <p class="hint">Rows = actual class · columns = predicted class. Metrics are computed only on the held-out synthetic test set.</p>
+      </div>
+      <div class="notice"><b>Scientific limitation</b><span>This is a reproducible ML teaching exercise using artificial labels and simulated sensor values. Holdout scores measure agreement with those synthetic rules only—not real equipment fault detection. Real deployment requires representative measured datasets, leakage checks, calibration, drift monitoring, independent validation and safety engineering.</span></div>
     </section>
-
     <section id="robotics" class="workspace">
       <div class="section-head"><div><p class="eyebrow">ROBOTICS & CONTROL</p><h2>Differential-Drive Robot Lab</h2><p>Explore mobile-robot motion using wheel-speed inputs and planar kinematics.</p></div><span class="engine-tag">2D KINEMATICS</span></div>
       <div class="panel">
