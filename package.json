@@ -12,6 +12,6 @@
     "@spice-ts/core": "0.4.0"
   },
   "devDependencies": {
-    "vite": "6.4.1"
+    "vite": "6.4.6"
   }
 }
