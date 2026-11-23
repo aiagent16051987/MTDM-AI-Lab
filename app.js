@@ -1,26 +1,51 @@
 import { simulate } from "@spice-ts/core";
 const $=id=>document.getElementById(id);
-const rcExample=`* RC low-pass transient response
-V1 in 0 PULSE(0 5 0 1n 1n 500u 1m)
-R1 in out 1k
-C1 out 0 1u
-.tran 10u 5m
-.end`;
-const dividerExample=`* 12V divider: expected V(out) = 4V
+const examples={
+ divider:{title:"Voltage divider · DC operating point",guide:"A 12 V source feeds two series resistors (20 kΩ and 10 kΩ). The output is measured across the lower resistor. Ideal theory: Vout = Vin × R2/(R1+R2) = 4 V.",netlist:`* Voltage divider: theoretical V(out) = 4 V
 V1 in 0 DC 12
 R1 in out 20k
 R2 out 0 10k
 .op
-.end`;
-const acExample=`* RC low-pass AC frequency response
+.end`,probe:"out"},
+ rc:{title:"RC low-pass · transient response",guide:"A 5 V step passes through a 1 kΩ resistor into a 1 µF capacitor. Time constant τ = R×C = 1 ms. At one τ, the ideal capacitor reaches about 63.2% of its final value.",netlist:`* RC step response: R=1k, C=1u, tau=1ms
+V1 in 0 PULSE(0 5 0 1n 1n 500u 1m)
+R1 in out 1k
+C1 out 0 1u
+.tran 10u 5m
+.end`,probe:"out"},
+ ac:{title:"RC low-pass · frequency response",guide:"This passive low-pass filter passes low frequencies and attenuates high frequencies. For R=1 kΩ and C=1 µF, the theoretical cutoff is fc = 1/(2πRC) ≈ 159.2 Hz (−3 dB).",netlist:`* RC low-pass AC sweep
 V1 in 0 AC 1
 R1 in out 1k
 C1 out 0 1u
 .ac dec 20 1 100k
-.end`;
-$("loadExample").onclick=()=>{$("netlist").value=rcExample};
-$("loadDivider").onclick=()=>{$("netlist").value=dividerExample};
-const loadAc=document.createElement("button");loadAc.className="subtle-btn";loadAc.textContent="Load AC sweep";loadAc.onclick=()=>{$("netlist").value=acExample};$("loadDivider").parentElement.append(loadAc);
+.end`,probe:"out"},
+ rlc:{title:"Series RLC · damped transient",guide:"A 1 V step excites a series RLC network. R controls damping, L stores magnetic energy and C stores electric energy. This is a circuit transient model; resonance and damping depend on all three values.",netlist:`* Series RLC step response
+V1 in 0 PULSE(0 1 0 1n 1n 5m 10m)
+R1 in n1 100
+L1 n1 out 10m
+C1 out 0 1u
+.tran 10u 20m
+.end`,probe:"out"}
+};
+let lastSeries=null;
+function loadExperiment(key){
+ const item=examples[key];$("netlist").value=item.netlist;$("probeNode").value=item.probe;
+ $("circuitGuide").textContent=item.title+" — "+item.guide;
+ $("simLog").textContent="Experiment loaded. Review the circuit, then click Run simulation.";
+ $("simStatus").textContent="READY";$("resultSummary").textContent="Ready to simulate.";
+}
+$("loadExample").onclick=()=>loadExperiment("rc");
+$("loadDivider").onclick=()=>loadExperiment("divider");
+$("loadAcExample").onclick=()=>loadExperiment("ac");
+$("loadRlcExample").onclick=()=>loadExperiment("rlc");
+$("exportCsv").onclick=()=>{
+ if(!lastSeries?.length)return;
+ const rows=["x,value",...lastSeries.map(p=>p.x+","+p.y)];
+ const blob=new Blob([rows.join("\\n")],{type:"text/csv;charset=utf-8"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="mtdm-circuit-results.csv";a.click();URL.revokeObjectURL(url);
+};
+loadExperiment("rc");
 function plot(canvas,series,logX=false){
  const ctx=canvas.getContext("2d"),w=canvas.width=canvas.clientWidth*devicePixelRatio,h=canvas.height=canvas.clientHeight*devicePixelRatio;
  ctx.clearRect(0,0,w,h);const ys=series.map(p=>p.y),xs=series.map(p=>p.x);
@@ -54,6 +79,8 @@ $("runSim").onclick=async()=>{
    points=[{x:0,y:value},{x:1,y:value}];plot($("waveChart"),points);$("chartEmpty").style.display="none";
    log.textContent="PASS · spice-ts DC operating point\nV("+probe+") = "+Number(value).toFixed(6)+" V\n\nEngine: @spice-ts/core · browser TypeScript solver";
   }else throw new Error("No supported analysis result returned. Add .op, .tran or .ac directive.");
+  lastSeries=points.slice();$("exportCsv").disabled=false;
+  $("resultSummary").textContent=points.length+" samples · "+analysis;
   $("metrics").children[1].querySelector("b").textContent=analysis;$("probeMetric").textContent=probe;status.textContent="COMPLETE";
  }catch(e){status.textContent="ERROR";log.textContent="SIMULATION ERROR\n"+(e?.message||String(e))+"\n\nCheck SPICE syntax, node names and analysis directive."}
  finally{$("runSim").disabled=false}
