@@ -23,6 +23,9 @@
       <button class="tab active" data-tab="electronics">01 / Electronics</button>
       <button class="tab" data-tab="iot">02 / IoT Lab</button>
       <button class="tab" data-tab="ai">03 / AI Lab</button>
+      <button class="tab" data-tab="robotics">04 / Robotics</button>
+      <button class="tab" data-tab="quantum">05 / Quantum</button>
+      <button class="tab" data-tab="nano">06 / Nano Lab</button>
     </nav>
     <section id="electronics" class="workspace active">
       <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>Circuit Simulator</h2><p>Run real SPICE netlists with DC operating-point, transient and AC small-signal analysis.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
@@ -90,8 +93,53 @@ C1 out 0 1u
       </div>
       <div class="notice"><b>Model limitation</b><span>Synthetic demo data is not a validated fault-detection model. Do not use these predictions for battery, charger, medical or safety-critical protection.</span></div>
     </section>
+
+    <section id="robotics" class="workspace">
+      <div class="section-head"><div><p class="eyebrow">ROBOTICS & CONTROL</p><h2>Differential-Drive Robot Lab</h2><p>Explore mobile-robot motion using wheel-speed inputs and planar kinematics.</p></div><span class="engine-tag">2D KINEMATICS</span></div>
+      <div class="panel">
+        <div class="panel-head"><strong>ROBOT WORLD</strong><span id="robotStatus" class="status">READY</span></div>
+        <canvas id="robotCanvas" class="lab-canvas" aria-label="2D differential drive robot simulation"></canvas>
+        <div class="robot-controls">
+          <label>Left wheel speed <input id="leftWheel" type="range" min="-10" max="10" step="0.5" value="2"><b id="leftWheelValue">2.0</b></label>
+          <label>Right wheel speed <input id="rightWheel" type="range" min="-10" max="10" step="0.5" value="3"><b id="rightWheelValue">3.0</b></label>
+        </div>
+        <div class="button-row"><button id="robotStart" class="primary-btn">Start robot</button><button id="robotStop" class="subtle-btn">Pause</button><button id="robotReset" class="subtle-btn">Reset</button></div>
+        <p id="robotPose" class="hint">x 0.00 m · y 0.00 m · θ 0.0°</p>
+      </div>
+      <div class="notice"><b>Model scope</b><span>Planar differential-drive kinematics only. This version does not model wheel slip, motor electrical dynamics, collisions, sensors, 3D contact physics or ROS. Use Webots or MuJoCo for richer robot dynamics.</span></div>
+      <div class="resource-row"><a href="https://cyberbotics.com/" target="_blank" rel="noreferrer">Webots ↗</a><a href="https://mujoco.org/" target="_blank" rel="noreferrer">MuJoCo ↗</a></div>
+    </section>
+    <section id="quantum" class="workspace">
+      <div class="section-head"><div><p class="eyebrow">QUANTUM INFORMATION</p><h2>Single-Qubit Simulator</h2><p>Apply quantum gates to a complex state vector and inspect measurement probabilities.</p></div><span class="engine-tag">STATE VECTOR</span></div>
+      <div class="panel">
+        <div class="panel-head"><strong>QUANTUM CIRCUIT WORKBENCH</strong><span class="status">1 QUBIT · PURE STATE</span></div>
+        <div class="gate-row">
+          <button class="subtle-btn" data-gate="H">H</button><button class="subtle-btn" data-gate="X">X</button><button class="subtle-btn" data-gate="Y">Y</button><button class="subtle-btn" data-gate="Z">Z</button><button class="subtle-btn" data-gate="S">S</button><button class="subtle-btn" data-gate="T">T</button>
+          <button id="quantumReset" class="subtle-btn">Reset</button><button id="quantumMeasure" class="primary-btn">Measure</button>
+        </div>
+        <div class="quantum-state" id="quantumState">|ψ⟩ = |0⟩</div>
+        <div class="metrics quantum-metrics"><div><small>P(0)</small><b id="quantumP0">100%</b></div><div><small>P(1)</small><b id="quantumP1">0%</b></div></div>
+        <p id="blochVector" class="hint">Bloch vector: (0, 0, 1)</p>
+        <pre id="quantumLog" class="log">Ready. Try H then Measure, or apply X and Z gates.</pre>
+      </div>
+      <div class="notice"><b>Research scope</b><span>This is an exact state-vector calculation for one ideal qubit, not a noisy hardware model or scalable quantum computer. Two-qubit entanglement, density matrices, noise channels and circuit export are planned separately.</span></div>
+      <div class="resource-row"><a href="https://qiskit.org/" target="_blank" rel="noreferrer">Qiskit ↗</a><a href="https://quantum.cloud.ibm.com/" target="_blank" rel="noreferrer">IBM Quantum ↗</a></div>
+    </section>
+    <section id="nano" class="workspace">
+      <div class="section-head"><div><p class="eyebrow">NANOSCIENCE & MATERIALS</p><h2>Molecular Dynamics Sandbox</h2><p>Observe a small 2D particle system interacting through a Lennard-Jones potential.</p></div><span class="engine-tag">CLASSICAL MD · 2D</span></div>
+      <div class="panel">
+        <div class="panel-head"><strong>PARTICLE SIMULATION</strong><span id="nanoStatus" class="status">READY</span></div>
+        <canvas id="nanoCanvas" class="lab-canvas nano-canvas" aria-label="2D molecular dynamics particle simulation"></canvas>
+        <div class="button-row"><button id="nanoStart" class="primary-btn">Run dynamics</button><button id="nanoStop" class="subtle-btn">Pause</button><button id="nanoReset" class="subtle-btn">Reset particles</button></div>
+        <p id="nanoCount" class="hint">36 particles · reduced Lennard-Jones units</p>
+      </div>
+      <div class="notice"><b>Scientific limitation</b><span>Educational 2D classical Lennard-Jones toy model with reduced units and reflecting boundaries. It is not quantum chemistry, atomistic material validation, molecular biology or a nanorobot simulator. Research work needs validated potentials, ensembles, boundary conditions and convergence checks.</span></div>
+      <div class="resource-row"><a href="https://www.lammps.org/" target="_blank" rel="noreferrer">LAMMPS molecular dynamics ↗</a></div>
+    </section>
+
     <footer><span>© MTDM AI Lab · Multi-Tech Digital Manufacturing & AI Laboratory</span><span>Open tools · Browser execution · No MTDM server required</span></footer>
   </main>
   <script type="module" src="./app.js"></script>
+  <script type="module" src="./advanced-labs.js"></script>
 </body>
 </html>
