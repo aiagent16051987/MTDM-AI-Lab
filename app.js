@@ -1,6 +1,5 @@
 import { simulate } from "@spice-ts/core";
 const $=id=>document.getElementById(id);
-document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".tab,.workspace").forEach(x=>x.classList.remove("active"));btn.classList.add("active");$(btn.dataset.tab).classList.add("active")}));
 const rcExample=`* RC low-pass transient response
 V1 in 0 PULSE(0 5 0 1n 1n 500u 1m)
 R1 in out 1k
