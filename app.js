@@ -45,7 +45,7 @@ $("runSim").onclick=async()=>{
    plot($("waveChart"),points);$("chartEmpty").style.display="none";
    log.textContent="PASS · spice-ts transient analysis\nProbe: V("+probe+")\nSamples: "+points.length+"\nStart: "+points[0].y.toFixed(5)+" V\nEnd: "+points.at(-1).y.toFixed(5)+" V\n\nEngine: @spice-ts/core · browser TypeScript solver";
   }else if(result.ac){
-   const frequencies=Array.from(result.ac.frequencies),magnitudes=Array.from(result.ac.magnitude(probe));
+   const frequencies=Array.from(result.ac.frequencies),magnitudes=Array.from(result.ac.voltage(probe),sample=>sample.magnitude);
    points=frequencies.map((x,i)=>({x,y:magnitudes[i]}));analysis="AC frequency sweep";
    if(!points.length)throw new Error("AC analysis returned no samples.");
    plot($("waveChart"),points,true);$("chartEmpty").style.display="none";
