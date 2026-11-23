@@ -17,7 +17,7 @@
   <main class="shell">
     <section class="hero">
       <div><p class="eyebrow">MULTI-TECH DIGITAL MANUFACTURING & AI LABORATORY</p><h1>Build. Simulate. <em>Validate.</em></h1><p class="hero-copy">A free browser workspace for circuit analysis, IoT, AI, robotics, quantum information and molecular-dynamics learning.</p></div>
-      <div class="hero-chip"><span>6</span><small>ENGINEERING<br>WORKSPACES</small></div>
+      <div class="hero-chip"><span>7</span><small>ENGINEERING<br>WORKSPACES</small></div>
     </section>
     <nav class="tabs" aria-label="Lab workspaces">
       <button class="tab active" data-tab="electronics">01 / Electronics</button>
@@ -26,6 +26,7 @@
       <button class="tab" data-tab="robotics">04 / Robotics</button>
       <button class="tab" data-tab="quantum">05 / Quantum</button>
       <button class="tab" data-tab="nano">06 / Nano Lab</button>
+      <button class="tab" data-tab="research">07 / Research Hub</button>
     </nav>
     <section id="electronics" class="workspace active">
       <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>Circuit Simulator</h2><p>Run real SPICE netlists with DC operating-point, transient and AC small-signal analysis.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
@@ -152,10 +153,67 @@ C1 out 0 1u
       <div class="resource-row"><a href="https://www.lammps.org/" target="_blank" rel="noreferrer">LAMMPS molecular dynamics ↗</a></div>
     </section>
 
+
+    <section id="research" class="workspace">
+      <div class="section-head"><div><p class="eyebrow">ADVANCED SCIENCE · RESPONSIBLE RESEARCH</p><h2>Research & Emerging Technologies Hub</h2><p>Local-first educational simulations with explicit model assumptions, bounded inputs and clear scientific limitations.</p></div><span class="engine-tag">SAFETY-GOVERNED</span></div>
+      <div class="panel research-policy">
+        <div class="panel-head"><strong>RESPONSIBLE RESEARCH GUARDRAILS</strong><span class="status">CORE STANDARD</span></div>
+        <div class="research-guardrails">
+          <div><b>Simulation first</b><span>No direct control of physical, medical, industrial or biological systems.</span></div>
+          <div><b>Privacy by default</b><span>Local browser execution; no MTDM server upload of experiments.</span></div>
+          <div><b>Safe scope</b><span>No weaponization, harmful biological designs or unauthorized surveillance.</span></div>
+          <div><b>Scientific honesty</b><span>Assumptions and limitations shown; no claim of certification or clinical validity.</span></div>
+        </div>
+        <p class="hint">Read <a href="./RESEARCH_SAFETY.md" target="_blank" rel="noreferrer">Research Safety & Responsible Use Policy</a>. This engineering policy is not legal advice or a guarantee of compliance in every jurisdiction.</p>
+      </div>
+      <div class="section-head research-subhead"><div><p class="eyebrow">INTERACTIVE PROTOTYPE · 01</p><h2>Swarm Robotics Simulator</h2><p>Explore collective motion using a simplified 2D Boids model: separation, alignment and cohesion.</p></div><span class="engine-tag">LOCAL 2D MODEL</span></div>
+      <div class="research-grid">
+        <div class="panel">
+          <div class="panel-head"><strong>SWARM ENVIRONMENT</strong><span id="swarmStatus" class="status">READY</span></div>
+          <canvas id="swarmCanvas" class="lab-canvas swarm-canvas" aria-label="Educational 2D swarm simulation"></canvas>
+          <div class="swarm-controls">
+            <label>Agents <output id="swarmCountValue">32</output><input id="swarmCount" type="range" min="8" max="70" value="32"></label>
+            <label>Cohesion <output id="swarmCohesionValue">0.8</output><input id="swarmCohesion" type="range" min="0" max="2" step="0.1" value="0.8"></label>
+            <label>Alignment <output id="swarmAlignmentValue">1.0</output><input id="swarmAlignment" type="range" min="0" max="2" step="0.1" value="1"></label>
+            <label>Separation <output id="swarmSeparationValue">1.4</output><input id="swarmSeparation" type="range" min="0" max="3" step="0.1" value="1.4"></label>
+          </div>
+          <div class="button-row"><button id="swarmStart" class="primary-btn">Start swarm</button><button id="swarmPause" class="subtle-btn">Pause</button><button id="swarmReset" class="subtle-btn">Reset</button></div>
+          <div class="metrics"><div><small>AGENTS</small><b id="swarmAgents">32</b></div><div><small>MODEL</small><b>BOIDS</b></div><div><small>EXECUTION</small><b>LOCAL</b></div></div>
+          <p class="hint">Use one slider at a time and compare clustering, heading alignment and group dispersion.</p>
+        </div>
+        <div class="panel research-notes">
+          <div class="panel-head"><strong>MODEL NOTES</strong><span class="status">EDUCATIONAL</span></div>
+          <h3>Three interaction rules</h3>
+          <ul><li><b>Separation:</b> steer away from nearby agents.</li><li><b>Alignment:</b> match neighbours' average heading.</li><li><b>Cohesion:</b> move toward the local group centre.</li></ul>
+          <h3>Limitations</h3>
+          <p>This is a 2D kinematic demonstration, not a validated robot-fleet controller. It omits robot dimensions, obstacles, communication loss, localization error, actuator dynamics, collision certification and real hardware.</p>
+          <h3>Suggested experiments</h3>
+          <ol><li>Compare group behaviour at different agent counts.</li><li>Study how separation changes clustering.</li><li>Find parameter combinations that cause fragmentation.</li><li>Plan a future obstacle-avoidance benchmark.</li></ol>
+          <div class="notice"><b>Safety</b><span>Simulation only. Any future physical robotics feature requires supervised testing, independent safety controls and a separate review.</span></div>
+        </div>
+      </div>
+      <div class="section-head research-subhead"><div><p class="eyebrow">12 TRACKS · ONE RESEARCH WORKSPACE</p><h2>Emerging Technology Roadmap</h2><p>Each module will require a defined model, bounded inputs, reference tests and a safety review before release.</p></div></div>
+      <div class="research-catalog">
+        <article><span>01</span><div><b>Swarm Robotics</b><small>Interactive Boids prototype</small></div><em class="track-live">Prototype</em></article>
+        <article><span>02</span><div><b>Nanorobot Bloodstream</b><small>Hypothetical flow and targeting visualization</small></div><em>Planned</em></article>
+        <article><span>03</span><div><b>CRISPR DNA Editor</b><small>Sequence visualization and educational matching</small></div><em>Planned</em></article>
+        <article><span>04</span><div><b>Quantum Visualizer</b><small>Existing one-qubit simulator · circuit upgrade</small></div><em>Upgrade</em></article>
+        <article><span>05</span><div><b>Fusion Plasma Control</b><small>Reduced-order educational control model</small></div><em>Planned</em></article>
+        <article><span>06</span><div><b>Nanorobotics & Molecular Machines</b><small>Bounded molecular-mechanics learning models</small></div><em>Planned</em></article>
+        <article><span>07</span><div><b>Neuromorphic Computing & Biocomputing</b><small>Spiking neural networks and abstract circuits</small></div><em>Planned</em></article>
+        <article><span>08</span><div><b>Neuromorphic Chips</b><small>Architecture, event flow and energy estimates</small></div><em>Planned</em></article>
+        <article><span>09</span><div><b>Organoid Intelligence</b><small>Published-data analysis and conceptual models</small></div><em>Planned</em></article>
+        <article><span>10</span><div><b>Synthetic Biology & Living Machines</b><small>Abstract non-operational biological circuits</small></div><em>Planned</em></article>
+        <article><span>11</span><div><b>Programmable Matter & Metamaterials</b><small>Mechanical lattices and material response</small></div><em>Planned</em></article>
+        <article><span>12</span><div><b>BCI & Quantum Sensing</b><small>Synthetic signal processing and sensor principles</small></div><em>Planned</em></article>
+      </div>
+    </section>
+
     <footer><span>© MTDM AI Lab · Multi-Tech Digital Manufacturing & AI Laboratory</span><span>Open tools · Browser execution · No MTDM server required</span></footer>
   </main>
   <script type="module" src="./app.js"></script>
   <script type="module" src="./advanced-labs.js"></script>
   <script type="module" src="./visual-circuit.js"></script>
+  <script type="module" src="./research-labs.js"></script>
 </body>
 </html>
