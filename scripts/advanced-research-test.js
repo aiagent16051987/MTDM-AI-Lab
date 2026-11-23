@@ -6,7 +6,7 @@ const h=applySingleQubitGate(zero,"H",0);
 const bell=applyCNOT(h);
 const p=measurementProbabilities(bell);
 close(p[0],.5);close(p[3],.5);close(p[1],0);close(p[2],0);
-close(Math.hypot(...reducedBlochVector(bell,0) |> Object.values),0,1e-8);
+const bloch=reducedBlochVector(bell,0);\nclose(Math.hypot(bloch.x,bloch.y,bloch.z),0,1e-8);
 const hh=applySingleQubitGate(applySingleQubitGate(zero,"H",1),"H",1);
 close(measurementProbabilities(hh)[0],1);
 const measured=measureTwoQubit(bell,()=>.8);
