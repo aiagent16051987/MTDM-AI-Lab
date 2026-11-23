@@ -10,3 +10,17 @@
 .quantum-state{padding:22px 14px;background:#091321;border:1px solid #26384e;border-radius:9px;font:14px/1.7 ui-monospace,monospace;overflow-wrap:anywhere}
 .quantum-metrics{max-width:420px}
 @media(max-width:650px){.robot-controls{grid-template-columns:1fr}.lab-canvas{height:260px}.nano-canvas{height:290px}.gate-row{gap:5px}}
+
+.schematic-panel{margin-bottom:16px}
+.schematic-toolbar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;margin-top:14px;align-items:center}
+.schematic-toolbar input,.schematic-toolbar select,.schematic-actions select{width:100%;margin:0;background:#091321;color:var(--text);border:1px solid #2a3b52;border-radius:7px;padding:9px;font-size:11px}
+.schem-list{display:grid;gap:7px;margin-top:12px}
+.schem-row{display:grid;grid-template-columns:55px 1fr 1fr 1fr auto;gap:7px;align-items:center;background:#0a1422;border:1px solid #23364c;border-radius:7px;padding:7px}
+.schem-row b{color:var(--cyan);font:11px ui-monospace,monospace}
+.schem-row input{margin:0;padding:7px;font-size:11px;min-width:0}
+.schem-row button{padding:6px 9px}
+.schematic-view{margin-top:13px;overflow:auto;background:#091321;border:1px solid #23364c;border-radius:8px}
+.schematic-view svg{display:block;width:100%;min-width:480px;height:220px}
+.schematic-actions{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-top:13px}
+.schematic-actions label{flex:1;margin:0}
+@media(max-width:760px){.schematic-toolbar{grid-template-columns:1fr 1fr}.schem-row{grid-template-columns:42px 1fr 1fr auto}.schem-row input:nth-of-type(3){grid-column:2/4}.schematic-actions{align-items:stretch;flex-direction:column}.schematic-actions button{width:100%}}
