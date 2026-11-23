@@ -192,6 +192,50 @@ C1 out 0 1u
           <div class="notice"><b>Safety</b><span>Simulation only. Any future physical robotics feature requires supervised testing, independent safety controls and a separate review.</span></div>
         </div>
       </div>
+
+      <div class="section-head research-subhead"><div><p class="eyebrow">INTERACTIVE MODEL · 02</p><h2>Two-Qubit Quantum Visualizer</h2><p>Apply single-qubit gates, CNOT, prepare a Bell state, inspect basis probabilities and view the reduced Bloch vector.</p></div><span class="engine-tag">4-AMPLITUDE STATE VECTOR</span></div>
+      <div class="research-grid">
+        <div class="panel">
+          <div class="panel-head"><strong>QUANTUM CIRCUIT CONTROLS</strong><span class="status">IDEAL · PURE STATE</span></div>
+          <div class="quantum-upgrade-controls">
+            <div><b>Qubit 0</b><button data-qgate="H:0">H</button><button data-qgate="X:0">X</button><button data-qgate="Z:0">Z</button><button data-qgate="S:0">S</button></div>
+            <div><b>Qubit 1</b><button data-qgate="H:1">H</button><button data-qgate="X:1">X</button><button data-qgate="Z:1">Z</button><button data-qgate="S:1">S</button></div>
+            <div><button id="qCnot" class="subtle-btn">CNOT (0 → 1)</button><button id="qBell" class="primary-btn">Prepare Bell state</button><button id="qMeasure" class="subtle-btn">Measure</button><button id="qReset" class="subtle-btn">Reset</button></div>
+          </div>
+          <div id="twoQubitState" class="quantum-state"></div>
+          <p id="twoQubitProbabilities" class="hint"></p>
+          <pre id="quantum2Log" class="log">Ready. Prepare a Bell state to inspect entanglement.</pre>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><strong>BLOCH SPHERE PROJECTION</strong><span class="status">QUBIT 0 REDUCED STATE</span></div>
+          <canvas id="quantumBlochCanvas" class="bloch-canvas" aria-label="Bloch sphere projection for reduced state of qubit zero"></canvas>
+          <p id="quantumBlochReadout" class="hint"></p>
+        </div>
+      </div>
+      <div class="notice"><b>Quantum scope</b><span>Exact ideal two-qubit state-vector model (four complex amplitudes), single-qubit gates and CNOT. The Bloch view shows qubit 0's reduced state; entangled qubits can have a mixed reduced state. No noise, decoherence, hardware backend or scalable quantum execution.</span></div>
+      <div class="section-head research-subhead"><div><p class="eyebrow">INTERACTIVE MODEL · 03</p><h2>Neuromorphic LIF Neuron Lab</h2><p>Explore membrane integration, threshold firing and refractory dynamics with a deterministic leaky-integrate-and-fire model.</p></div><span class="engine-tag">SPIKING NEURAL MODEL</span></div>
+      <div class="research-grid">
+        <div class="panel">
+          <div class="panel-head"><strong>MEMBRANE VOLTAGE TRACE</strong><span id="lifStatus" class="status">READY</span></div>
+          <canvas id="lifCanvas" class="lif-canvas" aria-label="Leaky integrate and fire membrane voltage trace"></canvas>
+          <div class="lif-controls">
+            <label>Input current <output id="lifCurrentValue">0.80</output><input id="lifCurrent" type="range" min="0.1" max="2.0" step="0.05" value="0.80"></label>
+            <label>Membrane time constant <output id="lifTauValue">0.10</output><input id="lifTau" type="range" min="0.03" max="0.5" step="0.01" value="0.10"></label>
+            <label>Firing threshold <output id="lifThresholdValue">1.00</output><input id="lifThreshold" type="range" min="0.3" max="1.5" step="0.05" value="1.00"></label>
+          </div>
+          <div class="button-row"><button id="lifRun" class="primary-btn">Run simulation</button><button id="lifReset" class="subtle-btn">Reset parameters</button></div>
+          <div class="metrics"><div><small>SPIKES</small><b id="lifSpikeCount">—</b></div><div><small>STEPS</small><b>500</b></div><div><small>MODEL</small><b>LIF</b></div></div>
+          <pre id="lifLog" class="log">Ready.</pre>
+        </div>
+        <div class="panel research-notes">
+          <div class="panel-head"><strong>MODEL EQUATION</strong><span class="status">DIMENSIONLESS</span></div>
+          <div class="quantum-state">τ · dV/dt = −V + I</div>
+          <ul><li>Input current drives membrane voltage upward.</li><li>Leak term pulls voltage toward its resting level.</li><li>At threshold, a spike is recorded and voltage resets.</li><li>A bounded refractory interval prevents immediate refiring.</li></ul>
+          <h3>Research limitations</h3>
+          <p>This is an abstract computational LIF model, not a biological neuron, organoid, medical diagnostic or brain-computer interface. It does not model ion channels, synaptic plasticity, morphology or biological tissue.</p>
+        </div>
+      </div>
+
       <div class="section-head research-subhead"><div><p class="eyebrow">12 TRACKS · ONE RESEARCH WORKSPACE</p><h2>Emerging Technology Roadmap</h2><p>Each module will require a defined model, bounded inputs, reference tests and a safety review before release.</p></div></div>
       <div class="research-catalog">
         <article><span>01</span><div><b>Swarm Robotics</b><small>Interactive Boids prototype</small></div><em class="track-live">Prototype</em></article>
@@ -215,5 +259,6 @@ C1 out 0 1u
   <script type="module" src="./advanced-labs.js"></script>
   <script type="module" src="./visual-circuit.js"></script>
   <script type="module" src="./research-labs.js"></script>
+  <script type="module" src="./research-next.js"></script>
 </body>
 </html>
