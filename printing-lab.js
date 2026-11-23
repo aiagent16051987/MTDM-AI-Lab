@@ -1,0 +1,112 @@
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
+
+const $ = (id) => document.getElementById(id);
+const host = $("print3dView");
+if (host) {
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("#091321");
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 1000);
+  camera.position.set(95, 85, 115);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  host.appendChild(renderer.domElement);
+  scene.add(new THREE.HemisphereLight(0xdceeff, 0x24334a, 2.1));
+  const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(70, 100, 80); scene.add(key);
+  const grid = new THREE.GridHelper(150, 15, 0x42617e, 0x263b52); grid.position.y = -0.1; scene.add(grid);
+  const axes = new THREE.AxesHelper(35); scene.add(axes);
+  const part = new THREE.Group(); scene.add(part);
+  let shape = "cube", dragging = false, lastX = 0, lastY = 0;
+  let radius = 130, theta = Math.PI / 4, phi = Math.PI / 3;
+  const updateCamera = () => {
+    phi = Math.max(0.18, Math.min(Math.PI - 0.18, phi));
+    camera.position.set(radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi), radius * Math.sin(phi) * Math.sin(theta));
+    camera.lookAt(0, 20, 0);
+  };
+  function rebuild() {
+    while (part.children.length) {
+      const obj = part.children.pop();
+      obj.geometry?.dispose();
+      if (obj.material) (Array.isArray(obj.material) ? obj.material : [obj.material]).forEach(m => m.dispose());
+    }
+    const mat = new THREE.MeshStandardMaterial({ color: 0x42c8b6, roughness: 0.48, metalness: 0.12 });
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0xb9fff4 });
+    const addMesh = (geometry, y = 0) => {
+      const mesh = new THREE.Mesh(geometry, mat); mesh.position.y = y; part.add(mesh);
+      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), edgeMat); edges.position.copy(mesh.position); part.add(edges);
+    };
+    if (shape === "cube") addMesh(new THREE.BoxGeometry(40, 30, 40), 15);
+    if (shape === "cylinder") addMesh(new THREE.CylinderGeometry(20, 20, 30, 48), 15);
+    if (shape === "bracket") {
+      const vertical = new THREE.Mesh(new THREE.BoxGeometry(12, 42, 36), mat); vertical.position.set(-14, 21, 0); part.add(vertical);
+      const horizontal = new THREE.Mesh(new THREE.BoxGeometry(38, 12, 36), mat); horizontal.position.set(5, 6, 0); part.add(horizontal);
+      [vertical, horizontal].forEach(m => {const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), edgeMat); e.position.copy(m.position); part.add(e);});
+      const hole = new THREE.Mesh(new THREE.TorusGeometry(6, 1.4, 8, 32), new THREE.MeshStandardMaterial({color:0xffd166})); hole.rotation.y=Math.PI/2;hole.position.set(-7,28,0);part.add(hole);
+    }
+    $("print3dStatus").textContent = "3D PREVIEW READY";
+  }
+  function resize() { const w = host.clientWidth || 600, h = host.clientHeight || 390; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+  host.addEventListener("pointerdown", e => {dragging=true;lastX=e.clientX;lastY=e.clientY;host.setPointerCapture(e.pointerId);});
+  host.addEventListener("pointermove", e => {if(!dragging)return;theta-=(e.clientX-lastX)*0.008;phi+=(e.clientY-lastY)*0.008;lastX=e.clientX;lastY=e.clientY;updateCamera();});
+  host.addEventListener("pointerup",()=>dragging=false);host.addEventListener("pointercancel",()=>dragging=false);
+  host.addEventListener("wheel",e=>{e.preventDefault();radius=Math.max(65,Math.min(280,radius+e.deltaY*0.12));updateCamera();},{passive:false});
+  document.querySelectorAll("[data-print-shape]").forEach(btn=>btn.addEventListener("click",()=>{shape=btn.dataset.printShape;document.querySelectorAll("[data-print-shape]").forEach(b=>b.classList.toggle("active",b===btn));rebuild();}));
+  updateCamera();resize();rebuild();
+  if ("ResizeObserver" in window) new ResizeObserver(resize).observe(host); else window.addEventListener("resize",resize);
+  renderer.setAnimationLoop(()=>renderer.render(scene,camera));
+}
+
+const processData = {
+  fdm:{rate:18,factor:1.22,setup:8,materials:["pla","petg","abs","nylon","tpu"]},
+  sla:{rate:12,factor:1.15,setup:18,materials:["resin"]},dlp:{rate:25,factor:1.12,setup:14,materials:["resin"]},msla:{rate:22,factor:1.14,setup:15,materials:["resin"]},
+  sls:{rate:28,factor:1.35,setup:35,materials:["nylon"]},mjf:{rate:38,factor:1.3,setup:40,materials:["nylon"]},
+  slm:{rate:3.2,factor:2.1,setup:95,materials:["aluminum","steel","titanium"]},ebm:{rate:4.5,factor:2.2,setup:110,materials:["titanium"]},
+  binder:{rate:22,factor:1.8,setup:45,materials:["steel"]},materialjet:{rate:9,factor:1.35,setup:25,materials:["resin"]},
+  ded:{rate:7,factor:1.8,setup:80,materials:["steel","titanium"]},waam:{rate:14,factor:1.7,setup:90,materials:["steel","aluminum"]},
+  sheet:{rate:30,factor:1.3,setup:30,materials:["abs"]},pellet:{rate:65,factor:1.35,setup:25,materials:["pla","abs"]},
+  concrete:{rate:45,factor:1.5,setup:60,materials:["concrete"]},bio:{rate:2,factor:1.2,setup:60,materials:["resin"]}
+};
+const density={pla:1.24,petg:1.27,abs:1.04,nylon:1.01,resin:1.1,tpu:1.2,aluminum:2.7,steel:8,titanium:4.43,concrete:2.2};
+function value(id,min,max){const n=Number($(id).value);if(!Number.isFinite(n)||n<min||n>max)throw new Error($(id).previousElementSibling?.textContent+" must be between "+min+" and "+max+".");return n;}
+function estimate(){
+  const p=processData[$("printProcess").value],mat=$("printMaterial").value;
+  if(!p||!p.materials.includes(mat))throw new Error("Selected feedstock is not a representative match for this process. Choose a compatible material from the material selector.");
+  const x=value("printX",5,250),y=value("printY",5,250),z=value("printZ",5,250),layer=value("printLayer",0.02,2),infill=value("printInfill",0,100),speed=value("printSpeed",1,500),price=value("printPrice",0,10000),power=value("printPower",0,100),rate=value("printRate",0,100);
+  const shape=document.querySelector("[data-print-shape].active")?.dataset.printShape||"cube";
+  const volume=shape==="cylinder"?Math.PI*(x/2)**2*z:shape==="bracket"?(x*y*z*0.42):(x*y*z);
+  const solid=volume*(0.18+0.82*infill/100);
+  const mass=solid*density[mat]/1000*p.factor;
+  const layers=Math.ceil(z/layer);
+  const buildVolume=volume/1000;
+  const geometryFactor=shape==="bracket"?1.22:shape==="cylinder"?1.08:1;
+  const hours=(buildVolume*p.factor*geometryFactor/p.rate)+layers*0.0015+p.setup/60;
+  const energy=hours*power;
+  const materialCost=mass*price;
+  const energyCost=energy*rate;
+  const total=materialCost+energyCost;
+  $("printVolume").textContent=volume.toFixed(1)+" cm³";
+  $("printMass").textContent=mass.toFixed(1)+" g";
+  $("printTime").textContent=hours<1?(hours*60).toFixed(0)+" min":hours.toFixed(2)+" h";
+  $("printCost").textContent="$"+total.toFixed(2);
+  $("printLayers").textContent=layers.toLocaleString();
+  $("printEstimateStatus").textContent="ESTIMATE READY";
+  $("printEstimateLog").textContent=[
+    "PROCESS: "+$("printProcess").selectedOptions[0].text,
+    "GEOMETRY: "+shape+" · "+x+" × "+y+" × "+z+" mm",
+    "FEEDSTOCK: "+$("printMaterial").selectedOptions[0].text,
+    "ESTIMATED SOLID VOLUME: "+solid.toFixed(1)+" cm³",
+    "ESTIMATED MATERIAL: "+mass.toFixed(2)+" g (includes process factor)",
+    "ESTIMATED BUILD DURATION: "+(hours*60).toFixed(1)+" min",
+    "ESTIMATED ENERGY: "+energy.toFixed(3)+" kWh",
+    "MATERIAL COST: $"+materialCost.toFixed(2)+" · ENERGY COST: $"+energyCost.toFixed(2),
+    "",
+    "MODEL LIMITATIONS:",
+    "• Simplified shape volume and infill approximation; not a true slicer toolpath.",
+    "• Process rates and setup allowances are illustrative defaults, not vendor machine data.",
+    "• Supports, purge, raft, scan strategy, thermal distortion, nesting, post-processing and failure risk are not fully modelled.",
+    "• Industrial metal, concrete and bio-process estimates require machine-, feedstock- and facility-specific validated models.",
+    "Do not use these values for quotations, structural release or machine operation."
+  ].join("\n");
+}
+$("printEstimate").addEventListener("click",()=>{try{estimate()}catch(e){$("printEstimateStatus").textContent="CHECK INPUT";$("printEstimateLog").textContent="INPUT / PROCESS ERROR\n"+e.message}});
+$("printReset").addEventListener("click",()=>{ $("printProcess").value="fdm";$("printMaterial").value="pla";$("printX").value=40;$("printY").value=40;$("printZ").value=30;$("printLayer").value=0.2;$("printInfill").value=20;$("printSpeed").value=50;$("printPrice").value=22;$("printPower").value=0.12;$("printRate").value=0.15;$("printEstimateStatus").textContent="NOT CALCULATED";$("printEstimateLog").textContent="Parameters reset. Calculate a new estimate."; });
+$("printProcess").addEventListener("change",()=>{const map={fdm:"pla",sla:"resin",dlp:"resin",msla:"resin",sls:"nylon",mjf:"nylon",slm:"aluminum",ebm:"titanium",binder:"steel",materialjet:"resin",ded:"steel",waam:"steel",sheet:"abs",pellet:"pla",concrete:"concrete",bio:"resin"};$("printMaterial").value=map[$("printProcess").value];});
