@@ -16,7 +16,7 @@
   </header>
   <main class="shell">
     <section class="hero">
-      <div><p class="eyebrow">MULTI-TECH DIGITAL MANUFACTURING & AI LABORATORY</p><h1>Build. Simulate. <em>Validate.</em></h1><p class="hero-copy">A free browser workspace for circuit analysis, IoT, AI, robotics, quantum information and molecular-dynamics learning.</p></div>
+      <div><p class="eyebrow">MULTI-TECH DIGITAL MANUFACTURING & AI LABORATORY</p><h1>Build. Simulate. <em>Validate.</em></h1><p class="hero-copy">A free browser workspace for electronics, IoT, AI, robotics, quantum science, molecular dynamics and additive manufacturing.</p></div>
       <div class="hero-chip"><span>7</span><small>ENGINEERING<br>WORKSPACES</small></div>
     </section>
     <nav class="tabs" aria-label="Lab workspaces">
@@ -27,6 +27,7 @@
       <button class="tab" data-tab="quantum">05 / Quantum</button>
       <button class="tab" data-tab="nano">06 / Nano Lab</button>
       <button class="tab" data-tab="research">07 / Research Hub</button>
+      <button class="tab" data-tab="printing">08 / 3D Printing</button>
     </nav>
     <section id="electronics" class="workspace active">
       <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>Circuit Simulator</h2><p>Run real SPICE netlists with DC operating-point, transient and AC small-signal analysis.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
@@ -260,6 +261,73 @@ C1 out 0 1u
         <article><span>11</span><div><b>Programmable Matter & Metamaterials</b><small>Mechanical lattices and material response</small></div><em>Planned</em></article>
         <article><span>12</span><div><b>BCI & Quantum Sensing</b><small>Synthetic signal processing and sensor principles</small></div><em>Planned</em></article>
       </div>
+    </section>
+
+    <section id="printing" class="workspace">
+      <div class="section-head"><div><p class="eyebrow">ADDITIVE MANUFACTURING · DIGITAL FABRICATION</p><h2>3D Printing & Additive Manufacturing Lab</h2><p>Learn processes, inspect a 3D part, compare manufacturing methods and estimate material, time and cost before a real print.</p></div><span class="engine-tag">3D PREVIEW · PROCESS PLANNER</span></div>
+      <div class="panel print-intro">
+        <div class="panel-head"><strong>FROM IDEA TO PRINT</strong><span class="status">BEGINNER → EXPERT</span></div>
+        <div class="print-workflow"><div><b>01 · Design</b><span>Choose geometry and dimensions.</span></div><div><b>02 · Process</b><span>Select an additive technology.</span></div><div><b>03 · Plan</b><span>Set layers, infill and supports.</span></div><div><b>04 · Estimate</b><span>Review time, material and cost.</span></div><div><b>05 · Validate</b><span>Check orientation, tolerances and safety.</span></div></div>
+      </div>
+      <div class="printing-layout">
+        <div class="panel">
+          <div class="panel-head"><strong>INTERACTIVE 3D PART PREVIEW</strong><span id="print3dStatus" class="status">LOADING 3D</span></div>
+          <div id="print3dView" class="print3d-view" role="img" aria-label="Interactive 3D preview of the selected printable part"></div>
+          <p class="hint">Drag to rotate · Scroll to zoom · Select a shape below. Preview is a design aid, not a watertight CAD solid or printable STL.</p>
+          <div class="print-shapes" role="group" aria-label="Part geometry">
+            <button class="subtle-btn active" data-print-shape="cube">Cube</button><button class="subtle-btn" data-print-shape="cylinder">Cylinder</button><button class="subtle-btn" data-print-shape="bracket">Bracket</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><strong>PROCESS & PRINT PARAMETERS</strong><span class="status">ESTIMATOR</span></div>
+          <label class="print-field">Technology
+            <select id="printProcess">
+              <option value="fdm">FDM / FFF · Filament extrusion</option><option value="sla">SLA · Laser vat photopolymerization</option><option value="dlp">DLP · Projector vat photopolymerization</option><option value="msla">MSLA / LCD · Masked vat photopolymerization</option><option value="sls">SLS · Polymer powder bed fusion</option><option value="mjf">MJF · Multi Jet Fusion</option><option value="slm">LPBF / SLM / DMLS · Metal powder bed fusion</option><option value="ebm">EB-PBF / EBM · Electron beam powder bed fusion</option><option value="binder">Binder Jetting</option><option value="materialjet">Material Jetting</option><option value="ded">DED / LMD · Directed energy deposition</option><option value="waam">WAAM · Wire arc additive manufacturing</option><option value="sheet">Sheet lamination · LOM / ultrasonic</option><option value="pellet">Large-format pellet extrusion</option><option value="concrete">Concrete extrusion · construction</option><option value="bio">Bioprinting · research overview only</option>
+            </select>
+          </label>
+          <label class="print-field">Material / feedstock
+            <select id="printMaterial"><option value="pla">PLA · 1.24 g/cm³</option><option value="petg">PETG · 1.27 g/cm³</option><option value="abs">ABS · 1.04 g/cm³</option><option value="nylon">PA12 / Nylon · 1.01 g/cm³</option><option value="resin">Photopolymer resin · 1.10 g/cm³</option><option value="tpu">TPU · 1.20 g/cm³</option><option value="aluminum">Aluminium alloy · 2.70 g/cm³</option><option value="steel">Stainless steel · 8.00 g/cm³</option><option value="titanium">Titanium alloy · 4.43 g/cm³</option><option value="concrete">Cementitious mix · 2.20 g/cm³</option></select>
+          </label>
+          <div class="print-dimensions"><label class="print-field">X / Diameter (mm)<input id="printX" type="number" min="5" max="250" value="40"></label><label class="print-field">Y (mm)<input id="printY" type="number" min="5" max="250" value="40"></label><label class="print-field">Z / Height (mm)<input id="printZ" type="number" min="5" max="250" value="30"></label></div>
+          <div class="print-dimensions"><label class="print-field">Layer height (mm)<input id="printLayer" type="number" min="0.02" max="2" step="0.01" value="0.20"></label><label class="print-field">Infill (%)<input id="printInfill" type="number" min="0" max="100" step="5" value="20"></label><label class="print-field">Machine speed (mm/s)<input id="printSpeed" type="number" min="1" max="500" value="50"></label></div>
+          <div class="print-dimensions"><label class="print-field">Material cost / kg (USD)<input id="printPrice" type="number" min="0" max="10000" step="0.5" value="22"></label><label class="print-field">Electricity (kW)<input id="printPower" type="number" min="0" max="100" step="0.01" value="0.12"></label><label class="print-field">Electricity rate / kWh<input id="printRate" type="number" min="0" max="100" step="0.01" value="0.15"></label></div>
+          <div class="button-row"><button id="printEstimate" class="primary-btn">Calculate print estimate</button><button id="printReset" class="subtle-btn">Reset</button></div>
+          <p class="hint">Geometry and slicer parameters are simplified. Industrial processes use machine-specific build rates, scan strategies, support rules and post-processing; see assumptions in the result.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><strong>PRINT ESTIMATE</strong><span id="printEstimateStatus" class="status">NOT CALCULATED</span></div>
+        <div class="print-metrics"><div><small>PART VOLUME</small><b id="printVolume">—</b></div><div><small>EST. MATERIAL</small><b id="printMass">—</b></div><div><small>EST. BUILD TIME</small><b id="printTime">—</b></div><div><small>EST. COST</small><b id="printCost">—</b></div><div><small>LAYERS</small><b id="printLayers">—</b></div></div>
+        <pre id="printEstimateLog" class="log">Select a process and calculate an estimate. Values are planning approximations, not a machine quote.</pre>
+      </div>
+      <div class="section-head research-subhead"><div><p class="eyebrow">PROCESS SELECTION GUIDE</p><h2>Major 3D Printing Technologies</h2><p>Learn what each process does, which materials it handles and where it is useful.</p></div></div>
+      <div class="print-process-grid">
+        <article><b>Material extrusion</b><span>FDM / FFF, pellet extrusion</span><p>Thermoplastic filament or pellets are melted and deposited layer by layer. Common for prototypes, fixtures and functional polymer parts.</p></article>
+        <article><b>Vat photopolymerization</b><span>SLA, DLP, MSLA / LCD</span><p>Liquid photopolymer is selectively cured by laser, projector or masked light. High detail; resin handling and post-cure controls matter.</p></article>
+        <article><b>Powder bed fusion · polymers</b><span>SLS, MJF</span><p>Polymer powder is fused selectively by laser or agent-assisted thermal process. Supports complex parts and production batches.</p></article>
+        <article><b>Powder bed fusion · metals</b><span>LPBF / SLM / DMLS, EB-PBF / EBM</span><p>Metal powder is fused using laser or electron beam. Requires qualified equipment, inert/vacuum process controls and specialist post-processing.</p></article>
+        <article><b>Binder jetting</b><span>Metal, sand, ceramic powders</span><p>A liquid binder joins powder particles; parts commonly need curing, depowdering, sintering or infiltration.</p></article>
+        <article><b>Material jetting</b><span>Photopolymers, wax-like materials</span><p>Droplets are deposited and solidified, enabling fine features and multi-material colour or property combinations on suitable machines.</p></article>
+        <article><b>Directed energy deposition</b><span>DED, LMD, laser / electron / arc</span><p>Feedstock is delivered into a melt pool for repair, cladding and larger metal features. Process planning and metallurgy are demanding.</p></article>
+        <article><b>Wire arc additive manufacturing</b><span>WAAM</span><p>Electric arc melts wire feedstock to build large metal structures. Useful for large near-net-shape components with machining allowance.</p></article>
+        <article><b>Sheet lamination</b><span>LOM, ultrasonic additive manufacturing</span><p>Sheets or foils are bonded and shaped into a 3D object. Bond quality and finishing depend on the specific process.</p></article>
+        <article><b>Construction printing</b><span>Concrete / mortar extrusion</span><p>Pumpable cementitious material is deposited along toolpaths. Mix rheology, curing, reinforcement and structural engineering are essential.</p></article>
+        <article><b>Bioprinting · research</b><span>Hydrogel / cell-laden bioinks</span><p>Research overview only. Biological viability, sterility and medical regulation make this fundamentally different from ordinary desktop printing.</p></article>
+        <article><b>Hybrid additive manufacturing</b><span>Add + CNC / subtractive finishing</span><p>Combines additive deposition with machining, inspection and finishing to achieve precision surfaces and interfaces.</p></article>
+      </div>
+      <div class="section-head research-subhead"><div><p class="eyebrow">COMPLETE DIGITAL WORKFLOW</p><h2>What else belongs in a 3D printing lab?</h2></div></div>
+      <div class="print-workflow-grid">
+        <article><b>3D CAD & mesh</b><span>Parametric design, STEP, STL, 3MF, OBJ, mesh repair, units and watertightness.</span></article>
+        <article><b>Slicing & toolpaths</b><span>Orientation, supports, perimeters, infill, layer height, G-code preview and machine profiles.</span></article>
+        <article><b>Materials science</b><span>Filament/resin/powder properties, shrinkage, anisotropy, moisture, thermal behaviour and compatibility.</span></article>
+        <article><b>Machine engineering</b><span>Kinematics, build volume, extruder, hotend, bed, optics, lasers, motion systems and calibration.</span></article>
+        <article><b>Quality & metrology</b><span>Dimensional tolerance, surface finish, warping, porosity, inspection, test coupons and traceability.</span></article>
+        <article><b>Post-processing</b><span>Support removal, washing, UV post-cure, heat treatment, machining, polishing and safe finishing.</span></article>
+        <article><b>Production planning</b><span>Batch nesting, build utilization, yield, machine hours, material waste and cost estimation.</span></article>
+        <article><b>Design for AM</b><span>Overhangs, wall thickness, escape holes, lattice structures, topology optimization and part consolidation.</span></article>
+      </div>
+      <div class="notice"><b>Safety & accuracy</b><span>This workspace is an educational process planner, not a certified slicer, CAD kernel or machine controller. Never connect it directly to a printer or industrial machine. Follow the machine manufacturer's ventilation, resin, powder, laser, hot-surface, fire and PPE requirements. Metal powder, high-energy beams, concrete and biological materials require specialist facilities and qualified supervision.</span></div>
+      <div class="resource-row"><a href="https://www.iso.org/committee/629086.html" target="_blank" rel="noreferrer">ISO/ASTM additive manufacturing standards ↗</a><a href="https://www.nist.gov/additive-manufacturing" target="_blank" rel="noreferrer">NIST additive manufacturing ↗</a><a href="https://www.prusa3d.com/page/prusaslicer_424/" target="_blank" rel="noreferrer">PrusaSlicer ↗</a><a href="https://ultimaker.com/software/ultimaker-cura/" target="_blank" rel="noreferrer">UltiMaker Cura ↗</a></div>
     </section>
 
     <footer><span>© MTDM AI Lab · Multi-Tech Digital Manufacturing & AI Laboratory</span><span>Open tools · Browser execution · No MTDM server required</span></footer>
