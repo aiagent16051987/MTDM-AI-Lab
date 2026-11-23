@@ -77,25 +77,37 @@ C1 out 0 1u
       <div class="resource-row"><a href="https://www.kicad.org/" target="_blank" rel="noreferrer">KiCad PCB design ↗</a><a href="https://wokwi.com/" target="_blank" rel="noreferrer">Wokwi microcontroller simulator ↗</a><a href="https://github.com/mfiumara/spice-ts" target="_blank" rel="noreferrer">Full SPICE engine research ↗ ↗</a></div>
     </section>
     <section id="iot" class="workspace">
-      <div class="section-head"><div><p class="eyebrow">CONNECTED SYSTEMS</p><h2>IoT Telemetry Lab</h2><p>Generate test sensor data locally or subscribe to a public MQTT broker over WebSocket.</p></div><span class="engine-tag">MQTT / WEBSOCKET</span></div>
+      <div class="section-head"><div><p class="eyebrow">CONNECTED SYSTEMS</p><h2>IoT Telemetry & Device Lab</h2><p>Learn sensor telemetry, test abnormal conditions, inspect MQTT messages and export experiment data. Local simulation works without a device or broker.</p></div><span class="engine-tag">SENSOR · MQTT · DATA</span></div>
       <div class="iot-grid">
         <div class="panel">
-          <div class="panel-head"><strong>DEVICE CONNECTION</strong><span id="mqttStatus" class="status">OFFLINE</span></div>
-          <label>Broker WebSocket URL<input id="brokerUrl" value="wss://broker.emqx.io:8084/mqtt"></label>
-          <label>Topic<input id="mqttTopic" value="mtdm-ai-lab/demo/sensors"></label>
-          <div class="button-row"><button id="mqttConnect" class="primary-btn">Connect</button><button id="mqttDisconnect" class="subtle-btn" disabled>Disconnect</button></div>
-          <p class="hint">Public broker traffic is not private. Do not publish credentials, personal data or production device secrets.</p>
+          <div class="panel-head"><strong>MQTT DEVICE CONNECTION</strong><span id="mqttStatus" class="status">OFFLINE</span></div>
+          <label>Secure broker WebSocket URL<input id="brokerUrl" value="wss://broker.emqx.io:8084/mqtt" autocomplete="off"></label>
+          <label>Topic<input id="mqttTopic" value="mtdm-ai-lab/demo/sensors" autocomplete="off"></label>
+          <div class="button-row"><button id="mqttConnect" class="primary-btn">Connect & subscribe</button><button id="mqttDisconnect" class="subtle-btn" disabled>Disconnect</button></div>
+          <p class="hint">Only WSS/TLS broker URLs are accepted. Public broker topics are visible to others. Never use secrets or personal data. MQTT input is validated before display.</p>
           <div class="divider"></div>
-          <strong class="small-title">LOCAL SENSOR GENERATOR</strong>
-          <div class="button-row"><button id="sensorStart" class="primary-btn">Start stream</button><button id="sensorStop" class="subtle-btn" disabled>Stop</button></div>
+          <strong class="small-title">LOCAL SENSOR TEST BENCH</strong>
+          <label>Scenario<select id="sensorProfile"><option value="normal">Normal operating range</option><option value="step">Step change test</option><option value="drift">Slow thermal drift</option><option value="fault">Intermittent fault injection</option></select></label>
+          <label>Sampling interval<select id="sensorInterval"><option value="250">250 ms · fast</option><option value="500">500 ms</option><option value="1000" selected>1 second</option><option value="2000">2 seconds</option><option value="5000">5 seconds</option></select></label>
+          <label class="iot-check"><input type="checkbox" id="mqttPublishConsent"> Explicitly publish generated test data to connected MQTT topic</label>
+          <div class="button-row"><button id="sensorStart" class="primary-btn">Start local stream</button><button id="sensorStop" class="subtle-btn" disabled>Stop</button></div>
+          <p class="hint">Publishing is OFF by default. Local sensor simulation never sends data unless you check the box.</p>
         </div>
         <div class="panel">
           <div class="panel-head"><strong>LIVE TELEMETRY</strong><span class="status" id="sensorStatus">NO DATA</span></div>
           <div class="sensor-cards"><div><small>VOLTAGE</small><b id="voltageValue">—</b><small>V</small></div><div><small>CURRENT</small><b id="currentValue">—</b><small>A</small></div><div><small>TEMPERATURE</small><b id="tempValue">—</b><small>°C</small></div></div>
-          <div class="chart-wrap compact"><canvas id="sensorChart" aria-label="Sensor telemetry chart"></canvas></div>
+          <div class="chart-wrap compact"><canvas id="sensorChart" aria-label="Temperature telemetry history chart"></canvas></div>
+          <div class="iot-thresholds"><strong>Alert thresholds</strong><label>Voltage high (V)<input id="voltageLimit" type="number" min="0.1" max="1000" step="0.1" value="5.8"></label><label>Current high (A)<input id="currentLimit" type="number" min="0.01" max="1000" step="0.1" value="2.0"></label><label>Temperature high (°C)<input id="temperatureLimit" type="number" min="-50" max="500" step="1" value="45"></label></div>
+          <div id="sensorAlert" class="iot-alert" role="status">No threshold alerts.</div>
+          <div class="button-row"><button id="exportTelemetry" class="subtle-btn" disabled>Export CSV</button><button id="clearTelemetry" class="subtle-btn">Clear history</button></div>
           <pre id="mqttLog" class="log">Waiting for local stream or MQTT messages…</pre>
         </div>
       </div>
+      <div class="panel iot-learning">
+        <div class="panel-head"><strong>HOW A REAL IOT TELEMETRY PIPELINE WORKS</strong><span class="status">LEARNING PATH</span></div>
+        <div class="iot-learning-grid"><article><b>1 · Sensor</b><span>Physical transducer measures a quantity; calibration and sampling rate define data quality.</span></article><article><b>2 · Edge device</b><span>MCU reads sensors, timestamps values, filters noise and handles offline buffering.</span></article><article><b>3 · Transport</b><span>MQTT topics carry small messages; TLS, authentication, ACLs and QoS matter.</span></article><article><b>4 · Ingestion</b><span>Validate schema, units, ranges, timestamps and device identity before storage.</span></article><article><b>5 · Monitoring</b><span>Trends, thresholds, missing data and stale-device detection support operations.</span></article><article><b>6 · Response</b><span>Alerts require acknowledgement, escalation policy and safe human-approved action.</span></article></div>
+      </div>
+      <div class="notice"><b>Model boundary</b><span>This is a browser telemetry workbench with synthetic sensors and optional public MQTT access. It is not a certified SCADA, industrial controller, device provisioning system or safety interlock. Do not connect safety-critical equipment.</span></div>
     </section>
     <section id="ai" class="workspace">
       <div class="section-head"><div><p class="eyebrow">MACHINE LEARNING</p><h2>AI Sensor Classifier</h2><p>Train a small neural network in your browser and classify sensor conditions.</p></div><span class="engine-tag">TENSORFLOW.JS</span></div>
