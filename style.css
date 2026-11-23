@@ -55,3 +55,7 @@
 .lif-controls output{color:var(--cyan);font-variant-numeric:tabular-nums}
 .lif-controls input{grid-column:1/-1;margin:2px 0;padding:0;accent-color:var(--cyan)}
 @media(max-width:650px){.bloch-canvas{height:250px}.lif-controls{grid-template-columns:1fr}.lif-canvas{height:230px}}
+
+.swarm-toggles{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0}
+.swarm-toggles label{display:flex;align-items:center;gap:7px;margin:4px 0}
+.swarm-toggles input{width:auto;margin:0;accent-color:var(--cyan)}
