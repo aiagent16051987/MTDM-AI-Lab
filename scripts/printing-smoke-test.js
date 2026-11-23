@@ -1,0 +1,11 @@
+import fs from "node:fs";
+import assert from "node:assert/strict";
+const html=fs.readFileSync(new URL("../index.html",import.meta.url),"utf8");
+const js=fs.readFileSync(new URL("../printing-lab.js",import.meta.url),"utf8");
+const css=fs.readFileSync(new URL("../style.css",import.meta.url),"utf8");
+for(const id of ["printing","print3dView","printProcess","printMaterial","printEstimate","printEstimateLog","printVolume","printMass","printTime","printCost","printLayers"])assert(html.includes('id="'+id+'"'),"missing UI id "+id);
+for(const process of ["fdm","sla","dlp","msla","sls","mjf","slm","ebm","binder","materialjet","ded","waam","sheet","pellet","concrete","bio"])assert(js.includes(process+":"),"missing process model "+process);
+assert(html.includes('data-print-shape="bracket"'),"bracket geometry selector exists");
+assert(js.includes("PerspectiveCamera")&&js.includes("WebGLRenderer"),"interactive 3D preview uses WebGL");
+assert(css.includes(".printing-layout"),"responsive printing workspace styles exist");
+console.log("MTDM additive manufacturing smoke tests passed: 16 process families, 3D preview, estimator and responsive UI.");
