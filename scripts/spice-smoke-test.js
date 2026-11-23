@@ -43,4 +43,23 @@ assert(magnitude.length === acResult.frequencies.length && magnitude.every(Numbe
 assert(magnitude[0] > magnitude.at(-1), "RC AC sweep: low-frequency gain exceeds high-frequency gain");
 assert(acResult?.frequencies?.length > 10, "RC AC sweep: returned frequency points");
 
+
+const zero=await simulate(`
+V1 src 0 DC 3.3
+R1 src out 1k
+R2 out 0 2k
+.op
+.end
+`);
+const zeroOut=zero.dc?.voltage("out");
+assert(Number.isFinite(zeroOut)&&Math.abs(zeroOut-2.2)<1e-5,`DC 3.3 V divider: expected 2.2 V, got ${zeroOut}`);
+
+const source=await simulate(`
+V1 in 0 DC 5
+R1 in out 1k
+.op
+.end
+`);
+assert(Math.abs(source.dc.voltage("out")-5)<1e-5,"DC source-resistor node: ideal source holds 5 V");
+
 process.stdout.write("MTDM AI Lab SPICE smoke tests passed:\n- " + checks.join("\n- ") + "\n");
