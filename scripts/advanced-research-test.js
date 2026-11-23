@@ -1,0 +1,18 @@
+import assert from "node:assert/strict";
+import {applySingleQubitGate,applyCNOT,measurementProbabilities,measureTwoQubit,reducedBlochVector,simulateLIF} from "../research-next.js";
+const zero=[[1,0],[0,0],[0,0],[0,0]];
+const close=(a,b,t=1e-9)=>assert.ok(Math.abs(a-b)<t,`${a} != ${b}`);
+const h=applySingleQubitGate(zero,"H",0);
+const bell=applyCNOT(h);
+const p=measurementProbabilities(bell);
+close(p[0],.5);close(p[3],.5);close(p[1],0);close(p[2],0);
+close(Math.hypot(...reducedBlochVector(bell,0) |> Object.values),0,1e-8);
+const hh=applySingleQubitGate(applySingleQubitGate(zero,"H",1),"H",1);
+close(measurementProbabilities(hh)[0],1);
+const measured=measureTwoQubit(bell,()=>.8);
+assert.equal(measured.result,3);close(measurementProbabilities(measured.state)[3],1);
+const lif=simulateLIF({steps:500,dt:.01,tau:.1,threshold:1,reset:0,refractory:4,current:.8});
+assert.ok(lif.spikes.length>0);assert.equal(lif.voltage.length,500);
+assert.ok(lif.spikes.every((x,i)=>i===0||x-lif.spikes[i-1]>=5));
+assert.throws(()=>simulateLIF({steps:5001}),RangeError);
+console.log("PASS · two-qubit gates, Bell-state probabilities, measurement collapse, reduced Bloch state and bounded LIF dynamics");
