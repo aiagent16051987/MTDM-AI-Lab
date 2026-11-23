@@ -168,5 +168,64 @@ $("exportTelemetry").onclick=()=>{
 };
 $("clearTelemetry").onclick=()=>{history=[];sampleIndex=0;$("voltageValue").textContent="—";$("currentValue").textContent="—";$("tempValue").textContent="—";$("sensorStatus").textContent="NO DATA";$("sensorAlert").textContent="No threshold alerts.";$("sensorAlert").classList.remove("is-alert");$("exportTelemetry").disabled=true;$("mqttLog").textContent="Telemetry history cleared.";const c=$("sensorChart").getContext("2d");c.clearRect(0,0,$("sensorChart").width,$("sensorChart").height)};
 let model=null;
-$("trainModel").onclick=async()=>{const status=$("aiStatus"),log=$("aiLog");$("trainModel").disabled=true;status.textContent="TRAINING";try{if(!window.tf)throw Error("TensorFlow.js CDN did not load. Check internet connection.");await tf.ready();const xs=[],ys=[];for(let i=0;i<1200;i++){const v=Math.random()*15,a=Math.random()*5,t=20+Math.random()*100;let cls=(t>85||a>4.2||v>13)?2:(t>60||a>3||v>9)?1:0;xs.push([v/15,a/5,t/120]);ys.push(cls)}const x=tf.tensor2d(xs),y=tf.oneHot(tf.tensor1d(ys,"int32"),3);model?.dispose();model=tf.sequential();model.add(tf.layers.dense({inputShape:[3],units:12,activation:"relu"}));model.add(tf.layers.dense({units:8,activation:"relu"}));model.add(tf.layers.dense({units:3,activation:"softmax"}));model.compile({optimizer:tf.train.adam(.01),loss:"categoricalCrossentropy",metrics:["accuracy"]});await model.fit(x,y,{epochs:18,batchSize:32,callbacks:{onEpochEnd:(e,l)=>{$("trainProgress").style.width=((e+1)/18*100)+"%";log.textContent="Epoch "+(e+1)+"/18 · loss "+l.loss.toFixed(4)+" · accuracy "+(l.acc??l.accuracy??0).toFixed(3)}}});x.dispose();y.dispose();status.textContent="TRAINED";$("classify").disabled=false;log.textContent+="\nTraining complete. Synthetic training data only."}catch(e){status.textContent="ERROR";log.textContent=e.message}finally{$("trainModel").disabled=false}};
-$("classify").onclick=()=>{if(!model)return;const v=Number($("aiVoltage").value),a=Number($("aiCurrent").value),t=Number($("aiTemp").value);if(![v,a,t].every(Number.isFinite)||v<0||v>30||a<0||a>10||t< -20||t>150){$("prediction").querySelector("b").textContent="Invalid input";return}const input=tf.tensor2d([[v/15,a/5,t/120]]),out=model.predict(input);const scores=Array.from(out.dataSync()),names=["NORMAL","WARNING","CRITICAL"],best=scores.indexOf(Math.max(...scores));$("prediction").querySelector("b").textContent=names[best]+" · "+(scores[best]*100).toFixed(1)+"%";$("prediction").querySelector("p").textContent="Class probabilities: "+scores.map((x,i)=>names[i]+" "+(x*100).toFixed(1)+"%").join(" | ");input.dispose();out.dispose()};
+function seededRandom(seed){let state=seed>>>0;return()=>{state=(1664525*state+1013904223)>>>0;return state/4294967296}}
+function makeSensorDataset(){
+ const rand=seededRandom(20261123),features=[],labels=[];
+ const ranges=[[[3.5,7.5],[.3,2.3],[20,52]],[[7.2,11.8],[2,3.9],[48,84]],[[11.5,15],[3.5,5],[78,120]]];
+ for(let cls=0;cls<3;cls++)for(let i=0;i<600;i++){
+  const r=ranges[cls],v=r[0][0]+rand()*(r[0][1]-r[0][0]),c=r[1][0]+rand()*(r[1][1]-r[1][0]),t=r[2][0]+rand()*(r[2][1]-r[2][0]);
+  features.push([v/15,c/5,t/120]);labels.push(cls);
+ }
+ const trainX=[],trainY=[],testX=[],testY=[];
+ for(let cls=0;cls<3;cls++){
+  const indices=Array.from({length:600},(_,i)=>cls*600+i);
+  for(let i=indices.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[indices[i],indices[j]]=[indices[j],indices[i]]}
+  indices.forEach((idx,i)=>{(i<480?trainX:testX).push(features[idx]);(i<480?trainY:testY).push(labels[idx])});
+ }
+ return {trainX,trainY,testX,testY};
+}
+function scoreClassifier(actual,predicted){
+ const matrix=Array.from({length:3},()=>[0,0,0]);
+ actual.forEach((a,i)=>matrix[a][predicted[i]]++);
+ const perClass=matrix.map((row,i)=>{
+  const tp=row[i],fp=matrix.reduce((n,r,j)=>n+(j!==i?r[i]:0),0),fn=row.reduce((n,v,j)=>n+(j!==i?v:0),0);
+  const precision=tp+fp?tp/(tp+fp):0,recall=tp+fn?tp/(tp+fn):0,f1=precision+recall?2*precision*recall/(precision+recall):0;
+  return {precision,recall,f1};
+ });
+ const avg=k=>perClass.reduce((n,x)=>n+x[k],0)/3;
+ return {matrix,accuracy:actual.filter((a,i)=>a===predicted[i]).length/actual.length,precision:avg("precision"),recall:avg("recall"),f1:avg("f1")};
+}
+$("trainModel").onclick=async()=>{
+ const status=$("aiStatus"),log=$("aiLog"),button=$("trainModel");button.disabled=true;status.textContent="PREPARING";$("classify").disabled=true;
+ let tx,ty,test,pred;
+ try{
+  if(!window.tf)throw Error("TensorFlow.js CDN did not load. Check internet connection.");
+  const epochs=Number($("aiEpochs").value);if(!Number.isInteger(epochs)||epochs<5||epochs>60)throw Error("Epochs must be an integer from 5 to 60.");
+  await tf.ready();const data=makeSensorDataset();
+  $("aiSampleCount").textContent="1,800";$("aiTrainCount").textContent=data.trainX.length.toLocaleString();$("aiTestCount").textContent=data.testX.length.toLocaleString();
+  tx=tf.tensor2d(data.trainX);ty=tf.oneHot(tf.tensor1d(data.trainY,"int32"),3);test=tf.tensor2d(data.testX);
+  model?.dispose();model=tf.sequential();
+  model.add(tf.layers.dense({inputShape:[3],units:16,activation:"relu"}));model.add(tf.layers.dense({units:12,activation:"relu"}));model.add(tf.layers.dense({units:3,activation:"softmax"}));
+  model.compile({optimizer:tf.train.adam(.008),loss:"categoricalCrossentropy",metrics:["accuracy"]});
+  status.textContent="TRAINING";log.textContent="Dataset ready: 1,440 train / 360 holdout. Training...";
+  await model.fit(tx,ty,{epochs,batchSize:32,shuffle:true,callbacks:{onEpochEnd:(e,l)=>{$("trainProgress").style.width=((e+1)/epochs*100)+"%";log.textContent="Epoch "+(e+1)+"/"+epochs+" · loss "+l.loss.toFixed(4)+" · training accuracy "+(l.acc??l.accuracy??0).toFixed(3)}}});
+  pred=model.predict(test);const probs=Array.from(pred.dataSync()),predicted=[];
+  for(let i=0;i<data.testY.length;i++){const row=probs.slice(i*3,i*3+3);predicted.push(row.indexOf(Math.max(...row)))}
+  const m=scoreClassifier(data.testY,predicted);
+  $("aiAccuracy").textContent=(m.accuracy*100).toFixed(1)+"%";$("aiPrecision").textContent=(m.precision*100).toFixed(1)+"%";$("aiRecall").textContent=(m.recall*100).toFixed(1)+"%";$("aiF1").textContent=m.f1.toFixed(3);
+  $("aiConfusion").innerHTML="<table><thead><tr><th>Actual ↓ / Predicted →</th><th>Normal</th><th>Warning</th><th>Critical</th></tr></thead><tbody>"+m.matrix.map((row,i)=>"<tr><th>"+["Normal","Warning","Critical"][i]+"</th>"+row.map(n=>"<td>"+n+"</td>").join("")+"</tr>").join("")+"</tbody></table>";
+  $("aiEvalStatus").textContent="HOLDOUT COMPLETE";status.textContent="TRAINED";
+  log.textContent+="\n\nHoldout test: "+data.testY.length+" samples\nAccuracy: "+(m.accuracy*100).toFixed(1)+"% · Macro F1: "+m.f1.toFixed(3)+"\nDataset seed: 20261123 · Synthetic labels only.";
+  $("classify").disabled=false;
+ }catch(e){status.textContent="ERROR";$("aiEvalStatus").textContent="NOT EVALUATED";log.textContent=e.message}
+ finally{tx?.dispose();ty?.dispose();test?.dispose();pred?.dispose();button.disabled=false}
+};
+$("classify").onclick=()=>{
+ if(!model)return;
+ const v=Number($("aiVoltage").value),c=Number($("aiCurrent").value),t=Number($("aiTemp").value);
+ if(![v,c,t].every(Number.isFinite)||v<0||v>30||c<0||c>10||t< -20||t>150){$("prediction").querySelector("b").textContent="Invalid input";return}
+ const input=tf.tensor2d([[v/15,c/5,t/120]]),out=model.predict(input),scores=Array.from(out.dataSync()),names=["NORMAL","WARNING","CRITICAL"],best=scores.indexOf(Math.max(...scores));
+ $("prediction").querySelector("b").textContent=names[best]+" · "+(scores[best]*100).toFixed(1)+"%";
+ $("prediction").querySelector("p").textContent="Class probabilities: "+scores.map((n,i)=>names[i]+" "+(n*100).toFixed(1)+"%").join(" | ")+" · Not calibrated.";
+ input.dispose();out.dispose();
+};
