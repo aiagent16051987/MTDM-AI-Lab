@@ -5,29 +5,29 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0b1220">
   <title>MTDM AI Lab Studio</title>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" type="image/svg+xml" href="./assets/mtdm-ai-lab-favicon.svg"><link rel="stylesheet" href="./style.css">
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./"><span class="brand-mark">M</span><span>MTDM <b>AI LAB</b><small>ENGINEERING STUDIO</small></span></a>
+    <a class="brand" href="./" aria-label="MTDM AI Lab Studio home"><img class="brand-logo" src="./assets/mtdm-ai-lab-logo.svg" alt="MTDM AI Lab logo"><span>MTDM <b>AI LAB</b><small>ENGINEERING STUDIO</small></span></a>
     <div class="top-meta"><span class="live-dot"></span> BROWSER-BASED LAB <span class="version">V3.0</span></div>
   </header>
   <main class="shell">
     <section class="hero">
       <div><p class="eyebrow">MULTI-TECH DIGITAL MANUFACTURING & AI LABORATORY</p><h1>Build. Simulate. <em>Validate.</em></h1><p class="hero-copy">A free browser workspace for electronics, IoT, AI, robotics, quantum science, molecular dynamics and additive manufacturing.</p></div>
-      <div class="hero-chip"><span>8</span><small>ENGINEERING<br>WORKSPACES</small></div>
+      <div class="hero-brand"><img src="./assets/mtdm-ai-lab-logo.svg" alt="MTDM AI Lab — Multi-Tech Digital Manufacturing and AI Laboratory"></div>
     </section>
-    <nav class="tabs" aria-label="Lab workspaces">
-      <button type="button" class="tab active" data-tab="electronics" onclick="window.mtdmShowTab('electronics')">01 / Electronics</button>
-      <button type="button" class="tab" data-tab="iot" onclick="window.mtdmShowTab('iot')">02 / IoT Lab</button>
-      <button type="button" class="tab" data-tab="ai" onclick="window.mtdmShowTab('ai')">03 / AI Lab</button>
-      <button type="button" class="tab" data-tab="robotics" onclick="window.mtdmShowTab('robotics')">04 / Robotics</button>
-      <button type="button" class="tab" data-tab="quantum" onclick="window.mtdmShowTab('quantum')">05 / Quantum</button>
-      <button type="button" class="tab" data-tab="nano" onclick="window.mtdmShowTab('nano')">06 / Nano Lab</button>
-      <button type="button" class="tab" data-tab="research" onclick="window.mtdmShowTab('research')">07 / Research Hub</button>
-      <button type="button" class="tab" data-tab="printing" onclick="window.mtdmShowTab('printing')">08 / 3D Printing</button>
+    <nav class="tabs" role="tablist" aria-label="Lab workspaces">
+      <button type="button" role="tab" aria-selected="true" aria-controls="electronics" class="tab active" data-tab="electronics" onclick="window.mtdmShowTab('electronics')">01 / Electronics</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="iot" class="tab" data-tab="iot" onclick="window.mtdmShowTab('iot')">02 / IoT Lab</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="ai" class="tab" data-tab="ai" onclick="window.mtdmShowTab('ai')">03 / AI Lab</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="robotics" class="tab" data-tab="robotics" onclick="window.mtdmShowTab('robotics')">04 / Robotics</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="quantum" class="tab" data-tab="quantum" onclick="window.mtdmShowTab('quantum')">05 / Quantum</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="nano" class="tab" data-tab="nano" onclick="window.mtdmShowTab('nano')">06 / Nano Lab</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="research" class="tab" data-tab="research" onclick="window.mtdmShowTab('research')">07 / Research Hub</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="printing" class="tab" data-tab="printing" onclick="window.mtdmShowTab('printing')">08 / 3D Printing</button>
     </nav>
     <section id="electronics" class="workspace active">
       <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>Circuit Simulator</h2><p>Run real SPICE netlists with DC operating-point, transient and AC small-signal analysis.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
@@ -351,29 +351,6 @@ C1 out 0 1u
 
     <footer><span>© MTDM AI Lab · Multi-Tech Digital Manufacturing & AI Laboratory</span><span>Open tools · Browser execution · No MTDM server required</span></footer>
   </main>
-  <script>
-    window.mtdmShowTab = function(id) {
-      const tabs = document.querySelectorAll('.tabs [data-tab]');
-      const panels = document.querySelectorAll('main .workspace[id]');
-      const target = document.getElementById(id);
-      if (!target || !Array.from(panels).includes(target)) return;
-      tabs.forEach(tab => {
-        const active = tab.dataset.tab === id;
-        tab.classList.toggle('active', active);
-        tab.setAttribute('aria-selected', String(active));
-      });
-      panels.forEach(panel => {
-        const active = panel.id === id;
-        panel.classList.toggle('active', active);
-        panel.hidden = !active;
-        panel.style.display = active ? 'block' : 'none';
-      });
-    };
-    document.addEventListener('DOMContentLoaded', () => {
-      const active = document.querySelector('.tabs [data-tab].active') || document.querySelector('.tabs [data-tab]');
-      if (active) window.mtdmShowTab(active.dataset.tab);
-    });
-  </script>
   <script src="./navigation.js"></script>
   <script type="module" src="./app.js"></script>
   <script type="module" src="./advanced-labs.js"></script>
