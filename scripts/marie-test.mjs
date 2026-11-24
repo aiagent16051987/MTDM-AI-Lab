@@ -24,5 +24,5 @@ assert.match(report.limitations[0],/metadata/);
 const runner=fs.readFileSync(new URL("./run-marie.mjs",import.meta.url),"utf8");
 assert.ok(runner.includes('redirect:"error"'));
 assert.ok(runner.includes("allowedHosts"));
-assert.ok(!/eval\\s*\\(|new Function/.test(runner));
+assert.ok(!runner.includes("eval(") && !runner.includes("new Function"));
 console.log("PASS — MARIE registry validation, HTTPS-only normalization, deduplication, domain constraints, deterministic hypotheses, report limitations and fetch hardening.");
