@@ -1,5 +1,7 @@
 name: MARIE Autonomous Research Monitor
 on:
+  push:
+    branches: [feature/marie-research-invention-engine]
   pull_request:
     paths:
       - 'research-engine/**'
