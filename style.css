@@ -132,3 +132,9 @@ main .workspace.active:not([hidden]){display:block!important}
 .tab[aria-selected="true"]{color:var(--cyan);border-color:var(--cyan)}
 @media(max-width:700px){.topbar{height:auto;min-height:68px;padding:8px 16px;gap:10px}.brand-logo{width:44px;height:44px}.brand{font-size:12px;letter-spacing:1px;gap:9px}.brand small{font-size:8px;letter-spacing:1px}.top-meta{font-size:8px;letter-spacing:.7px}.version{padding:3px 6px;margin-left:4px}.shell{padding:22px 14px}.hero{gap:14px;padding:20px 0 24px}.hero-brand{width:104px;height:104px;border-radius:12px}.hero-chip{display:none}.tabs{gap:4px}.tab{padding:12px 13px;font-size:12px}}
 @media(max-width:430px){.top-meta{max-width:110px;text-align:right}.live-dot{margin-right:4px}.brand-logo{width:38px;height:38px}.brand small{display:none}.hero-brand{width:82px;height:82px}.hero h1{font-size:30px;letter-spacing:-1px}}
+
+/* Robotics navigation lab */
+.robot-world{display:block;width:100%;height:390px;background:#081321;border:1px solid #26364d;border-radius:9px;margin:14px 0;cursor:crosshair;touch-action:manipulation}
+.robot-readouts{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;color:#a8bdd1;font:11px/1.5 ui-monospace,monospace}
+.robot-readouts span{min-width:0}
+@media(max-width:650px){.robot-world{height:300px}.robot-controls{grid-template-columns:1fr}.robot-readouts{flex-direction:column;gap:4px}}
