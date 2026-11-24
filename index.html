@@ -139,18 +139,19 @@ C1 out 0 1u
       <div class="notice"><b>Scientific limitation</b><span>This is a reproducible ML teaching exercise using artificial labels and simulated sensor values. Holdout scores measure agreement with those synthetic rules only—not real equipment fault detection. Real deployment requires representative measured datasets, leakage checks, calibration, drift monitoring, independent validation and safety engineering.</span></div>
     </section>
     <section id="robotics" class="workspace">
-      <div class="section-head"><div><p class="eyebrow">ROBOTICS & CONTROL</p><h2>Differential-Drive Robot Lab</h2><p>Explore mobile-robot motion using wheel-speed inputs and planar kinematics.</p></div><span class="engine-tag">2D KINEMATICS</span></div>
+      <div class="section-head"><div><p class="eyebrow">ROBOTICS & CONTROL</p><h2>Mobile Robot Navigation Lab</h2><p>Drive a differential robot manually or plan a collision-free route through a small obstacle course. Click the map to choose a goal.</p></div><span class="engine-tag">2D KINEMATICS + A*</span></div>
       <div class="panel">
-        <div class="panel-head"><strong>ROBOT WORLD</strong><span id="robotStatus" class="status">READY</span></div>
-        <canvas id="robotCanvas" class="lab-canvas" aria-label="2D differential drive robot simulation"></canvas>
+        <div class="panel-head"><strong>ROBOT WORLD · TOP-DOWN</strong><span id="robotStatus" class="status">READY</span></div>
+        <canvas id="robotCanvas" class="lab-canvas robot-world" aria-label="Interactive top-down mobile robot map. Click to set a navigation goal." tabindex="0"></canvas>
         <div class="robot-controls">
-          <label>Left wheel speed <input id="leftWheel" type="range" min="-10" max="10" step="0.5" value="2"><b id="leftWheelValue">2.0</b></label>
-          <label>Right wheel speed <input id="rightWheel" type="range" min="-10" max="10" step="0.5" value="3"><b id="rightWheelValue">3.0</b></label>
+          <label>Left wheel speed (rad/s) <input id="leftWheel" type="range" min="-8" max="8" step="0.25" value="2"><b id="leftWheelValue">2.0</b></label>
+          <label>Right wheel speed (rad/s) <input id="rightWheel" type="range" min="-8" max="8" step="0.25" value="3"><b id="rightWheelValue">3.0</b></label>
         </div>
-        <div class="button-row"><button id="robotStart" class="primary-btn">Start robot</button><button id="robotStop" class="subtle-btn">Pause</button><button id="robotReset" class="subtle-btn">Reset</button></div>
-        <p id="robotPose" class="hint">x 0.00 m · y 0.00 m · θ 0.0°</p>
+        <div class="button-row"><button id="robotStart" class="primary-btn">Manual drive</button><button id="robotAuto" class="primary-btn">Plan & auto-drive</button><button id="robotStop" class="subtle-btn">Pause</button><button id="robotReset" class="subtle-btn">Reset</button></div>
+        <div class="robot-readouts"><span id="robotPose">x 0.00 m · y 0.00 m · θ 0.0°</span><span id="robotSensors">Front / left / right range: —</span><span id="robotRouteInfo">Route: not planned</span></div>
+        <p class="hint">Map click sets a goal. Manual mode uses wheel angular speeds; Auto mode uses grid-based A* path planning and a simple waypoint controller. Reset returns to the start pose.</p>
       </div>
-      <div class="notice"><b>Model scope</b><span>Planar differential-drive kinematics only. This version does not model wheel slip, motor electrical dynamics, collisions, sensors, 3D contact physics or ROS. Use Webots or MuJoCo for richer robot dynamics.</span></div>
+      <div class="notice"><b>Model scope & validation</b><span>Planar differential-drive kinematics with idealized range rays, fixed rectangular obstacles, collision checks and grid-based A*. No wheel slip, motor electrical dynamics, moving obstacles, full rigid-body/3D contact physics or ROS integration. It is a navigation teaching model—not a safety-rated robot controller.</span></div>
       <div class="resource-row"><a href="https://cyberbotics.com/" target="_blank" rel="noreferrer">Webots ↗</a><a href="https://mujoco.org/" target="_blank" rel="noreferrer">MuJoCo ↗</a></div>
     </section>
     <section id="quantum" class="workspace">
