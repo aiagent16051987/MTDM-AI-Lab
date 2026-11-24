@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import {planGridPath,stepDiffDrive,wrapAngle} from "../robotics-core.js";
 const obs=[{x:-.5,y:-.5,w:1,h:1}];
-const path=planGridPath({start:{x:-2,y:0},goal:{x:2,y:0},cols:40,rows:40,cellSize:.1,originX:-2,originY:-2,obstacles:obs,robotRadius:.15});
+const path=planGridPath({start:{x:-2,y:0},goal:{x:1.8,y:0},cols:40,rows:40,cellSize:.1,originX:-2,originY:-2,obstacles:obs,robotRadius:.15});
 assert.ok(path&&path.length>2,"A* finds route around obstacle");
-assert.deepEqual(path[0],{x:-2,y:0});assert.deepEqual(path.at(-1),{x:2,y:0});
+assert.deepEqual(path[0],{x:-2,y:0});assert.deepEqual(path.at(-1),{x:1.8,y:0});
 for(const p of path.slice(1,-1))assert.ok(!(p.x>=-.65&&p.x<=.65&&p.y>=-.65&&p.y<=.65),"route avoids inflated obstacle");
 assert.equal(planGridPath({start:{x:0,y:0},goal:{x:1,y:0},cols:10,rows:10,cellSize:1,originX:0,originY:0,obstacles:[{x:0,y:0,w:2,h:2}]}),null,"blocked start rejected");
 const straight=stepDiffDrive({x:0,y:0,theta:0},2,2,.1,.5,1);
