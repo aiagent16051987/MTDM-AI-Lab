@@ -16,7 +16,7 @@ permissions:
   contents: read
 concurrency:
   group: mtdm-marie-research
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   research:
     runs-on: ubuntu-latest
