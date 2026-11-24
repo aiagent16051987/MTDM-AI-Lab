@@ -54,6 +54,10 @@ The test suite checks selected reference cases and integration wiring. After dep
 
 Check the current workflow status and download the browser-audit evidence from [GitHub Actions](https://github.com/aiagent16051987/MTDM-AI-Lab/actions). To run the browser suite locally, install dependencies and Chromium with `npx playwright install chromium`, then use `npm run test:e2e`. Set `MTDM_BASE_URL` to the deployed site URL when testing GitHub Pages.
 
+## Global knowledge and continuous intelligence
+
+The planned knowledge layer is specified in [GLOBAL_KNOWLEDGE_ARCHITECTURE.md](./GLOBAL_KNOWLEDGE_ARCHITECTURE.md). It defines permitted public-source research, provenance, freshness monitoring, model-provider routing, GitHub free-resource budgets, privacy boundaries and human-reviewed self-improvement. These are architecture requirements, not claims that automated global collection or autonomous updates are already live.
+
 ## Runtime, privacy and security
 
 - The site is statically hosted; no MTDM-operated application server or database is required for the core experience.
