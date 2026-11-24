@@ -1,10 +1,6 @@
 name: MTDM AI Lab Browser Audit
 
 on:
-  workflow_run:
-    workflows: ["Deploy MTDM AI Lab Studio"]
-    types: [completed]
-    branches: [main]
   workflow_dispatch:
 
 permissions:
