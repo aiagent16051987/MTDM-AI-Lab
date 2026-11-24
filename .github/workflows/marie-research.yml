@@ -1,0 +1,32 @@
+name: MARIE Autonomous Research Monitor
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 5 * * 1"
+permissions:
+  contents: read
+concurrency:
+  group: mtdm-marie-research
+  cancel-in-progress: true
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run MARIE deterministic tests
+        run: npm run marie:test
+      - name: Run read-only research monitor
+        run: npm run marie:run
+      - name: Upload research reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: marie-research-${{ github.run_number }}
+          path: artifacts/marie/
+          if-no-files-found: error
+          retention-days: 30
