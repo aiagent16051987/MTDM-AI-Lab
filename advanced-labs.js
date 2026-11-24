@@ -74,13 +74,13 @@ import { planGridPath, stepDiffDrive, wrapAngle } from "./robotics-core.js";
   };
   $("leftWheel").addEventListener("input",e=>{state.left=Number(e.target.value);$("leftWheelValue").textContent=state.left.toFixed(2)});
   $("rightWheel").addEventListener("input",e=>{state.right=Number(e.target.value);$("rightWheelValue").textContent=state.right.toFixed(2)});
-  $("robotStart").onclick=()=>{state.mode="manual";state.running=true;state.last=performance.now();log("robotStatus","MANUAL DRIVE · kinematic model");requestAnimationFrame(step)};
-  $("robotAuto").onclick=()=>{if(blocked(state.goal.x,state.goal.y)){log("robotStatus","GOAL INSIDE OBSTACLE");return}if(!plan()){log("robotStatus","NO ROUTE");return}state.mode="auto";state.running=true;state.last=performance.now();log("robotStatus","AUTO NAVIGATION · A*");requestAnimationFrame(step)};
+  $("robotStart").onclick=()=>{state.mode="manual";log("robotStatus","MANUAL DRIVE · kinematic model");if(state.running)return;state.running=true;state.last=performance.now();requestAnimationFrame(step)};
+  $("robotAuto").onclick=()=>{if(blocked(state.goal.x,state.goal.y)){log("robotStatus","GOAL INSIDE OBSTACLE");return}if(!plan()){log("robotStatus","NO ROUTE");return}state.mode="auto";log("robotStatus","AUTO NAVIGATION · A*");if(state.running)return;state.running=true;state.last=performance.now();requestAnimationFrame(step)};
   $("robotStop").onclick=()=>{state.running=false;log("robotStatus","PAUSED")};
   $("robotReset").onclick=()=>{state.running=false;Object.assign(state,{x:-5,y:-3,theta:0,trail:[],mode:"manual",path:[],waypoint:0,goal:{x:4.8,y:3}});draw();log("robotStatus","RESET · start pose")};
   const setGoal=(event)=>{
     const rect=canvas.getBoundingClientRect(),world=canvasToWorld(event.clientX-rect.left,event.clientY-rect.top);
-    state.goal={x:clamp(world.x,-W/2+R,W/2-R),y:clamp(world.y,-H/2+R,H/2-R)};state.path=[];log("robotRouteInfo","Goal selected · click Plan & auto-drive");draw();
+    state.goal={x:clamp(world.x,-W/2+R,W/2-R),y:clamp(world.y,-H/2+R,H/2-R)};state.path=[];if(state.mode==="auto"){state.running=false;state.mode="manual";log("robotStatus","GOAL UPDATED · re-plan route")}log("robotRouteInfo","Goal selected · click Plan & auto-drive");draw();
   };
   canvas.addEventListener("click",setGoal);
   canvas.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();state.goal={x:4.8,y:3};draw()}});
