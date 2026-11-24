@@ -1,0 +1,17 @@
+import fs from "node:fs";
+import assert from "node:assert/strict";
+const html=fs.readFileSync(new URL("../index.html",import.meta.url),"utf8");
+const nav=fs.readFileSync(new URL("../navigation.js",import.meta.url),"utf8");
+const logo=fs.readFileSync(new URL("../assets/mtdm-ai-lab-logo.svg",import.meta.url),"utf8");
+const icon=fs.readFileSync(new URL("../assets/mtdm-ai-lab-favicon.svg",import.meta.url),"utf8");
+const ids=[...html.matchAll(/data-tab="([^"]+)"/g)].map(m=>m[1]);
+assert.equal(ids.length,8,"expected eight workspace tabs");
+assert.equal(new Set(ids).size,ids.length,"workspace tab IDs must be unique");
+for(const id of ids)assert(html.includes('id="'+id+'"'),"missing panel for "+id);
+assert(html.includes('href="./assets/mtdm-ai-lab-favicon.svg"'),"browser favicon is linked");
+assert(html.includes('src="./assets/mtdm-ai-lab-logo.svg"'),"brand logo is visible in page header");
+assert(html.includes('role="tablist"')&&html.includes('aria-controls="electronics"'),"navigation is accessible");
+assert(logo.includes("MTDM")&&logo.includes("AI LAB"),"brand SVG contains wordmark");
+assert(icon.includes("<svg"),"favicon SVG exists");
+for(const key of ["ArrowRight","ArrowLeft","Home","End","aria-selected","window.mtdmShowTab"])assert(nav.includes(key),"navigation feature missing: "+key);
+console.log("MTDM brand/navigation checks passed: favicon, visible logo, eight mapped tabs, keyboard support.");
