@@ -72,6 +72,14 @@ Use these tools for learning, prototyping and bounded simulations—not as subst
 
 For project-wide safety, privacy, security, scientific-integrity and release principles, read [RESEARCH_SAFETY.md](./RESEARCH_SAFETY.md). Applicable laws and specialist requirements must be reviewed before real-world use; this project documentation is not legal advice.
 
-## License
+## Copyright and permissions
 
-No repository-wide open-source license is currently declared. Unless a license is added, do not assume the project source is available for unrestricted reuse. Third-party components retain their own licenses; see their respective project documentation.
+Copyright (c) 2026 MTDM AI Lab. All rights reserved.
+
+This repository is publicly visible for review and contribution. Public visibility is not a grant of permission to reuse the project's original source code. Unless MTDM AI Lab gives prior written permission, you may not independently copy, modify, adapt, publish, redistribute, sublicense, host, deploy, sell, or commercially exploit the project's original code, designs, documentation, branding or other protected materials. The limited viewing and forking rights provided by GitHub's Terms of Service still apply to use of GitHub itself; a GitHub fork is not a separate commercial or redistribution licence from the project owner.
+
+Contributions are welcome through issues and pull requests. Before a contribution can be merged, its author must explicitly accept the [MTDM AI Lab Contributor License Agreement](./CLA.md). The agreement lets the project maintainers incorporate, modify, distribute and commercially license accepted contributions while the contributor retains copyright ownership. Do not submit third-party or employer-owned material unless you have authority and have disclosed its origin and licence.
+
+This is a custom, restrictive copyright notice, not an OSI-approved open-source licence. Third-party dependencies, assets, datasets and code remain subject to their own licences and terms; this notice does not override them. Permission requests: open a GitHub issue describing the intended use, or contact the project owner through the repository's listed contact channel. No permission is granted until it is expressly confirmed in writing by an authorized rights holder.
+
+See [LICENSE](./LICENSE), [CLA.md](./CLA.md) and [CONTRIBUTING.md](./CONTRIBUTING.md). These documents are project templates and should receive review by a qualified Pakistan-based intellectual-property lawyer before being relied upon in a commercial dispute.
