@@ -27,10 +27,6 @@ The learning workspace covers material extrusion (FDM/FFF and pellet), vat photo
 
 The process selector and estimates are simplified planning aids. Actual printability, support strategy, tolerances, material behavior, machine settings, safety requirements and cost depend on the specific printer, material, geometry and supplier.
 
-## Knowledge & Intelligence Hub
-
-The Knowledge Hub provides a curated, source-attributed catalogue of public educational and technical references plus a registry of optional AI provider candidates. It does not scrape the open web or connect to providers in the browser. A weekly, bounded GitHub Actions workflow checks up to 16 approved links and stores a short-lived JSON artifact; link reachability is not scientific validation or a guarantee of freshness. See [GLOBAL_KNOWLEDGE_ARCHITECTURE.md](./GLOBAL_KNOWLEDGE_ARCHITECTURE.md) and [RESEARCH_SAFETY.md](./RESEARCH_SAFETY.md).
-
 ## Run locally
 
 Requirements: a current Node.js LTS release and npm.
@@ -58,9 +54,9 @@ The test suite checks selected reference cases and integration wiring. After dep
 
 Check the current workflow status and download the browser-audit evidence from [GitHub Actions](https://github.com/aiagent16051987/MTDM-AI-Lab/actions). To run the browser suite locally, install dependencies and Chromium with `npx playwright install chromium`, then use `npm run test:e2e`. Set `MTDM_BASE_URL` to the deployed site URL when testing GitHub Pages.
 
-## Global knowledge and continuous intelligence
+## Continuous improvement
 
-The planned knowledge layer is specified in [GLOBAL_KNOWLEDGE_ARCHITECTURE.md](./GLOBAL_KNOWLEDGE_ARCHITECTURE.md). It defines permitted public-source research, provenance, freshness monitoring, model-provider routing, GitHub free-resource budgets, privacy boundaries and human-reviewed self-improvement. These are architecture requirements, not claims that automated global collection or autonomous updates are already live.
+Research and improvement capabilities are maintained as internal engineering functions, not as a separate public workspace. Any future automated research or AI integrations must follow the project's privacy, source-attribution, security and human-review requirements.
 
 ## Runtime, privacy and security
 
