@@ -60,7 +60,9 @@ $("runSim").onclick=async()=>{
  status.textContent="RUNNING";$("runSim").disabled=true;
  try{
   const netlist=$("netlist").value.trim();if(!netlist)throw new Error("Netlist is empty.");
-  const result=await simulate(netlist);
+  // GitHub Pages is a browser-only runtime: keep .step execution on the main thread
+  // instead of allowing the package to fall back to Node worker_threads.
+  const result=await simulate(netlist,{stepWorkers:false});
   let analysis="",points=[];
   if(result.transient){
    const times=Array.from(result.transient.time),values=Array.from(result.transient.voltage(probe));
