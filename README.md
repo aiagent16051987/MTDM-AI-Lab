@@ -1,72 +1,73 @@
 # MTDM AI Lab Studio
 
-A static browser workspace for electronics, IoT and AI experiments, deployed on GitHub Pages.
+**A free, browser-based engineering and research sandbox** for electronics, IoT, AI, robotics, quantum concepts, molecular dynamics, emerging technologies, and additive manufacturing.
+
+- **Live app:** https://aiagent16051987.github.io/MTDM-AI-Lab/
+- **Source:** https://github.com/aiagent16051987/MTDM-AI-Lab
+- **Hosting:** GitHub Pages (static site)
+
+The workspace is designed for learners and builders from beginner to advanced level. Simulations are educational models; each module's assumptions and limits matter.
 
 ## Workspaces
 
-- **Electronics:** SPICE netlist editor powered by `@spice-ts/core`, with DC operating point, transient and AC small-signal analysis.
-- **IoT:** local synthetic sensor stream and optional MQTT over WebSocket.
-- **AI:** TensorFlow.js neural classifier trained on synthetic voltage/current/temperature examples.
+| Workspace | What you can explore | Important limits |
+|---|---|---|
+| Electronics | SPICE netlists, DC operating point/sweep, transient and AC analysis; guided voltage-divider, RC and RLC experiments; CSV export; visual R/C/L/voltage-source netlist builder | The visual builder is not a full schematic CAD editor. Simulation is not a hardware measurement or safety certification. |
+| IoT | Synthetic sensor streams and MQTT over WebSocket | Public broker traffic is not private. Do not send credentials, secrets or personal data. |
+| AI | TensorFlow.js classifier trained on synthetic sensor examples | Demonstration only; not a validated fault detector or safety-critical controller. |
+| Robotics | 2D differential-drive kinematics, manual wheel controls, idealized range rays, obstacle course and A* route planning | Not full rigid-body physics, wheel-slip simulation, ROS integration or a safety-rated controller. |
+| Quantum | Ideal single-qubit state-vector gates and measurement | No noisy hardware model or general multi-qubit simulator. |
+| Nano | Simplified 2D classical Lennard-Jones molecular-dynamics teaching model | Not quantum chemistry, validated materials science or a biological nanorobot model. |
+| Research Hub | Local 2D swarm/Boids prototype and a roadmap of emerging-technology topics | The roadmap is not a claim that every listed technology has a working simulator. See [research safety policy](./RESEARCH_SAFETY.md). |
+| 3D Printing & Additive Manufacturing | Process/material exploration, interactive 3D preview and illustrative volume, mass, time and cost estimates | Not a CAD kernel, production slicer, machine controller, certified process model or supplier quotation. |
 
-## Deploy
+### Additive manufacturing scope
 
-Pushes to `main` run automated SPICE smoke tests, build the static site with Vite, and deploy `dist/` to GitHub Pages.
+The learning workspace covers material extrusion (FDM/FFF and pellet), vat photopolymerization (SLA/DLP/MSLA), polymer and metal powder-bed fusion (SLS/MJF/LPBF/EB-PBF), binder jetting, material jetting, directed-energy deposition, wire-arc additive manufacturing, sheet lamination, construction extrusion, research-only bioprinting and hybrid additive manufacturing.
 
-Live site: https://aiagent16051987.github.io/MTDM-AI-Lab/
+The process selector and estimates are simplified planning aids. Actual printability, support strategy, tolerances, material behavior, machine settings, safety requirements and cost depend on the specific printer, material, geometry and supplier.
 
-## Circuit simulator
+## Run locally
 
-The circuit tab uses the MIT-licensed `@spice-ts/core` TypeScript SPICE engine. It parses SPICE netlists and supports DC operating point, DC sweep, transient and AC analysis, plus resistor, capacitor, inductor, independent sources, diode, BJT, MOSFET and controlled-source models. Advanced device models and convergence can still have simulator-specific limitations; check the engine documentation and validate important designs against independent tools and hardware measurements.
+Requirements: a current Node.js LTS release and npm.
 
-Engine documentation: https://github.com/spicets/spice-ts
+```bash
+git clone https://github.com/aiagent16051987/MTDM-AI-Lab.git
+cd MTDM-AI-Lab
+npm install
+npm run dev
+```
 
-The CI smoke tests check a 12 V resistor divider, an RC transient response and an RC AC frequency sweep. Passing these tests confirms only those reference cases, not production readiness or safety certification.
+Vite prints a local development URL in the terminal. To create and preview a production build:
 
-## IoT and AI limitations
+```bash
+npm test
+npm run build
+npm run preview
+```
 
-The IoT tab uses a public MQTT broker by default. Public broker traffic is not private; do not send secrets, credentials or personal data.
+## Automated checks and deployment
 
-The AI classifier uses synthetic data and is for demonstrating an ML workflow only. It is not a validated fault detector and must not control charger, battery, mains or other safety-critical protection functions.
+Pushes to `main` run the GitHub Actions Pages workflow. It installs dependencies, runs the repository's smoke/regression checks, builds the static site and deploys the build output to GitHub Pages.
 
-## Runtime and privacy
+The test suite checks selected reference cases and integration wiring: SPICE examples, research and robotics model behavior, printing/IoT/AI checks, navigation/brand assets, script syntax and tab-to-panel integration. **A passing CI run is not exhaustive browser QA and does not certify scientific accuracy, physical safety, production readiness or every external service.**
 
-No MTDM-owned backend or database is required. Circuit simulation runs in the browser. TensorFlow.js and MQTT.js are loaded from public CDNs, so their tabs require internet access. No user project is intentionally uploaded to an MTDM server.
+Check the current workflow status in [GitHub Actions](https://github.com/aiagent16051987/MTDM-AI-Lab/actions).
 
+## Runtime, privacy and security
 
-## Expanded research workspaces
+- The site is statically hosted; no MTDM-operated application server or database is required for the core experience.
+- Browser computations use the visitor's device. Some libraries are loaded from public CDNs, so those features need internet access.
+- The project does not intentionally upload user projects to an MTDM server. MQTT connections and other third-party services have their own data-handling behavior; review the service before use.
+- Keep credentials, secrets, personal data and sensitive research data out of public brokers and untrusted inputs.
+- Treat external links, third-party packages and any future integrations as dependencies that need review.
 
-The browser UI now includes six learning and prototyping areas:
+## Scientific and responsible-use scope
 
-- **Electronics:** SPICE netlist editor and analysis interface, plus a visual component-to-netlist builder for R, C, L and voltage-source elements. The schematic preview is a connectivity aid, not a full CAD wiring editor.
-- **IoT:** synthetic local sensor stream and MQTT over WebSocket.
-- **AI:** TensorFlow.js classifier trained on synthetic examples.
-- **Robotics:** 2D differential-drive kinematics demonstration.
-- **Quantum:** ideal single-qubit state-vector gates and measurement.
-- **Nano:** small 2D classical Lennard-Jones molecular-dynamics teaching model.
+Use these tools for learning, prototyping and bounded simulations—not as substitutes for specialist engineering tools, medical advice, biological protocols, industrial control systems or safety reviews. Do not connect an educational model directly to safety-critical hardware.
 
-### Scientific scope and limitations
+For project-wide safety, privacy, security, scientific-integrity and release principles, read [RESEARCH_SAFETY.md](./RESEARCH_SAFETY.md). Applicable laws and specialist requirements must be reviewed before real-world use; this project documentation is not legal advice.
 
-These modules are educational/prototyping tools, not validated engineering or research certification. The robotics module is kinematic rather than full rigid-body dynamics; the quantum module currently models one ideal qubit; the nano module uses a simplified 2D reduced-unit classical model. Safety-critical electronics and publishable scientific results require independent validation and appropriate specialist software.
+## License
 
-### Free compute approach
-
-The front end is static-hosted on GitHub Pages. Browser workloads run on the visitor's device; heavier workflows should use optional local open-source tools or user-provided compute rather than an MTDM-operated paid server.
-
-
-## Research Hub and responsible-use baseline
-
-The seventh workspace adds an interactive local-only 2D swarm robotics prototype using a simplified Boids model with bounded agent count/speed and adjustable separation, alignment and cohesion. It is a kinematic teaching model, not a validated robot-fleet controller.
-
-The Research Hub also tracks 12 emerging-technology topics and clearly distinguishes prototype, existing/upgrade and planned modules. See [RESEARCH_SAFETY.md](./RESEARCH_SAFETY.md) for project-wide safety, privacy, security, scientific-integrity and release gates.
-
-These are educational models, not medical, biological, industrial or engineering certifications. The policy is not legal advice; applicable laws and specialist requirements must be reviewed before public deployment or real-world use.
-
-
-## Guided electronics experiments
-
-The Electronics workspace includes guided voltage-divider, RC transient, RC low-pass AC sweep and series-RLC transient experiments. Each experiment displays the circuit principle and relevant first-order theory, then runs the netlist through the browser SPICE engine. Transient and AC sample data can be exported as CSV. Results are numerical simulation outputs, not hardware measurements or safety certification.
-
-
-## 3D Printing & Additive Manufacturing Lab
-
-The printing workspace covers material extrusion (FDM/FFF and pellet), vat photopolymerization (SLA/DLP/MSLA), polymer and metal powder-bed fusion (SLS/MJF/LPBF/EB-PBF), binder jetting, material jetting, directed-energy deposition, WAAM, sheet lamination, construction extrusion, research-only bioprinting and hybrid additive manufacturing. It includes an interactive WebGL 3D preview, a simplified process/material compatibility selector and an illustrative volume, mass, time and cost estimator. It is not a CAD kernel, production slicer, machine controller, certified process model or quotation engine.
+No repository-wide open-source license is currently declared. Unless a license is added, do not assume the project source is available for unrestricted reuse. Third-party components retain their own licenses; see their respective project documentation.
