@@ -28,7 +28,6 @@
       <button type="button" role="tab" aria-selected="false" aria-controls="nano" class="tab" id="tab-nano" data-tab="nano">06 / Nano Lab</button>
       <button type="button" role="tab" aria-selected="false" aria-controls="research" class="tab" id="tab-research" data-tab="research">07 / Research Hub</button>
       <button type="button" role="tab" aria-selected="false" aria-controls="printing" class="tab" id="tab-printing" data-tab="printing">08 / 3D Printing</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="knowledge" class="tab" id="tab-knowledge" data-tab="knowledge">09 / Knowledge Hub</button>
     </nav>
     <section id="electronics" class="workspace active" role="tabpanel" aria-labelledby="tab-electronics" tabindex="0">
       <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>Circuit Simulator</h2><p>Run real SPICE netlists with DC operating-point, transient and AC small-signal analysis.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
@@ -352,36 +351,6 @@ C1 out 0 1u
     </section>
 
 
-    <section id="knowledge" class="workspace" role="tabpanel" aria-labelledby="tab-knowledge" tabindex="0">
-      <div class="section-head"><div><p class="eyebrow">GLOBAL RESEARCH · EVIDENCE · FRESHNESS</p><h2>Knowledge & Intelligence Hub</h2><p>Curated public technical and educational sources, provenance-aware research and model-provider readiness. Works without an AI key or external service.</p></div><span class="engine-tag">READ-ONLY · SAFE BY DEFAULT</span></div>
-      <div class="panel knowledge-policy">
-        <div class="panel-head"><strong>KNOWLEDGE INTEGRITY</strong><span class="status">SOURCE-TRACEABLE</span></div>
-        <div class="knowledge-principles">
-          <div><b>Public sources</b><span>Official documentation, universities, research institutions and maintained project docs.</span></div>
-          <div><b>Freshness honesty</b><span>Review dates are shown. Link checks do not prove scientific claims are current.</span></div>
-          <div><b>Privacy first</b><span>No user files, prompts, credentials or personal data are uploaded by this catalogue.</span></div>
-          <div><b>Human approval</b><span>AI may propose changes; tests and human review gate repository releases.</span></div>
-        </div>
-        <p class="hint">This is a curated source index, not an internet-wide crawler. Respect each source's terms, licence, robots policy and attribution requirements before reuse.</p>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><strong>GLOBAL EDUCATION & TECHNICAL SOURCE CATALOGUE</strong><span id="knowledgeCount" class="status">LOADING</span></div>
-        <div class="knowledge-filters">
-          <label>Search sources, topics or publishers<input id="knowledgeSearch" type="search" maxlength="120" placeholder="e.g. PCB, robotics, quantum, materials"></label>
-          <label>Research domain<select id="knowledgeDomain"><option value="all">All domains</option><option value="electronics">Electronics</option><option value="iot">IoT & embedded</option><option value="ai">AI & machine learning</option><option value="robotics">Robotics</option><option value="quantum">Quantum science</option><option value="nano">Nano & materials</option><option value="manufacturing">Additive manufacturing</option><option value="general">General science & education</option></select></label>
-        </div>
-        <div id="knowledgeResults" class="knowledge-results" aria-live="polite"></div>
-        <p id="knowledgeEmpty" class="hint" hidden>No matching source. Try another term or domain.</p>
-        <div class="knowledge-actions"><a href="https://github.com/aiagent16051987/MTDM-AI-Lab/actions/workflows/knowledge-source-audit.yml" target="_blank" rel="noopener noreferrer">Open scheduled source-audit workflow ↗</a><a href="./GLOBAL_KNOWLEDGE_ARCHITECTURE.md">Read architecture & governance ↗</a></div>
-      </div>
-      <div class="panel knowledge-providers">
-        <div class="panel-head"><strong>MODEL PROVIDER REGISTRY</strong><span class="status">NO KEYS STORED</span></div>
-        <p class="hint">Providers below are candidates, not active connections or guaranteed free services. Check current pricing, quotas, region availability, data policies and terms on the official site. The public GitHub Pages app deliberately does not accept or store API secrets.</p>
-        <div id="providerResults" class="provider-results"></div>
-      </div>
-      <div class="notice"><b>Security boundary</b><span>Provider calls are not enabled in this release. Future integrations must be opt-in, use user-controlled credentials outside this public frontend, disclose exactly what data is sent, and fall back only to already-authorized providers. No autonomous code deployment or hidden collection.</span></div>
-    </section>
-
     <footer><span>© MTDM AI Lab · Multi-Tech Digital Manufacturing & AI Laboratory</span><span>Open tools · Browser execution · No MTDM server required</span></footer>
   </main>
   <script type="module" src="./navigation.js"></script>
@@ -391,6 +360,5 @@ C1 out 0 1u
   <script type="module" src="./research-labs.js"></script>
   <script type="module" src="./research-next.js"></script>
   <script type="module" src="./printing-lab.js"></script>
-  <script type="module" src="./knowledge-hub.js"></script>
 </body>
 </html>
