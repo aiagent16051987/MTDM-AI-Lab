@@ -8,13 +8,14 @@ const workspaces = [
   ["quantum", /Quantum/i],
   ["nano", /Nano Lab/i],
   ["research", /Research Hub/i],
-  ["printing", /3D Printing/i]
+  ["printing", /3D Printing/i],
+  ["knowledge", /Knowledge Hub/i]
 ];
 
-test("all eight workspaces navigate and expose exactly one active panel", async ({ page }) => {
+test("all nine workspaces navigate and expose exactly one active panel", async ({ page }) => {
   await page.goto("./");
   const tabs = page.getByRole("tab");
-  await expect(tabs).toHaveCount(8);
+  await expect(tabs).toHaveCount(9);
 
   for (const [id, label] of workspaces) {
     await page.getByRole("tab", { name: label }).click();
@@ -86,6 +87,19 @@ test("mobile viewport keeps all workspace tabs reachable", async ({ page }) => {
   await expect(nav).toBeVisible();
   await page.getByRole("tab", { name: /3D Printing/i }).click();
   await expect(page.locator("#printing")).toBeVisible();
+});
+
+
+test("Knowledge Hub searches curated sources and exposes provider candidates without credentials", async ({ page }) => {
+  await page.goto("./");
+  await page.getByRole("tab", { name: /Knowledge Hub/i }).click();
+  await expect(page.locator("#knowledgeCount")).toContainText("SOURCES");
+  await expect(page.locator("#knowledgeResults .knowledge-card")).not.toHaveCount(0);
+  await page.locator("#knowledgeSearch").fill("quantum");
+  await expect(page.locator("#knowledgeResults .knowledge-card")).toHaveCount(2);
+  await expect(page.locator("#knowledgeResults")).toContainText("IBM Quantum Learning");
+  await expect(page.locator("#providerResults .provider-card")).toHaveCount(6);
+  await expect(page.locator("#providerResults")).toContainText("NOT CONNECTED");
 });
 
 test("navigation does not produce uncaught JavaScript exceptions", async ({ page }) => {
