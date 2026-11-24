@@ -111,7 +111,7 @@ test("single-qubit gates and two-qubit Bell-state path respond", async ({ page }
   await page.getByRole("tab", { name: /Research Hub/i }).click();
   await page.locator("#qBell").click();
   await expect(page.locator("#twoQubitState")).not.toBeEmpty();
-  await expect(page.locator("#twoQubitProbabilities")).toContainText("0.5");
+  await expect(page.locator("#twoQubitProbabilities")).toContainText("50.0%");
 });
 
 test("nano dynamics and swarm prototype start and stop", async ({ page }) => {
