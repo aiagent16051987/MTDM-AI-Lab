@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 
 const DOMAIN_SET = new Set(["electronics","iot","ai","robotics","quantum","nano","manufacturing"]);
-const clean = (value, max=500) => String(value ?? "").replace(/[\\u0000-\\u001f\\u007f]/g," ").replace(/\\s+/g," ").trim().slice(0,max);
+const clean = (value, max=500) => String(value ?? "").replace(/[\u0000-\u001f\u007f]/g," ").replace(/\s+/g," ").trim().slice(0,max);
 const stableId = value => crypto.createHash("sha256").update(String(value)).digest("hex").slice(0,16);
 
 export function validateRegistry(registry) {
