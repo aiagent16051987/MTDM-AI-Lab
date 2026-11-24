@@ -1,5 +1,12 @@
 name: MARIE Autonomous Research Monitor
 on:
+  pull_request:
+    paths:
+      - 'research-engine/**'
+      - 'scripts/marie-test.mjs'
+      - 'scripts/run-marie.mjs'
+      - 'package.json'
+      - '.github/workflows/marie-research.yml'
   workflow_dispatch:
   schedule:
     - cron: "41 5 * * 1"
