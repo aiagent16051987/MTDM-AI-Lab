@@ -20,14 +20,14 @@
       <div class="hero-brand"><img src="./assets/mtdm-ai-lab-logo.svg" alt="MTDM AI Lab — Multi-Tech Digital Manufacturing and AI Laboratory"></div>
     </section>
     <nav class="tabs" role="tablist" aria-label="Lab workspaces">
-      <button type="button" role="tab" aria-selected="true" aria-controls="electronics" class="tab active" id="tab-electronics" data-tab="electronics" onclick="window.mtdmShowTab('electronics')">01 / Electronics</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="iot" class="tab" id="tab-iot" data-tab="iot" onclick="window.mtdmShowTab('iot')">02 / IoT Lab</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="ai" class="tab" id="tab-ai" data-tab="ai" onclick="window.mtdmShowTab('ai')">03 / AI Lab</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="robotics" class="tab" id="tab-robotics" data-tab="robotics" onclick="window.mtdmShowTab('robotics')">04 / Robotics</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="quantum" class="tab" id="tab-quantum" data-tab="quantum" onclick="window.mtdmShowTab('quantum')">05 / Quantum</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="nano" class="tab" id="tab-nano" data-tab="nano" onclick="window.mtdmShowTab('nano')">06 / Nano Lab</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="research" class="tab" id="tab-research" data-tab="research" onclick="window.mtdmShowTab('research')">07 / Research Hub</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="printing" class="tab" id="tab-printing" data-tab="printing" onclick="window.mtdmShowTab('printing')">08 / 3D Printing</button>
+      <button type="button" role="tab" aria-selected="true" aria-controls="electronics" class="tab active" id="tab-electronics" data-tab="electronics">01 / Electronics</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="iot" class="tab" id="tab-iot" data-tab="iot">02 / IoT Lab</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="ai" class="tab" id="tab-ai" data-tab="ai">03 / AI Lab</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="robotics" class="tab" id="tab-robotics" data-tab="robotics">04 / Robotics</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="quantum" class="tab" id="tab-quantum" data-tab="quantum">05 / Quantum</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="nano" class="tab" id="tab-nano" data-tab="nano">06 / Nano Lab</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="research" class="tab" id="tab-research" data-tab="research">07 / Research Hub</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="printing" class="tab" id="tab-printing" data-tab="printing">08 / 3D Printing</button>
     </nav>
     <section id="electronics" class="workspace active" role="tabpanel" aria-labelledby="tab-electronics" tabindex="0">
       <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>Circuit Simulator</h2><p>Run real SPICE netlists with DC operating-point, transient and AC small-signal analysis.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
@@ -352,7 +352,7 @@ C1 out 0 1u
 
     <footer><span>© MTDM AI Lab · Multi-Tech Digital Manufacturing & AI Laboratory</span><span>Open tools · Browser execution · No MTDM server required</span></footer>
   </main>
-  <script src="./navigation.js"></script>
+  <script type="module" src="./navigation.js"></script>
   <script type="module" src="./app.js"></script>
   <script type="module" src="./advanced-labs.js"></script>
   <script type="module" src="./visual-circuit.js"></script>
