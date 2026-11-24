@@ -16,20 +16,20 @@
   </header>
   <main class="shell">
     <section class="hero">
-      <div><p class="eyebrow">MULTI-TECH DIGITAL MANUFACTURING & AI LABORATORY</p><h1>Build. Simulate. <em>Validate.</em></h1><p class="hero-copy">A free browser workspace for electronics, IoT, AI, robotics, quantum science, molecular dynamics and additive manufacturing.</p></div>
+      <div><p class="eyebrow">MULTI-TECH DIGITAL MANUFACTURING & AI LABORATORY</p><h1>Build. Simulate. <em>Explore.</em></h1><p class="hero-copy">A free browser workspace for electronics, IoT, AI, robotics, quantum science, molecular dynamics and additive manufacturing.</p></div>
       <div class="hero-brand"><img src="./assets/mtdm-ai-lab-logo.svg" alt="MTDM AI Lab — Multi-Tech Digital Manufacturing and AI Laboratory"></div>
     </section>
     <nav class="tabs" role="tablist" aria-label="Lab workspaces">
-      <button type="button" role="tab" aria-selected="true" aria-controls="electronics" class="tab active" data-tab="electronics" onclick="window.mtdmShowTab('electronics')">01 / Electronics</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="iot" class="tab" data-tab="iot" onclick="window.mtdmShowTab('iot')">02 / IoT Lab</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="ai" class="tab" data-tab="ai" onclick="window.mtdmShowTab('ai')">03 / AI Lab</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="robotics" class="tab" data-tab="robotics" onclick="window.mtdmShowTab('robotics')">04 / Robotics</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="quantum" class="tab" data-tab="quantum" onclick="window.mtdmShowTab('quantum')">05 / Quantum</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="nano" class="tab" data-tab="nano" onclick="window.mtdmShowTab('nano')">06 / Nano Lab</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="research" class="tab" data-tab="research" onclick="window.mtdmShowTab('research')">07 / Research Hub</button>
-      <button type="button" role="tab" aria-selected="false" aria-controls="printing" class="tab" data-tab="printing" onclick="window.mtdmShowTab('printing')">08 / 3D Printing</button>
+      <button type="button" role="tab" aria-selected="true" aria-controls="electronics" class="tab active" id="tab-electronics" data-tab="electronics" onclick="window.mtdmShowTab('electronics')">01 / Electronics</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="iot" class="tab" id="tab-iot" data-tab="iot" onclick="window.mtdmShowTab('iot')">02 / IoT Lab</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="ai" class="tab" id="tab-ai" data-tab="ai" onclick="window.mtdmShowTab('ai')">03 / AI Lab</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="robotics" class="tab" id="tab-robotics" data-tab="robotics" onclick="window.mtdmShowTab('robotics')">04 / Robotics</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="quantum" class="tab" id="tab-quantum" data-tab="quantum" onclick="window.mtdmShowTab('quantum')">05 / Quantum</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="nano" class="tab" id="tab-nano" data-tab="nano" onclick="window.mtdmShowTab('nano')">06 / Nano Lab</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="research" class="tab" id="tab-research" data-tab="research" onclick="window.mtdmShowTab('research')">07 / Research Hub</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="printing" class="tab" id="tab-printing" data-tab="printing" onclick="window.mtdmShowTab('printing')">08 / 3D Printing</button>
     </nav>
-    <section id="electronics" class="workspace active">
+    <section id="electronics" class="workspace active" role="tabpanel" aria-labelledby="tab-electronics" tabindex="0">
       <div class="section-head"><div><p class="eyebrow">CIRCUIT ENGINEERING</p><h2>Circuit Simulator</h2><p>Run real SPICE netlists with DC operating-point, transient and AC small-signal analysis.</p></div><span class="engine-tag">SPICE-TS ENGINE</span></div>
       <div class="panel schematic-panel">
         <div class="panel-head"><strong>VISUAL SCHEMATIC BUILDER</strong><span class="status">NETLIST GENERATOR</span></div>
@@ -76,7 +76,7 @@ C1 out 0 1u
       <div class="notice"><b>Engineering note</b><span>This is a software simulation environment, not hardware certification. Validate component ratings, thermal limits, PCB layout, protection and real measurements before building power electronics.</span></div>
       <div class="resource-row"><a href="https://www.kicad.org/" target="_blank" rel="noreferrer">KiCad PCB design ↗</a><a href="https://wokwi.com/" target="_blank" rel="noreferrer">Wokwi microcontroller simulator ↗</a><a href="https://github.com/mfiumara/spice-ts" target="_blank" rel="noreferrer">Full SPICE engine research ↗ ↗</a></div>
     </section>
-    <section id="iot" class="workspace">
+    <section id="iot" class="workspace" role="tabpanel" aria-labelledby="tab-iot" tabindex="0">
       <div class="section-head"><div><p class="eyebrow">CONNECTED SYSTEMS</p><h2>IoT Telemetry & Device Lab</h2><p>Learn sensor telemetry, test abnormal conditions, inspect MQTT messages and export experiment data. Local simulation works without a device or broker.</p></div><span class="engine-tag">SENSOR · MQTT · DATA</span></div>
       <div class="iot-grid">
         <div class="panel">
@@ -109,7 +109,7 @@ C1 out 0 1u
       </div>
       <div class="notice"><b>Model boundary</b><span>This is a browser telemetry workbench with synthetic sensors and optional public MQTT access. It is not a certified SCADA, industrial controller, device provisioning system or safety interlock. Do not connect safety-critical equipment.</span></div>
     </section>
-    <section id="ai" class="workspace">
+    <section id="ai" class="workspace" role="tabpanel" aria-labelledby="tab-ai" tabindex="0">
       <div class="section-head"><div><p class="eyebrow">MACHINE LEARNING · MODEL EVALUATION</p><h2>AI Model Training & Evaluation Lab</h2><p>Train a small classifier, keep test data separate, inspect confusion matrix and evaluate predictions. Everything runs in this browser.</p></div><span class="engine-tag">TENSORFLOW.JS · LOCAL</span></div>
       <div class="ai-grid">
         <div class="panel">
@@ -138,7 +138,7 @@ C1 out 0 1u
       </div>
       <div class="notice"><b>Scientific limitation</b><span>This is a reproducible ML teaching exercise using artificial labels and simulated sensor values. Holdout scores measure agreement with those synthetic rules only—not real equipment fault detection. Real deployment requires representative measured datasets, leakage checks, calibration, drift monitoring, independent validation and safety engineering.</span></div>
     </section>
-    <section id="robotics" class="workspace">
+    <section id="robotics" class="workspace" role="tabpanel" aria-labelledby="tab-robotics" tabindex="0">
       <div class="section-head"><div><p class="eyebrow">ROBOTICS & CONTROL</p><h2>Mobile Robot Navigation Lab</h2><p>Drive a differential robot manually or plan a collision-free route through a small obstacle course. Click the map to choose a goal.</p></div><span class="engine-tag">2D KINEMATICS + A*</span></div>
       <div class="panel">
         <div class="panel-head"><strong>ROBOT WORLD · TOP-DOWN</strong><span id="robotStatus" class="status">READY</span></div>
@@ -154,7 +154,7 @@ C1 out 0 1u
       <div class="notice"><b>Model scope & validation</b><span>Planar differential-drive kinematics with idealized range rays, fixed rectangular obstacles, collision checks and grid-based A*. No wheel slip, motor electrical dynamics, moving obstacles, full rigid-body/3D contact physics or ROS integration. It is a navigation teaching model—not a safety-rated robot controller.</span></div>
       <div class="resource-row"><a href="https://cyberbotics.com/" target="_blank" rel="noreferrer">Webots ↗</a><a href="https://mujoco.org/" target="_blank" rel="noreferrer">MuJoCo ↗</a></div>
     </section>
-    <section id="quantum" class="workspace">
+    <section id="quantum" class="workspace" role="tabpanel" aria-labelledby="tab-quantum" tabindex="0">
       <div class="section-head"><div><p class="eyebrow">QUANTUM INFORMATION</p><h2>Single-Qubit Simulator</h2><p>Apply quantum gates to a complex state vector and inspect measurement probabilities.</p></div><span class="engine-tag">STATE VECTOR</span></div>
       <div class="panel">
         <div class="panel-head"><strong>QUANTUM CIRCUIT WORKBENCH</strong><span class="status">1 QUBIT · PURE STATE</span></div>
@@ -170,7 +170,7 @@ C1 out 0 1u
       <div class="notice"><b>Research scope</b><span>This is an exact state-vector calculation for one ideal qubit, not a noisy hardware model or scalable quantum computer. Two-qubit entanglement, density matrices, noise channels and circuit export are planned separately.</span></div>
       <div class="resource-row"><a href="https://qiskit.org/" target="_blank" rel="noreferrer">Qiskit ↗</a><a href="https://quantum.cloud.ibm.com/" target="_blank" rel="noreferrer">IBM Quantum ↗</a></div>
     </section>
-    <section id="nano" class="workspace">
+    <section id="nano" class="workspace" role="tabpanel" aria-labelledby="tab-nano" tabindex="0">
       <div class="section-head"><div><p class="eyebrow">NANOSCIENCE & MATERIALS</p><h2>Molecular Dynamics Sandbox</h2><p>Observe a small 2D particle system interacting through a Lennard-Jones potential.</p></div><span class="engine-tag">CLASSICAL MD · 2D</span></div>
       <div class="panel">
         <div class="panel-head"><strong>PARTICLE SIMULATION</strong><span id="nanoStatus" class="status">READY</span></div>
@@ -183,7 +183,7 @@ C1 out 0 1u
     </section>
 
 
-    <section id="research" class="workspace">
+    <section id="research" class="workspace" role="tabpanel" aria-labelledby="tab-research" tabindex="0">
       <div class="section-head"><div><p class="eyebrow">ADVANCED SCIENCE · RESPONSIBLE RESEARCH</p><h2>Research & Emerging Technologies Hub</h2><p>Local-first educational simulations with explicit model assumptions, bounded inputs and clear scientific limitations.</p></div><span class="engine-tag">SAFETY-GOVERNED</span></div>
       <div class="panel research-policy">
         <div class="panel-head"><strong>RESPONSIBLE RESEARCH GUARDRAILS</strong><span class="status">CORE STANDARD</span></div>
@@ -283,7 +283,7 @@ C1 out 0 1u
       </div>
     </section>
 
-    <section id="printing" class="workspace">
+    <section id="printing" class="workspace" role="tabpanel" aria-labelledby="tab-printing" tabindex="0">
       <div class="section-head"><div><p class="eyebrow">ADDITIVE MANUFACTURING · DIGITAL FABRICATION</p><h2>3D Printing & Additive Manufacturing Lab</h2><p>Learn processes, inspect a 3D part, compare manufacturing methods and estimate material, time and cost before a real print.</p></div><span class="engine-tag">3D PREVIEW · PROCESS PLANNER</span></div>
       <div class="panel print-intro">
         <div class="panel-head"><strong>FROM IDEA TO PRINT</strong><span class="status">BEGINNER → EXPERT</span></div>
