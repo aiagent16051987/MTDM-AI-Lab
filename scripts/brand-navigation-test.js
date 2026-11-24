@@ -11,7 +11,7 @@ for(const id of ids)assert(html.includes('id="'+id+'"'),"missing panel for "+id)
 assert(html.includes('href="./assets/mtdm-ai-lab-favicon.svg"'),"browser favicon is linked");
 assert(html.includes('src="./assets/mtdm-ai-lab-logo.svg"'),"brand logo is visible in page header");
 assert(html.includes('role="tablist"')&&html.includes('aria-controls="electronics"'),"navigation is accessible");
-assert(logo.includes("MTDM")&&logo.includes("AI LAB"),"brand SVG contains wordmark");
+assert(logo.includes("data:image/webp;base64,"),"brand SVG embeds the supplied logo image");
 assert(icon.includes("<svg"),"favicon SVG exists");
 for(const key of ["ArrowRight","ArrowLeft","Home","End","aria-selected","window.mtdmShowTab"])assert(nav.includes(key),"navigation feature missing: "+key);
 console.log("MTDM brand/navigation checks passed: favicon, visible logo, eight mapped tabs, keyboard support.");
