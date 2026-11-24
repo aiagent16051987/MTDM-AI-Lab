@@ -16,7 +16,7 @@ The workspace is designed for learners and builders from beginner to advanced le
 | IoT | Synthetic sensor streams and MQTT over WebSocket | Public broker traffic is not private. Do not send credentials, secrets or personal data. |
 | AI | TensorFlow.js classifier trained on synthetic sensor examples | Demonstration only; not a validated fault detector or safety-critical controller. |
 | Robotics | 2D differential-drive kinematics, manual wheel controls, idealized range rays, obstacle course and A* route planning | Not full rigid-body physics, wheel-slip simulation, ROS integration or a safety-rated controller. |
-| Quantum | Ideal single-qubit state-vector gates and measurement | No noisy hardware model or general multi-qubit simulator. |
+| Quantum | Ideal single-qubit gates and measurement; two-qubit state-vector gates, CNOT, Bell-state preparation, measurement and reduced Bloch-vector projection; abstract leaky-integrate-and-fire neuron model | No noisy hardware model, density-matrix simulator, scalable quantum computer or biological neuron model. |
 | Nano | Simplified 2D classical Lennard-Jones molecular-dynamics teaching model | Not quantum chemistry, validated materials science or a biological nanorobot model. |
 | Research Hub | Local 2D swarm/Boids prototype and a roadmap of emerging-technology topics | The roadmap is not a claim that every listed technology has a working simulator. See [research safety policy](./RESEARCH_SAFETY.md). |
 | 3D Printing & Additive Manufacturing | Process/material exploration, interactive 3D preview and illustrative volume, mass, time and cost estimates | Not a CAD kernel, production slicer, machine controller, certified process model or supplier quotation. |
@@ -50,9 +50,9 @@ npm run preview
 
 Pushes to `main` run the GitHub Actions Pages workflow. It installs dependencies, runs the repository's smoke/regression checks, builds the static site and deploys the build output to GitHub Pages.
 
-The test suite checks selected reference cases and integration wiring: SPICE examples, research and robotics model behavior, printing/IoT/AI checks, navigation/brand assets, script syntax and tab-to-panel integration. **A passing CI run is not exhaustive browser QA and does not certify scientific accuracy, physical safety, production readiness or every external service.**
+The test suite checks selected reference cases and integration wiring. After deployment, a separate Playwright/Chromium job exercises all eight workspace tabs, keyboard navigation, SPICE execution, local IoT telemetry, synthetic AI training/inference, quantum gate and Bell-state paths, nano dynamics, swarm controls, the additive-manufacturing estimator, mobile tab access and uncaught browser exceptions. Failure screenshots, traces and the HTML report are uploaded as workflow artifacts. **A passing browser run covers only these tested paths and does not certify scientific accuracy, physical safety, production readiness, accessibility conformance or every external service.**
 
-Check the current workflow status in [GitHub Actions](https://github.com/aiagent16051987/MTDM-AI-Lab/actions).
+Check the current workflow status and download the browser-audit evidence from [GitHub Actions](https://github.com/aiagent16051987/MTDM-AI-Lab/actions). To run the browser suite locally, install dependencies and Chromium with `npx playwright install chromium`, then use `npm run test:e2e`. Set `MTDM_BASE_URL` to the deployed site URL when testing GitHub Pages.
 
 ## Runtime, privacy and security
 
