@@ -1,0 +1,321 @@
+{
+  "reviewedOn": "2026-11-24",
+  "note": "Curated link metadata only. A review date is not a claim that every linked page or scientific statement was independently validated on that date.",
+  "sources": [
+    {
+      "id": "ti",
+      "title": "Texas Instruments Technical Documentation",
+      "publisher": "Texas Instruments",
+      "domain": "electronics",
+      "topics": [
+        "datasheets",
+        "analog",
+        "power",
+        "embedded"
+      ],
+      "url": "https://www.ti.com/lit/"
+    },
+    {
+      "id": "analog",
+      "title": "Analog Devices EngineerZone & Technical Library",
+      "publisher": "Analog Devices",
+      "domain": "electronics",
+      "topics": [
+        "analog",
+        "signal processing",
+        "power",
+        "RF"
+      ],
+      "url": "https://www.analog.com/en/resources.html"
+    },
+    {
+      "id": "st",
+      "title": "STMicroelectronics Documentation",
+      "publisher": "STMicroelectronics",
+      "domain": "electronics",
+      "topics": [
+        "microcontrollers",
+        "power",
+        "sensors",
+        "datasheets"
+      ],
+      "url": "https://www.st.com/content/st_com/en/support/learning.html"
+    },
+    {
+      "id": "kicad",
+      "title": "KiCad Documentation",
+      "publisher": "KiCad",
+      "domain": "electronics",
+      "topics": [
+        "PCB",
+        "schematic",
+        "EDA",
+        "manufacturing"
+      ],
+      "url": "https://docs.kicad.org/"
+    },
+    {
+      "id": "nist-electronics",
+      "title": "NIST Electronics & Semiconductor Research",
+      "publisher": "National Institute of Standards and Technology",
+      "domain": "electronics",
+      "topics": [
+        "measurement",
+        "semiconductors",
+        "metrology"
+      ],
+      "url": "https://www.nist.gov/"
+    },
+    {
+      "id": "mqtt",
+      "title": "MQTT Specifications",
+      "publisher": "OASIS Open",
+      "domain": "iot",
+      "topics": [
+        "MQTT",
+        "messaging",
+        "IoT protocol"
+      ],
+      "url": "https://mqtt.org/mqtt-specification/"
+    },
+    {
+      "id": "espressif",
+      "title": "ESP-IDF Programming Guide",
+      "publisher": "Espressif Systems",
+      "domain": "iot",
+      "topics": [
+        "ESP32",
+        "firmware",
+        "Wi-Fi",
+        "embedded"
+      ],
+      "url": "https://docs.espressif.com/projects/esp-idf/en/stable/esp32/"
+    },
+    {
+      "id": "tensorflow",
+      "title": "TensorFlow Documentation",
+      "publisher": "Google",
+      "domain": "ai",
+      "topics": [
+        "machine learning",
+        "training",
+        "inference",
+        "TensorFlow"
+      ],
+      "url": "https://www.tensorflow.org/learn"
+    },
+    {
+      "id": "pytorch",
+      "title": "PyTorch Documentation",
+      "publisher": "PyTorch Foundation",
+      "domain": "ai",
+      "topics": [
+        "deep learning",
+        "models",
+        "optimization"
+      ],
+      "url": "https://pytorch.org/docs/stable/index.html"
+    },
+    {
+      "id": "huggingface",
+      "title": "Hugging Face Documentation",
+      "publisher": "Hugging Face",
+      "domain": "ai",
+      "topics": [
+        "open models",
+        "datasets",
+        "inference",
+        "transformers"
+      ],
+      "url": "https://huggingface.co/docs"
+    },
+    {
+      "id": "nasa-robotics",
+      "title": "NASA Robotics",
+      "publisher": "NASA",
+      "domain": "robotics",
+      "topics": [
+        "space robotics",
+        "autonomy",
+        "robot systems"
+      ],
+      "url": "https://www.nasa.gov/robotics/"
+    },
+    {
+      "id": "ros",
+      "title": "ROS 2 Documentation",
+      "publisher": "Open Robotics",
+      "domain": "robotics",
+      "topics": [
+        "ROS 2",
+        "robot middleware",
+        "simulation"
+      ],
+      "url": "https://docs.ros.org/en/rolling/"
+    },
+    {
+      "id": "ibm-quantum",
+      "title": "IBM Quantum Learning",
+      "publisher": "IBM",
+      "domain": "quantum",
+      "topics": [
+        "quantum circuits",
+        "qubits",
+        "algorithms"
+      ],
+      "url": "https://learning.quantum.ibm.com/"
+    },
+    {
+      "id": "qiskit",
+      "title": "Qiskit Documentation",
+      "publisher": "IBM",
+      "domain": "quantum",
+      "topics": [
+        "quantum SDK",
+        "simulation",
+        "circuits"
+      ],
+      "url": "https://docs.quantum.ibm.com/"
+    },
+    {
+      "id": "nist-materials",
+      "title": "NIST Materials Science & Engineering",
+      "publisher": "NIST",
+      "domain": "nano",
+      "topics": [
+        "materials",
+        "nanotechnology",
+        "measurement"
+      ],
+      "url": "https://www.nist.gov/materials-science-and-engineering"
+    },
+    {
+      "id": "materials-project",
+      "title": "Materials Project",
+      "publisher": "Lawrence Berkeley National Laboratory",
+      "domain": "nano",
+      "topics": [
+        "materials data",
+        "crystal structures",
+        "computational materials"
+      ],
+      "url": "https://materialsproject.org/"
+    },
+    {
+      "id": "nist-am",
+      "title": "NIST Additive Manufacturing",
+      "publisher": "NIST",
+      "domain": "manufacturing",
+      "topics": [
+        "3D printing",
+        "metrology",
+        "process qualification"
+      ],
+      "url": "https://www.nist.gov/additive-manufacturing"
+    },
+    {
+      "id": "iso-am",
+      "title": "ISO Additive Manufacturing Committee",
+      "publisher": "International Organization for Standardization",
+      "domain": "manufacturing",
+      "topics": [
+        "standards",
+        "AM terminology",
+        "qualification"
+      ],
+      "url": "https://www.iso.org/committee/629086.html"
+    },
+    {
+      "id": "mit-ocw",
+      "title": "MIT OpenCourseWare",
+      "publisher": "Massachusetts Institute of Technology",
+      "domain": "general",
+      "topics": [
+        "open education",
+        "engineering",
+        "science"
+      ],
+      "url": "https://ocw.mit.edu/"
+    },
+    {
+      "id": "arxiv",
+      "title": "arXiv Open Research Repository",
+      "publisher": "Cornell University",
+      "domain": "general",
+      "topics": [
+        "preprints",
+        "research papers",
+        "science"
+      ],
+      "url": "https://arxiv.org/"
+    },
+    {
+      "id": "openstax",
+      "title": "OpenStax Open Textbooks",
+      "publisher": "Rice University",
+      "domain": "general",
+      "topics": [
+        "textbooks",
+        "education",
+        "STEM"
+      ],
+      "url": "https://openstax.org/"
+    },
+    {
+      "id": "nasa-tech",
+      "title": "NASA Technical Reports Server",
+      "publisher": "NASA",
+      "domain": "general",
+      "topics": [
+        "aerospace",
+        "engineering",
+        "technical reports"
+      ],
+      "url": "https://ntrs.nasa.gov/"
+    }
+  ],
+  "providers": [
+    {
+      "id": "gemini",
+      "name": "Google Gemini API",
+      "type": "General reasoning · multimodal · coding",
+      "url": "https://ai.google.dev/gemini-api/docs",
+      "policy": "Check current free-tier eligibility, regional access and data terms."
+    },
+    {
+      "id": "groq",
+      "name": "GroqCloud",
+      "type": "Fast inference · supported open models",
+      "url": "https://console.groq.com/docs/overview",
+      "policy": "Rate limits and free access vary by account and model."
+    },
+    {
+      "id": "cerebras",
+      "name": "Cerebras Inference",
+      "type": "Fast inference · supported models",
+      "url": "https://inference-docs.cerebras.ai/",
+      "policy": "Verify current limits, model availability and terms."
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "type": "Multi-provider model catalogue",
+      "url": "https://openrouter.ai/docs",
+      "policy": "Some models may be free-labeled; availability and limits can change."
+    },
+    {
+      "id": "hf",
+      "name": "Hugging Face Inference Providers",
+      "type": "Open models · task-specific inference",
+      "url": "https://huggingface.co/docs/inference-providers",
+      "policy": "Provider credits, billing and access conditions vary."
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama (local)",
+      "type": "Local models · offline-capable after download",
+      "url": "https://ollama.com/docs",
+      "policy": "Uses the user's own hardware and electricity; no hosted free-tier promise."
+    }
+  ]
+}

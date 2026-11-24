@@ -27,6 +27,10 @@ The learning workspace covers material extrusion (FDM/FFF and pellet), vat photo
 
 The process selector and estimates are simplified planning aids. Actual printability, support strategy, tolerances, material behavior, machine settings, safety requirements and cost depend on the specific printer, material, geometry and supplier.
 
+## Knowledge & Intelligence Hub
+
+The Knowledge Hub provides a curated, source-attributed catalogue of public educational and technical references plus a registry of optional AI provider candidates. It does not scrape the open web or connect to providers in the browser. A weekly, bounded GitHub Actions workflow checks up to 16 approved links and stores a short-lived JSON artifact; link reachability is not scientific validation or a guarantee of freshness. See [GLOBAL_KNOWLEDGE_ARCHITECTURE.md](./GLOBAL_KNOWLEDGE_ARCHITECTURE.md) and [RESEARCH_SAFETY.md](./RESEARCH_SAFETY.md).
+
 ## Run locally
 
 Requirements: a current Node.js LTS release and npm.

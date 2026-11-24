@@ -138,3 +138,27 @@ main .workspace.active:not([hidden]){display:block!important}
 .robot-readouts{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;color:#a8bdd1;font:11px/1.5 ui-monospace,monospace}
 .robot-readouts span{min-width:0}
 @media(max-width:650px){.robot-world{height:300px}.robot-controls{grid-template-columns:1fr}.robot-readouts{flex-direction:column;gap:4px}}
+
+
+/* Global Knowledge & Intelligence Hub */
+.knowledge-policy{margin-bottom:16px}
+.knowledge-principles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:14px}
+.knowledge-principles div,.knowledge-card,.provider-card{background:#0a1422;border:1px solid #26384e;border-radius:8px;padding:12px;min-width:0}
+.knowledge-principles b,.knowledge-card b,.provider-card b{display:block;color:#d9e6f2;font-size:11px;margin-bottom:5px}
+.knowledge-principles span,.knowledge-card p,.provider-card p{color:var(--muted);font-size:10px;line-height:1.55;margin:0}
+.knowledge-filters{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:12px 0}
+.knowledge-filters label{margin:0}
+.knowledge-filters select{width:100%;margin-top:6px;padding:10px;background:#091321;color:var(--text);border:1px solid #2a3b52;border-radius:7px}
+.knowledge-results,.provider-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.knowledge-card{display:flex;flex-direction:column;gap:8px}
+.knowledge-card .knowledge-meta{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.knowledge-card .knowledge-domain,.provider-card .provider-type{font-size:9px;color:var(--cyan);letter-spacing:.7px;text-transform:uppercase}
+.knowledge-card .knowledge-review{font-size:9px;color:#a7b7c9}
+.knowledge-card a,.knowledge-actions a{font-size:10px;color:#7dd3fc;text-decoration:none;overflow-wrap:anywhere}
+.knowledge-card a:hover,.knowledge-actions a:hover{text-decoration:underline}
+.knowledge-actions{display:flex;flex-wrap:wrap;gap:18px;margin-top:15px}
+.provider-card{display:flex;flex-direction:column;gap:7px}
+.provider-card a{font-size:10px;color:#7dd3fc;text-decoration:none}
+.provider-card .provider-status{font-size:9px;color:#fbbf24}
+@media(max-width:800px){.knowledge-principles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:580px){.knowledge-principles,.knowledge-results,.provider-results,.knowledge-filters{grid-template-columns:1fr}}

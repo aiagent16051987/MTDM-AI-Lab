@@ -1,0 +1,31 @@
+name: Knowledge source link audit
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 4 * * 1"
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: mtdm-knowledge-source-audit
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check curated source links
+        run: node scripts/check-knowledge-sources.mjs
+      - name: Upload source audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtdm-knowledge-source-audit-${{ github.run_number }}
+          path: artifacts/source-audit.json
+          if-no-files-found: error
+          retention-days: 14
