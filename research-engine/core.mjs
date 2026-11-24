@@ -21,7 +21,7 @@ export function validateRegistry(registry) {
 export function normalizeRecord(record) {
   const title=clean(record.title,300);
   const url=clean(record.url,1000);
-  if (!title || !/^https:\\/\\//i.test(url)) return null;
+  if (!title || !url.toLowerCase().startsWith("https://")) return null;
   let canonical;
   try { canonical=new URL(url); } catch { return null; }
   if (canonical.protocol!=="https:") return null;
