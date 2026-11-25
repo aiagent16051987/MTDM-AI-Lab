@@ -165,4 +165,4 @@ import {calculateNanoObservables,createNanoLattice,integrateNanoStep} from "./na
   };
   window.addEventListener("pagehide",()=>{running=false});
   draw();
-})(););
+})();
