@@ -96,7 +96,13 @@ function validateTelemetry(d){
   const n=Number(d[k]),[lo,hi]=sensorLimits[k];
   if(d[k]===null||d[k]===""||!Number.isFinite(n)||n<lo||n>hi)throw Error("Invalid "+k+" value; accepted range "+lo+" to "+hi+".");
  }
- return {voltage:Number(d.voltage),current:Number(d.current),temperature:Number(d.temperature),timestamp:d.timestamp?String(d.timestamp):new Date().toISOString()};
+ let timestamp=new Date().toISOString();
+ if(d.timestamp!==undefined&&d.timestamp!==null&&d.timestamp!==""){
+  if(typeof d.timestamp!=="string"||d.timestamp.length>64||!Number.isFinite(Date.parse(d.timestamp)))
+   throw Error("Invalid timestamp; provide a valid ISO-compatible date/time string.");
+  timestamp=new Date(d.timestamp).toISOString();
+ }
+ return {voltage:Number(d.voltage),current:Number(d.current),temperature:Number(d.temperature),timestamp};
 }
 function alertTelemetry(d){
  const alerts=[];
