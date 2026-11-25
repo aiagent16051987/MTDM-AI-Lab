@@ -158,7 +158,8 @@
         "scripts/research-records-test.mjs",
         "scripts/research-experiment-test.mjs",
         "scripts/research-spice-test.mjs",
-        "scripts/source-governance-test.mjs"
+        "scripts/source-governance-test.mjs",
+        "scripts/research-cross-domain-test.mjs"
       ],
       "limitations": [
         "Read-only selected-source metadata; no full-text claim extraction, comprehensive global coverage or proof of novelty."
