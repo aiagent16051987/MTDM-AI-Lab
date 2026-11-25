@@ -42,7 +42,7 @@ export function measureTwoQubit(state, random=Math.random) {
   const r=Number(random());
   if(!Number.isFinite(r)||r<0||r>=1)throw new RangeError("Measurement random value must be finite and in [0, 1).");
   const s=normalizeState(state), p=measurementProbabilities(s);
-  let cumulative=0, result=3;
+  let cumulative=0, result=p.findLastIndex(probability=>probability>0);
   for(let i=0;i<4;i++){cumulative+=p[i];if(r<cumulative){result=i;break;}}
   const collapsed=s.map((a,i)=>i===result?[1,0]:[0,0]);
   return {result, state:collapsed};
