@@ -112,14 +112,18 @@
       "status": "experimental",
       "publicWorkspace": true,
       "implementation": [
-        "printing-lab.js"
+        "printing-lab.js",
+        "printing-core.mjs"
       ],
       "evidence": [
+        "scripts/printing-core-test.mjs",
         "scripts/printing-smoke-test.js",
         "tests/e2e/workspaces.spec.js"
       ],
       "limitations": [
-        "Planning estimator and preview only; not CAD, slicing, G-code generation or machine control."
+        "Dimension-aware idealized cube, elliptical-cylinder and L-bracket envelope calculations; no imported CAD mesh, watertightness validation or true slicer toolpath.",
+        "FDM/pellet material and throughput use simplified shell, bead-width and layer-height assumptions; other process throughput defaults are illustrative, not machine-validated.",
+        "Not CAD, production slicing, G-code generation, machine control, certified process planning or a supplier quotation."
       ]
     },
     {
