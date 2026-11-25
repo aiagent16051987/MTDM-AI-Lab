@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import {createHypothesisRecord,createExperimentRecord,createResultRecord,assertResearchReferences} from "./records.mjs";
 
 const GATES=new Set(["H","X","Y","Z","S","T"]);
@@ -19,9 +18,9 @@ const apply=(gate,state)=>{
  return [alpha,beta];
 };
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==="object"?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-const hash=v=>"sha256:"+crypto.createHash("sha256").update(JSON.stringify(canonical(v))).digest("hex");
+const hash=async v=>{const bytes=new TextEncoder().encode(JSON.stringify(canonical(v)));const digest=await globalThis.crypto.subtle.digest("SHA-256",bytes);return "sha256:"+Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");};
 
-export function runQuantumUnitaryValidation(input={}){
+export async function runQuantumUnitaryValidation(input={}){
  const gates=input.gates??["H","H"];
  if(!Array.isArray(gates)||gates.length<1||gates.length>64||gates.some(g=>!GATES.has(g)))
   throw new TypeError("gates must be a sequence of 1 to 64 supported single-qubit unitary gates");
@@ -54,7 +53,7 @@ export function runQuantumUnitaryValidation(input={}){
   parameters,assumptions:hypothesis.assumptions,safetyClass:"low-risk-software",createdAt});
  const payload={moduleId:experiment.moduleId,moduleVersion:experiment.moduleVersion,initial,gates,tolerance};
  const result=createResultRecord({schemaVersion:1,recordType:"result",id:"result:quantum-unitary-norm-v1",
-  experimentId:experiment.id,status:passed?"pass":"fail",startedAt:createdAt,finishedAt:createdAt,inputHash:hash(payload),
+  experimentId:experiment.id,status:passed?"pass":"fail",startedAt:createdAt,finishedAt:createdAt,inputHash:await hash(payload),
   toolVersion:"quantum-experiment-runner@1.0.0",
   outputs:{gates:[...gates],finalState:{alpha:state[0],beta:state[1]},probabilities:{p0,p1,sum:norm},blochVector:bloch,blochNorm,tolerance,unit:{amplitude:"dimensionless",probability:"dimensionless"}},
   notes:passed?"Ideal unitary state normalization and pure-state Bloch invariants matched tolerance.":"A state invariant exceeded the configured tolerance."});
