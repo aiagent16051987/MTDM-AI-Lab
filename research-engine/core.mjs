@@ -7,13 +7,31 @@ const stableId = value => crypto.createHash("sha256").update(String(value)).dige
 export function validateRegistry(registry) {
   if (!registry || registry.schemaVersion !== 1 || !registry.policy) throw new Error("Unsupported registry schema");
   const p=registry.policy;
-  if (p.maxSourcesPerRun<1 || p.maxSourcesPerRun>20 || p.maxRecordsPerSource<1 || p.maxRecordsPerSource>10) throw new Error("Registry limits out of bounds");
-  if (!Array.isArray(p.allowedHosts) || !p.allowedHosts.includes("api.github.com") || !p.allowedHosts.includes("api.crossref.org")) throw new Error("Required host allowlist missing");
+  if (!Number.isInteger(p.maxSourcesPerRun) || p.maxSourcesPerRun<1 || p.maxSourcesPerRun>20 ||
+      !Number.isInteger(p.maxRecordsPerSource) || p.maxRecordsPerSource<1 || p.maxRecordsPerSource>10 ||
+      !Number.isInteger(p.timeoutMs) || p.timeoutMs<1000 || p.timeoutMs>15000 ||
+      !Number.isInteger(p.minimumDelayMs) || p.minimumDelayMs<500 || p.minimumDelayMs>10000)
+    throw new Error("Registry limits out of bounds");
+  if (!Array.isArray(p.allowedHosts) || p.allowedHosts.length!==2 ||
+      !p.allowedHosts.includes("api.github.com") || !p.allowedHosts.includes("api.crossref.org"))
+    throw new Error("Host allowlist must contain only the two reviewed API hosts");
+  if (typeof p.userAgent!=="string" || p.userAgent.length<10 || p.userAgent.length>200)
+    throw new Error("Research user agent is missing or out of bounds");
+  const github=registry.githubReleases||[],crossref=registry.crossrefQueries||[];
+  if (!Array.isArray(github)||!Array.isArray(crossref)||github.length+crossref.length>p.maxSourcesPerRun)
+    throw new Error("Source registry exceeds the configured per-run budget");
   const ids=new Set();
   for (const source of [...(registry.githubReleases||[]),...(registry.crossrefQueries||[])]) {
     if (!source.id || ids.has(source.id)) throw new Error("Missing or duplicate source ID");
     ids.add(source.id);
-    if (!Array.isArray(source.domains) || source.domains.some(d=>!DOMAIN_SET.has(d))) throw new Error("Unknown domain in source "+source.id);
+    if (!Array.isArray(source.domains) || !source.domains.length || source.domains.some(d=>!DOMAIN_SET.has(d)) || new Set(source.domains).size!==source.domains.length)
+      throw new Error("Invalid or duplicate domain in source "+source.id);
+    if(source.type==="github" || source.repository!==undefined){
+      if(typeof source.repository!=="string" || !/^[A-Za-z0-9_.-]{1,100}\/[A-Za-z0-9_.-]{1,100}$/.test(source.repository))
+        throw new Error("Invalid GitHub repository locator for "+source.id);
+    }
+    if(source.query!==undefined && (typeof source.query!=="string" || !source.query.trim() || source.query.length>200))
+      throw new Error("Invalid bounded Crossref query for "+source.id);
   }
   return true;
 }
