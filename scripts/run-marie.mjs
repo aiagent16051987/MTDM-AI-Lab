@@ -66,6 +66,7 @@ const researchRecords=buildMARIERecords(report);
 const outputDir="artifacts/marie";
 fs.mkdirSync(outputDir,{recursive:true});
 fs.writeFileSync(path.join(outputDir,"research-report.json"),JSON.stringify(report,null,2)+"\n");
+fs.writeFileSync(path.join(outputDir,"research-records.json"),JSON.stringify(researchRecords,null,2)+"\n");
 const markdown=[
 "# MARIE Research Run",
 "",
