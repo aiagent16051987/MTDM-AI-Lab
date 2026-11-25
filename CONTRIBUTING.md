@@ -1,23 +1,23 @@
 # Contributing to MTDM AI Lab
 
-Contributions are welcome through GitHub Issues and Pull Requests. The repository is public for review, but the Project is proprietary and is not an open-source project.
+Contributions are welcome through GitHub Issues and Pull Requests. The project is released under the MIT License.
 
 ## Before you contribute
 
-1. Read [LICENSE](./LICENSE) and [CLA.md](./CLA.md).
-2. Do not copy code, datasets, designs, documents or assets from third parties unless their licence is compatible and the source is documented.
-3. Do not submit employer/client-owned work, secrets, credentials, personal data or confidential information.
-4. Keep changes scoped, reproducible and tested. Include evidence for scientific or engineering claims.
+1. Read [LICENSE](./LICENSE) and this guide.
+2. Submit only work you created or are authorized to contribute. Identify third-party code, datasets, models, images and documentation, with their source and licence.
+3. Do not submit secrets, credentials, personal data, confidential information, or employer/client-owned material without authorization.
+4. Keep changes scoped, reproducible and tested. Include evidence and explain assumptions for scientific or engineering claims.
 5. Open an issue first for major architecture, security, safety or product changes.
 
-## CLA acceptance is required
+## Copyright and contributions
 
-Before a pull request can be merged, the contributor must post the exact acceptance statement in Section 10 of [CLA.md](./CLA.md) from the GitHub account submitting the contribution. Maintainers must verify and retain that acceptance record. A checkbox or pull-request submission alone is not a substitute for explicit CLA acceptance.
+You retain copyright in your original contributions. By submitting a contribution for inclusion in this repository, you agree that it is offered for distribution under the repository's MIT License. Ensure you have the rights needed to make that contribution. No separate Contributor License Agreement (CLA) is required.
 
-The CLA lets MTDM AI Lab incorporate, modify, distribute and commercially license accepted contributions. The contributor retains copyright ownership in their original contribution, subject to the rights granted in the CLA.
+The MIT License requires preservation of its copyright and permission notice in copies or substantial portions of the software. Please retain existing notices and add appropriate notices for substantial new third-party or contributor-owned material where needed.
 
 ## Review and merge
 
-A maintainer may request changes or decline a contribution. Passing automated tests does not guarantee acceptance. Do not assume a pull request grants permission to use the rest of the repository. Do not merge third-party material until its source and licence have been reviewed.
+A maintainer may request changes or decline a contribution. Passing automated tests does not guarantee acceptance. Do not merge third-party material until its source, licence and compatibility have been reviewed.
 
-This process and the CLA are project templates and should be reviewed by qualified Pakistan-based intellectual-property counsel before being relied upon commercially.
+The project documentation is not legal advice. Contributors are responsible for ensuring they have authority to submit their work.
