@@ -34,6 +34,7 @@ if (host) {
     camera.position.set(radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi), radius * Math.sin(phi) * Math.sin(theta));
     camera.lookAt(0, cameraTargetY, 0);
   };
+  shape = document.querySelector("[data-print-shape].active")?.dataset.printShape || "cube";
   function rebuild() {
     while (part.children.length) {
       const obj = part.children.pop();
@@ -135,5 +136,5 @@ function estimate(){
   ].join("\n");
 }
 $("printEstimate").addEventListener("click",()=>{try{estimate()}catch(e){$("printEstimateStatus").textContent="CHECK INPUT";$("printEstimateLog").textContent="INPUT / PROCESS ERROR\n"+e.message}});
-$("printReset").addEventListener("click",()=>{document.querySelectorAll("[data-print-shape]").forEach((b,i)=>b.classList.toggle("active",i===0)); $("printProcess").value="fdm";$("printMaterial").value="pla";$("printX").value=40;$("printY").value=40;$("printZ").value=30;$("printLayer").value=0.2;$("printInfill").value=20;$("printSpeed").value=50;$("printPrice").value=22;$("printPower").value=0.12;$("printRate").value=0.15;$("printEstimateStatus").textContent="NOT CALCULATED";$("printEstimateLog").textContent="Parameters reset. Calculate a new estimate."; });
+$("printReset").addEventListener("click",()=>{$("printProcess").value="fdm";$("printMaterial").value="pla";$("printX").value=40;$("printY").value=40;$("printZ").value=30;$("printLayer").value=0.2;$("printInfill").value=20;$("printSpeed").value=50;$("printPrice").value=22;$("printPower").value=0.12;$("printRate").value=0.15;document.querySelector("[data-print-shape=\\"cube\\"]")?.click();$("printEstimateStatus").textContent="NOT CALCULATED";$("printEstimateLog").textContent="Parameters reset. Calculate a new estimate."; });
 $("printProcess").addEventListener("change",()=>{const map={fdm:"pla",sla:"resin",dlp:"resin",msla:"resin",sls:"nylon",mjf:"nylon",slm:"aluminum",ebm:"titanium",binder:"steel",materialjet:"resin",ded:"steel",waam:"steel",sheet:"abs",pellet:"pla",concrete:"concrete",bio:"resin"};$("printMaterial").value=map[$("printProcess").value];});
