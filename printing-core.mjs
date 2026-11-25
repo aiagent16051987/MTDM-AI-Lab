@@ -46,8 +46,9 @@ export function calculatePartGeometry({ shape, x, y, z }) {
 export function calculatePrintEstimate(input) {
   const geometry = calculatePartGeometry(input);
   const layerHeight = boundedNumber("Layer height", input.layerHeight, LIMITS.layerHeight);
-  const infill = boundedNumber("Infill", input.infill, LIMITS.infill);
-  const speed = boundedNumber("Machine speed", input.speed, LIMITS.speed);
+  const extrusion = input.process === "fdm" || input.process === "pellet";
+  const infill = extrusion ? boundedNumber("Infill", input.infill, LIMITS.infill) : 100;
+  const speed = extrusion ? boundedNumber("Machine speed", input.speed, LIMITS.speed) : 0;
   const pricePerKg = boundedNumber("Material price per kg", input.pricePerKg, LIMITS.pricePerKg);
   const powerKw = boundedNumber("Machine power", input.powerKw, LIMITS.powerKw);
   const electricityRate = boundedNumber("Electricity rate", input.electricityRate, LIMITS.electricityRate);
@@ -62,7 +63,6 @@ export function calculatePrintEstimate(input) {
     throw new RangeError("Material density must be greater than 0 and no more than 30 g/cm³.");
   }
 
-  const extrusion = input.process === "fdm" || input.process === "pellet";
   // The 18% shell allowance is a planning assumption, not a slicer wall calculation.
   const materialFraction = extrusion ? 0.18 + 0.82 * infill / 100 : 1;
   const depositedVolumeCm3 = geometry.volumeCm3 * materialFraction;
