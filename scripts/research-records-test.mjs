@@ -19,6 +19,7 @@ assert.throws(()=>createSourceRecord({...source,license:{status:"open-verified",
 assert.throws(()=>createHypothesisRecord({...hypothesis,predictions:[]}),/requires predictions/);
 assert.throws(()=>createExperimentRecord({...experiment,parameters:{speed:{value:2,unit:""}}}),/finite numeric value and explicit unit/);
 assert.throws(()=>createSourceRecord({...source,url:"http://example.org"}),/HTTPS/);
+assert.throws(()=>createSourceRecord({...source,url:"https://user:secret@example.org/paper"}),/credentials/);
 assert.throws(()=>assertResearchReferences([source,{...claim,sourceId:"missing:source"}]),/missing or wrong-type/);
 assert.throws(()=>validateResearchRecord({...source,schemaVersion:99}),/Unsupported/);
 assert.throws(()=>createDatasetRecord({...dataset,checksum:"sha256:bad"}),/SHA-256 digest/);
@@ -27,6 +28,8 @@ assert.throws(()=>assertResearchReferences([source,claim,{...method,sourceIds:["
 assert.throws(()=>assertResearchReferences([source,claim,evidence,method,dataset,contradiction,hypothesis,{...experiment,methodId:"missing:method"},result,review]),/missing or wrong-type/);
 assert.throws(()=>createSourceRecord({...source,freshness:{...source.freshness,reviewAfter:"2026-10-01T00:00:00Z"}}),/cannot precede/);
 assert.throws(()=>createResultRecord({...result,inputHash:"sha256:bad"}),/SHA-256 digest/);
+assert.throws(()=>createResultRecord({...result,outputs:{bad:Infinity}}),/non-finite number/);
+assert.throws(()=>assertResearchReferences([source,{...dataset,licenseStatus:"open-verified"}]),/source licence is not verified/);
 assert.throws(()=>createResultRecord({...result,startedAt:"2026-11-26T16:00:00Z"}),/cannot precede/);
 assert.throws(()=>assertResearchReferences([source,claim,evidence,{...hypothesis,supportingEvidenceIds:["missing:evidence"]}]),/missing or wrong-type/);
 console.log("Research records passed: versioning, HTTPS source provenance, licences, claim/evidence links, method and dataset provenance, contradiction records, falsifiable hypotheses, unit-bearing experiments, result and review integrity.");
