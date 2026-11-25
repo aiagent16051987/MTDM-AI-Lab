@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {fetchPermittedOpenDocument} from "../research-engine/source-governance.mjs";
+import {fetchPermittedOpenDocument,evaluateSourceFreshness} from "../research-engine/source-governance.mjs";
 const base={id:"src:open-doc",url:"https://raw.githubusercontent.com/example/project/main/README.md",status:"permitted",
  license:{status:"open-verified",name:"CC-BY-4.0",termsUrl:"https://creativecommons.org/licenses/by/4.0/"}};
 const mock=(body,type="text/markdown",status=200,extra={})=>async(url,options)=>{
@@ -8,6 +8,8 @@ const mock=(body,type="text/markdown",status=200,extra={})=>async(url,options)=>
 };
 const result=await fetchPermittedOpenDocument(base,{fetchImpl:mock("# Allowed technical note\n")});
 assert.match(result.text,/Allowed technical note/);assert.equal(result.license.name,"CC-BY-4.0");assert.equal(result.republishAllowed,false);
+const unchanged=await fetchPermittedOpenDocument(freshSource,{fetchImpl:async()=>new Response(null,{status:304})});
+assert.equal(unchanged.notModified,true);
 await assert.rejects(()=>fetchPermittedOpenDocument({...base,license:{status:"not-assessed"}},{fetchImpl:mock("x")}),/verified open licence/);
 await assert.rejects(()=>fetchPermittedOpenDocument({...base,url:"https://example.com/private"},{fetchImpl:mock("x")}),/not in the reviewed allowlist/);
 await assert.rejects(()=>fetchPermittedOpenDocument(base,{fetchImpl:mock("<html>","text/html")}),/content type is not permitted/);
