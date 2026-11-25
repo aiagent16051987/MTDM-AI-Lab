@@ -12,6 +12,6 @@ assert(css.includes(".printing-layout"),"responsive printing workspace styles ex
 assert(js.includes('import { calculatePrintEstimate } from "./printing-core.mjs"'),"workspace uses the validated calculation core");
 assert(core.includes("calculatePartGeometry")&&core.includes("calculatePrintEstimate"),"calculation core exposes geometry and estimate functions");
 assert(core.includes("LIMITS")&&core.includes("effectiveRate"),"calculation core validates inputs and derives throughput");
-assert(js.includes("part.scale.set(sx,sz,sy)"),"preview scales with selected part dimensions");
+assert(js.includes("new THREE.BoxGeometry(x, z, y)")&&js.includes("new THREE.CylinderGeometry(1, 1, 1, 48)"),"preview geometry is generated from entered dimensions");
 assert(js.includes("infill input ignored for this process family"),"non-extrusion infill limitation is disclosed");
 console.log("MTDM additive manufacturing workspace smoke tests passed: 16 process families, dimension-aware preview, validated geometry and process-aware estimator.");
