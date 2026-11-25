@@ -55,7 +55,7 @@ Check the current workflow status and download the browser-audit evidence from [
 
 ## Continuous improvement
 
-Research and improvement capabilities are maintained as internal engineering functions, not as a separate public workspace. Any future automated research or AI integrations must follow the project's privacy, source-attribution, security and human-review requirements.
+Research and improvement capabilities are maintained as internal engineering functions, not as a separate public workspace. The machine-readable [capability registry](./capabilities.json) records implementation status, evidence and limitations. Any future automated research or AI integrations must follow the project's privacy, source-attribution, security and human-review requirements.
 
 ## Runtime, privacy and security
 
