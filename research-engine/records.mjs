@@ -27,6 +27,7 @@ const url = (value, field) => {
   const v=cleanText(value,field,2048);
   let parsed; try { parsed=new URL(v); } catch { throw new TypeError(field + " must be a valid URL"); }
   if(parsed.protocol!=="https:") throw new TypeError(field + " must use HTTPS");
+  if(parsed.username||parsed.password)throw new TypeError(field+" must not embed credentials");
   return parsed.href;
 };
 const list = (value, field, max=40) => {
@@ -44,6 +45,30 @@ const base = (type, input) => {
 const enumValue=(value,allowed,field)=>{
   if(!allowed.has(value)) throw new TypeError(field+" has an unsupported value");
   return value;
+};
+
+const assertJsonSafe=(value,field,depth=0,seen=new Set())=>{
+  if(depth>10)throw new RangeError(field+" exceeds the JSON nesting limit");
+  if(value===null||typeof value==="boolean")return;
+  if(typeof value==="string"){if(value.length>10000)throw new RangeError(field+" contains an oversized string");return;}
+  if(typeof value==="number"){if(!Number.isFinite(value))throw new TypeError(field+" contains a non-finite number");return;}
+  if(typeof value!=="object")throw new TypeError(field+" must contain JSON-compatible values only");
+  if(seen.has(value))throw new TypeError(field+" contains a circular reference");
+  seen.add(value);
+  if(Array.isArray(value)){
+    if(value.length>5000)throw new RangeError(field+" contains too many array items");
+    value.forEach((item,index)=>assertJsonSafe(item,field+"["+index+"]",depth+1,seen));
+  }else{
+    const proto=Object.getPrototypeOf(value);
+    if(proto!==Object.prototype&&proto!==null)throw new TypeError(field+" must contain plain JSON objects");
+    const keys=Object.keys(value);
+    if(keys.length>200)throw new RangeError(field+" contains too many object properties");
+    for(const key of keys){
+      if(["__proto__","prototype","constructor"].includes(key))throw new TypeError(field+" contains a prohibited object key");
+      assertJsonSafe(value[key],field+"."+key,depth+1,seen);
+    }
+  }
+  seen.delete(value);
 };
 
 export function createSourceRecord(input) {
@@ -169,6 +194,7 @@ export function createExperimentRecord(input) {
 export function createResultRecord(input) {
   const b=base("result",input), outputs=input.outputs;
   if(!outputs||typeof outputs!=="object"||Array.isArray(outputs)) throw new TypeError("result.outputs must be an object");
+  assertJsonSafe(outputs,"result.outputs");
   const startedAt=date(input.startedAt,"result.startedAt"),finishedAt=date(input.finishedAt,"result.finishedAt");
   if(Date.parse(finishedAt)<Date.parse(startedAt))throw new Error("result finishedAt cannot precede startedAt");
   const inputHash=cleanText(input.inputHash,"result.inputHash",80);
@@ -206,7 +232,12 @@ export function assertResearchReferences(records) {
     if(r.recordType==="claim")requireType(r.sourceId,"source","sourceId");
     if(r.recordType==="evidence"){requireType(r.sourceId,"source","sourceId");requireType(r.claimId,"claim","claimId");}
     if(r.recordType==="method")for(const ref of r.sourceIds)requireType(ref,"source","method.sourceIds");
-    if(r.recordType==="dataset")requireType(r.sourceId,"source","dataset.sourceId");
+    if(r.recordType==="dataset"){
+      requireType(r.sourceId,"source","dataset.sourceId");
+      const source=byId.get(r.sourceId);
+      if(r.licenseStatus==="open-verified"&&source.license.status!=="open-verified")
+        throw new Error(r.id+" cannot claim open reuse when its source licence is not verified");
+    }
     if(r.recordType==="contradiction")for(const ref of r.claimIds)requireType(ref,"claim","contradiction.claimIds");
     if(r.recordType==="hypothesis"){
       for(const ref of r.supportingEvidenceIds)requireType(ref,"evidence","supportingEvidenceIds");
