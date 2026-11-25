@@ -93,7 +93,7 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --silent --show-error "$BASE_URL" -o /tmp/mtdm-index.html
-          ASSET=$(grep -oE 'src="[^"]+\.js"' /tmp/mtdm-index.html | head -n 1 | cut -d '"' -f 2)
+          ASSET=$(grep -oE 'src="[^"]*assets/[^"]+\.js"' /tmp/mtdm-index.html | head -n 1 | cut -d '"' -f 2)
           test -n "$ASSET"
           case "$ASSET" in
             http*) ASSET_URL="$ASSET" ;;
