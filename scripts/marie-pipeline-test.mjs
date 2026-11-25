@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+import {buildMARIERecords} from "../research-engine/marie-records.mjs";
+import {runStraightDriveValidation} from "../research-engine/experiment-runner.mjs";
+import {runVoltageDividerValidation} from "../research-engine/spice-experiment-runner.mjs";
+import {assertResearchReferences} from "../research-engine/records.mjs";
+const report={generatedAt:"2026-11-25T17:00:00Z",records:[],hypotheses:[]};
+const research=buildMARIERecords(report);
+const robotics=runStraightDriveValidation(),electronics=await runVoltageDividerValidation();
+research.records.push(...robotics.records,...electronics.records);
+assert.equal(assertResearchReferences(research.records),true);
+assert.deepEqual(research.records.filter(r=>r.recordType==="result").map(r=>r.status),["pass","pass"]);
+assert.ok(research.records.some(r=>r.recordType==="experiment"&&r.moduleId==="robotics.diff-drive"));
+assert.ok(research.records.some(r=>r.recordType==="experiment"&&r.moduleId==="electronics.spice-divider"));
+console.log("MARIE end-to-end validation passed: metadata record envelope, falsifiable hypothesis fixtures, robotics and SPICE experiments, provenance references and deterministic pass outcomes.");
