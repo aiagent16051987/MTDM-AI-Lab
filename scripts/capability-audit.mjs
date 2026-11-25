@@ -31,6 +31,6 @@ assert.ok(research&&!research.publicWorkspace,"Research Hub must remain internal
 assert.ok(/<section[^>]*id="research"[^>]*data-internal-workspace="true"/.test(html),"internal research workspace must remain in source without a public tab");
 assert.ok(!publicTabs.includes("research"),"Research Hub must not appear in public navigation");
 const records=read("research-engine/records.mjs");
-for(const fn of ["createSourceRecord","createClaimRecord","createEvidenceRecord","createHypothesisRecord","createExperimentRecord","createResultRecord","createReviewDecision","assertResearchReferences"])
+for(const fn of ["createSourceRecord","createClaimRecord","createEvidenceRecord","createMethodRecord","createDatasetRecord","createContradictionRecord","createHypothesisRecord","createExperimentRecord","createResultRecord","createReviewDecision","assertResearchReferences"])
   assert.ok(records.includes("function "+fn),"research record contract missing: "+fn);
 console.log("Capability audit passed: "+declared.length+" public workspaces, "+registry.capabilities.length+" declared capabilities, internal Research Hub, implementation/evidence paths and runtime record contracts.");
