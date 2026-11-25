@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import registry from "../research-engine/registry.json" with { type: "json" };
 import { validateRegistry, buildResearchReport } from "../research-engine/core.mjs";
+import { buildMARIERecords } from "../research-engine/marie-records.mjs";
 
 validateRegistry(registry);
 const policy=registry.policy;
@@ -61,6 +62,7 @@ for(const source of sources) {
 }
 
 const report=buildResearchReport({records,errors,registryVersion:registry.schemaVersion});
+const researchRecords=buildMARIERecords(report);
 const outputDir="artifacts/marie";
 fs.mkdirSync(outputDir,{recursive:true});
 fs.writeFileSync(path.join(outputDir,"research-report.json"),JSON.stringify(report,null,2)+"\n");
@@ -74,7 +76,7 @@ const markdown=[
 "",
 "## Candidate hypotheses",
 "",
-...report.hypotheses.slice(0,20).map(h=>"- **"+h.title+"** (priority "+h.priorityScore+"/100) — "+h.status),
+...report.hypotheses.slice(0,20).map(h=>"- **"+h.title+"** — "+h.status+"; "+h.evidenceStatus),
 "",
 "## Retrieved sources",
 "",
