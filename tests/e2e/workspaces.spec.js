@@ -69,6 +69,22 @@ test("AI model trains on its built-in synthetic teaching dataset", async ({ page
   await expect(page.locator("#prediction b")).not.toContainText("Awaiting");
 });
 
+test("circuit CSV export contains real newline-delimited rows", async ({ page }) => {
+  await page.goto("./");
+  await page.locator("#loadDivider").click();
+  await page.locator("#runSim").click();
+  await expect(page.locator("#simStatus")).toHaveText("COMPLETE", { timeout: 45_000 });
+  const downloadPromise = page.waitForEvent("download");
+  await page.locator("#exportCsv").click();
+  const download = await downloadPromise;
+  const fs = await import("node:fs/promises");
+  const path = await import("node:path");
+  const file = await download.path();
+  const csv = await fs.readFile(file, "utf8");
+  expect(csv.split(/\r?\n/).length).toBeGreaterThan(2);
+  expect(csv).toContain("x,value");
+});
+
 test("3D printing estimator responds and reports a result", async ({ page }) => {
   await page.goto("./");
   await page.getByRole("tab", { name: /3D Printing/i }).click();
@@ -76,6 +92,7 @@ test("3D printing estimator responds and reports a result", async ({ page }) => 
   await page.locator("#printEstimate").click();
   await expect(page.locator("#printEstimateStatus")).not.toHaveText("NOT CALCULATED");
   await expect(page.locator("#printVolume")).not.toHaveText("—");
+  await expect.poll(async () => Number.parseFloat(await page.locator("#printMass").innerText())).toBeGreaterThan(1);
   await expect(page.locator("#printEstimateLog")).not.toBeEmpty();
 });
 
