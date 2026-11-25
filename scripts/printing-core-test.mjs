@@ -20,6 +20,8 @@ assert.throws(()=>calculatePrintEstimate({...base,speed:501}),/Machine speed mus
 assert.throws(()=>calculatePrintEstimate({...base,materialDensity:0}),/Material density/);
 assert.throws(()=>calculatePrintEstimate({...base,processModel:{rate:0,factor:1,setup:0}}),/valid process model/);
 
+assert.throws(()=>calculatePrintEstimate({...base,process:"bio"}),/Bioprinting is a research overview only/);
+
 const fdmLow=calculatePrintEstimate(base);
 const fdmHigh=calculatePrintEstimate({...base,speed:100});
 assert.ok(fdmLow.materialGrams>0&&fdmLow.durationHours>0);
