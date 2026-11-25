@@ -218,3 +218,13 @@ test("Nano dynamics exposes deterministic energy observables and reproducible re
   await expect(page.locator("#nanoTotal")).toHaveText(initial);
   await expect(page.locator("#nanoTemperature")).not.toHaveText("—");
 });
+
+test("Quantum gate sequence produces research validation evidence", async ({ page }) => {
+  await page.goto("./");
+  await page.getByRole("tab", { name: /Quantum/i }).click();
+  await page.locator('[data-gate="H"]').click();
+  await page.locator('[data-gate="H"]').click();
+  await page.locator("#quantumValidate").click();
+  await expect(page.locator("#quantumLog")).toContainText("RESEARCH VALIDATION · PASS");
+  await expect(page.locator("#quantumLog")).toContainText("P sum 1.000000000000");
+});
