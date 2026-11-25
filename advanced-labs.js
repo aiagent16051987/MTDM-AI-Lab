@@ -3,6 +3,7 @@ const log = (id, value) => { const el = $(id); if (el) el.textContent = value; }
 
 // ---------------- Robotics: differential-drive navigation ----------------
 import { planGridPath, stepDiffDrive, wrapAngle } from "./robotics-core.js";
+import {runQuantumUnitaryValidation} from "./research-engine/quantum-experiment-runner.mjs";
 (() => {
   const canvas=$("robotCanvas"); if(!canvas)return;
   const ctx=canvas.getContext("2d");
@@ -91,7 +92,7 @@ import { planGridPath, stepDiffDrive, wrapAngle } from "./robotics-core.js";
 (() => {
   const out = $("quantumState");
   if (!out) return;
-  let a=[1,0], b=[0,0]; // complex amplitudes alpha and beta
+  let a=[1,0], b=[0,0], gateHistory=[]; // complex amplitudes alpha and beta
   const c=(r,i=0)=>[r,i];
   const add=(x,y)=>[x[0]+y[0],x[1]+y[1]];
   const mul=(x,y)=>[x[0]*y[0]-x[1]*y[1],x[0]*y[1]+x[1]*y[0]];
@@ -115,8 +116,9 @@ import { planGridPath, stepDiffDrive, wrapAngle } from "./robotics-core.js";
     S:[[c(1),c(0)],[c(0),c(0,1)]],
     T:[[c(1),c(0)],[c(0),c(Math.SQRT1_2,Math.SQRT1_2)]]
   };
-  document.querySelectorAll("[data-gate]").forEach(btn=>btn.onclick=()=>apply(gates[btn.dataset.gate]));
-  $("quantumReset").onclick=()=>{a=[1,0];b=[0,0];render();log("quantumLog","State reset to |0⟩.")};
+  document.querySelectorAll("[data-gate]").forEach(btn=>btn.onclick=()=>{gateHistory.push(btn.dataset.gate);apply(gates[btn.dataset.gate]);});
+  $("quantumReset").onclick=()=>{a=[1,0];b=[0,0];gateHistory=[];render();log("quantumLog","State reset to |0⟩. Gate history cleared.")};
+  $("quantumValidate").onclick=()=>{try{const evidence=runQuantumUnitaryValidation({gates:gateHistory.length?gateHistory:["H"]});const o=evidence.result.outputs;log("quantumLog","RESEARCH VALIDATION · "+evidence.result.status.toUpperCase()+" · P sum "+o.probabilities.sum.toFixed(12)+" · Bloch norm "+o.blochNorm.toFixed(12)+" · "+evidence.result.inputHash);}catch(error){log("quantumLog","VALIDATION ERROR · "+error.message)}};
   $("quantumMeasure").onclick=()=>{
     const p1=b[0]**2+b[1]**2, result=Math.random()<p1?1:0;
     a=result===0?[1,0]:[0,0];b=result===1?[1,0]:[0,0];render();
