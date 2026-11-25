@@ -1,3 +1,4 @@
+import { calculatePrintEstimate } from "./printing-core.mjs";
 const threeModule = import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js")
   .catch(error => {
     console.warn("MTDM 3D preview library unavailable; estimator remains usable.", error);
@@ -27,12 +28,13 @@ if (host) {
   const axes = new THREE.AxesHelper(35); scene.add(axes);
   const part = new THREE.Group(); scene.add(part);
   let shape = "cube", dragging = false, lastX = 0, lastY = 0;
-  let radius = 130, theta = Math.PI / 4, phi = Math.PI / 3;
+  let radius = 130, theta = Math.PI / 4, phi = Math.PI / 3, cameraTargetY = 20;
   const updateCamera = () => {
     phi = Math.max(0.18, Math.min(Math.PI - 0.18, phi));
     camera.position.set(radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi), radius * Math.sin(phi) * Math.sin(theta));
-    camera.lookAt(0, 20, 0);
+    camera.lookAt(0, cameraTargetY, 0);
   };
+  shape = document.querySelector("[data-print-shape].active")?.dataset.printShape || "cube";
   function rebuild() {
     while (part.children.length) {
       const obj = part.children.pop();
@@ -41,17 +43,24 @@ if (host) {
     }
     const mat = new THREE.MeshStandardMaterial({ color: 0x42c8b6, roughness: 0.48, metalness: 0.12 });
     const edgeMat = new THREE.LineBasicMaterial({ color: 0xb9fff4 });
-    const addMesh = (geometry, y = 0) => {
-      const mesh = new THREE.Mesh(geometry, mat); mesh.position.y = y; part.add(mesh);
-      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), edgeMat); edges.position.copy(mesh.position); part.add(edges);
+    const x = Number($("printX").value), y = Number($("printY").value), z = Number($("printZ").value);
+    cameraTargetY = Number.isFinite(z) ? z / 2 : 15;
+    radius = Math.max(130, (Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z) ? Math.max(x, y, z) : 50) * 2.6);
+    updateCamera();
+    const addMesh = (geometry, position, scale = [1, 1, 1]) => {
+      const mesh = new THREE.Mesh(geometry, mat);
+      mesh.position.set(position[0], position[1], position[2]);
+      mesh.scale.set(scale[0], scale[1], scale[2]);
+      part.add(mesh);
+      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), edgeMat);
+      edges.position.copy(mesh.position); edges.scale.copy(mesh.scale); part.add(edges);
     };
-    if (shape === "cube") addMesh(new THREE.BoxGeometry(40, 30, 40), 15);
-    if (shape === "cylinder") addMesh(new THREE.CylinderGeometry(20, 20, 30, 48), 15);
+    if (shape === "cube") addMesh(new THREE.BoxGeometry(x, z, y), [0, z / 2, 0]);
+    if (shape === "cylinder") addMesh(new THREE.CylinderGeometry(1, 1, 1, 48), [0, z / 2, 0], [x / 2, z, y / 2]);
     if (shape === "bracket") {
-      const vertical = new THREE.Mesh(new THREE.BoxGeometry(12, 42, 36), mat); vertical.position.set(-14, 21, 0); part.add(vertical);
-      const horizontal = new THREE.Mesh(new THREE.BoxGeometry(38, 12, 36), mat); horizontal.position.set(5, 6, 0); part.add(horizontal);
-      [vertical, horizontal].forEach(m => {const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), edgeMat); e.position.copy(m.position); part.add(e);});
-      const hole = new THREE.Mesh(new THREE.TorusGeometry(6, 1.4, 8, 32), new THREE.MeshStandardMaterial({color:0xffd166})); hole.rotation.y=Math.PI/2;hole.position.set(-7,28,0);part.add(hole);
+      const wall = Math.min(8, Math.max(2, Math.min(x, y) * 0.1));
+      addMesh(new THREE.BoxGeometry(wall, z, y), [-x / 2 + wall / 2, z / 2, 0]);
+      addMesh(new THREE.BoxGeometry(x, z, wall), [0, z / 2, -y / 2 + wall / 2]);
     }
     $("print3dStatus").textContent = "3D PREVIEW READY";
   }
@@ -59,8 +68,9 @@ if (host) {
   host.addEventListener("pointerdown", e => {dragging=true;lastX=e.clientX;lastY=e.clientY;host.setPointerCapture(e.pointerId);});
   host.addEventListener("pointermove", e => {if(!dragging)return;theta-=(e.clientX-lastX)*0.008;phi+=(e.clientY-lastY)*0.008;lastX=e.clientX;lastY=e.clientY;updateCamera();});
   host.addEventListener("pointerup",()=>dragging=false);host.addEventListener("pointercancel",()=>dragging=false);
-  host.addEventListener("wheel",e=>{e.preventDefault();radius=Math.max(65,Math.min(280,radius+e.deltaY*0.12));updateCamera();},{passive:false});
+  host.addEventListener("wheel",e=>{e.preventDefault();radius=Math.max(65,Math.min(1200,radius+e.deltaY*0.12));updateCamera();},{passive:false});
   document.querySelectorAll("[data-print-shape]").forEach(btn=>btn.addEventListener("click",()=>{shape=btn.dataset.printShape;document.querySelectorAll("[data-print-shape]").forEach(b=>b.classList.toggle("active",b===btn));rebuild();}));
+  ["printX","printY","printZ"].forEach(id => $(id).addEventListener("change", rebuild));
   updateCamera();resize();rebuild();
   if ("ResizeObserver" in window) new ResizeObserver(resize).observe(host); else window.addEventListener("resize",resize);
   renderer.setAnimationLoop(()=>renderer.render(scene,camera));
@@ -80,54 +90,54 @@ const processData = {
   binder:{rate:22,factor:1.8,setup:45,materials:["steel"]},materialjet:{rate:9,factor:1.35,setup:25,materials:["resin"]},
   ded:{rate:7,factor:1.8,setup:80,materials:["steel","titanium"]},waam:{rate:14,factor:1.7,setup:90,materials:["steel","aluminum"]},
   sheet:{rate:30,factor:1.3,setup:30,materials:["abs"]},pellet:{rate:65,factor:1.35,setup:25,materials:["pla","abs"]},
-  concrete:{rate:45,factor:1.5,setup:60,materials:["concrete"]},bio:{rate:2,factor:1.2,setup:60,materials:["resin"]}
+  concrete:{rate:45,factor:1.5,setup:60,materials:["concrete"]}
 };
 const density={pla:1.24,petg:1.27,abs:1.04,nylon:1.01,resin:1.1,tpu:1.2,aluminum:2.7,steel:8,titanium:4.43,concrete:2.2};
-function value(id,min,max){const n=Number($(id).value);if(!Number.isFinite(n)||n<min||n>max)throw new Error($(id).previousElementSibling?.textContent+" must be between "+min+" and "+max+".");return n;}
 function estimate(){
-  const p=processData[$("printProcess").value],mat=$("printMaterial").value;
-  if(!p||!p.materials.includes(mat))throw new Error("Selected feedstock is not a representative match for this process. Choose a compatible material from the material selector.");
-  const x=value("printX",5,250),y=value("printY",5,250),z=value("printZ",5,250),layer=value("printLayer",0.02,2),infill=value("printInfill",0,100),speed=value("printSpeed",1,500),price=value("printPrice",0,10000),power=value("printPower",0,100),rate=value("printRate",0,100);
+  const processId=$("printProcess").value;
+  if(processId==="bio")throw new Error("Bioprinting is a research overview only; no estimate is provided.");
+  const p=processData[processId],mat=$("printMaterial").value;
+  if(!p||!p.materials.includes(mat))throw new Error("Selected feedstock is not a representative match for this process. Choose a compatible material.");
   const shape=document.querySelector("[data-print-shape].active")?.dataset.printShape||"cube";
-  const volume=shape==="cylinder"?Math.PI*(x/2)**2*z:shape==="bracket"?(x*y*z*0.42):(x*y*z);
-  const solid=volume*(0.18+0.82*infill/100);
-  const mass=solid*density[mat]/1000*p.factor;
-  const layers=Math.ceil(z/layer);
-  const buildVolume=volume/1000;
-  const geometryFactor=shape==="bracket"?1.22:shape==="cylinder"?1.08:1;
-  const speedFactor=["fdm","pellet"].includes($("printProcess").value)?50/speed:1;
-  const hours=((buildVolume*p.factor*geometryFactor/p.rate)+layers*0.0015+p.setup/60)*speedFactor;
-  const energy=hours*power;
-  const massKg=mass;
-  const massGrams=massKg*1000;
-  const materialCost=massKg*price;
-  const energyCost=energy*rate;
-  const total=materialCost+energyCost;
-  $("printVolume").textContent=volume.toFixed(1)+" cm³";
-  $("printMass").textContent=massGrams.toFixed(1)+" g";
-  $("printTime").textContent=hours<1?(hours*60).toFixed(0)+" min":hours.toFixed(2)+" h";
-  $("printCost").textContent="$"+total.toFixed(2);
-  $("printLayers").textContent=layers.toLocaleString();
+  const result=calculatePrintEstimate({
+    shape,
+    x:$("printX").value,y:$("printY").value,z:$("printZ").value,
+    layerHeight:$("printLayer").value,infill:$("printInfill").value,speed:$("printSpeed").value,
+    pricePerKg:$("printPrice").value,powerKw:$("printPower").value,electricityRate:$("printRate").value,
+    process:processId,processModel:p,materialDensity:density[mat]
+  });
+  $("printVolume").textContent=result.volumeCm3.toFixed(2)+" cm³";
+  $("printMass").textContent=result.materialGrams.toFixed(2)+" g";
+  $("printTime").textContent=result.durationHours<1?(result.durationHours*60).toFixed(1)+" min":result.durationHours.toFixed(2)+" h";
+  $("printCost").textContent="$"+result.totalCost.toFixed(2);
+  $("printLayers").textContent=result.layers.toLocaleString();
   $("printEstimateStatus").textContent="ESTIMATE READY";
   $("printEstimateLog").textContent=[
     "PROCESS: "+$("printProcess").selectedOptions[0].text,
-    "GEOMETRY: "+shape+" · "+x+" × "+y+" × "+z+" mm",
-    "FEEDSTOCK: "+$("printMaterial").selectedOptions[0].text,
-    "ESTIMATED SOLID VOLUME: "+solid.toFixed(1)+" cm³",
-    "ESTIMATED MATERIAL: "+massGrams.toFixed(2)+" g (includes process factor)",
-    "ESTIMATED BUILD DURATION: "+(hours*60).toFixed(1)+" min",
-    "SPEED ADJUSTMENT: "+(["fdm","pellet"].includes($("printProcess").value)?speed+" mm/s · "+speedFactor.toFixed(2)+"× duration factor":"not applied to this process family"),
-    "ESTIMATED ENERGY: "+energy.toFixed(3)+" kWh",
-    "MATERIAL COST: $"+materialCost.toFixed(2)+" · ENERGY COST: $"+energyCost.toFixed(2),
+    "GEOMETRY: "+result.description,
+    "ENVELOPE: "+result.dimensions.x+" × "+result.dimensions.y+" × "+result.dimensions.z+" mm",
+    "GEOMETRIC VOLUME: "+result.volumeCm3.toFixed(2)+" cm³",
+    "MATERIAL: "+$("printMaterial").selectedOptions[0].text,
+    "ESTIMATED FEEDSTOCK: "+result.materialGrams.toFixed(2)+" g (includes process factor)",
+    "MATERIAL FRACTION: "+(result.materialFraction*100).toFixed(1)+"%"+(result.infillApplied?" (18% shell allowance + selected infill)":" (infill input ignored for this process family)"),
+    "ESTIMATED BUILD DURATION: "+(result.durationHours*60).toFixed(1)+" min",
+    "THROUGHPUT: "+result.effectiveRate.toFixed(2)+" cm³/h",
+    "THROUGHPUT MODEL: "+result.rateExplanation,
+    "ESTIMATED ENERGY: "+result.energyKwh.toFixed(3)+" kWh",
+    "MATERIAL COST: $"+result.materialCost.toFixed(2)+" · ENERGY COST: $"+result.energyCost.toFixed(2),
     "",
     "MODEL LIMITATIONS:",
-    "• Simplified shape volume and infill approximation; not a true slicer toolpath.",
-    "• Process rates and setup allowances are illustrative defaults, not vendor machine data.",
-    "• Supports, purge, raft, scan strategy, thermal distortion, nesting, post-processing and failure risk are not fully modelled.",
-    "• Industrial metal, concrete and bio-process estimates require machine-, feedstock- and facility-specific validated models.",
+    "• Geometry is an idealized envelope; no CAD mesh, wall topology, holes, supports or true slicer toolpath.",
+    "• FDM/pellet use a simplified shell allowance and volumetric-flow bound; actual flow, acceleration and travel vary by machine.",
+    "• Other process rates and setup allowances are illustrative defaults, not vendor-validated machine data.",
+    "• Layer count is a geometric planning indicator; non-extrusion process layer strategies are machine-specific.",
+    "• Waste, purge, nesting, thermal distortion, post-processing, failure risk and labour are not fully modelled.",
+    "• Industrial metal, concrete and bio-process estimates require qualified, machine- and facility-specific validation.",
     "Do not use these values for quotations, structural release or machine operation."
   ].join("\n");
 }
 $("printEstimate").addEventListener("click",()=>{try{estimate()}catch(e){$("printEstimateStatus").textContent="CHECK INPUT";$("printEstimateLog").textContent="INPUT / PROCESS ERROR\n"+e.message}});
-$("printReset").addEventListener("click",()=>{ $("printProcess").value="fdm";$("printMaterial").value="pla";$("printX").value=40;$("printY").value=40;$("printZ").value=30;$("printLayer").value=0.2;$("printInfill").value=20;$("printSpeed").value=50;$("printPrice").value=22;$("printPower").value=0.12;$("printRate").value=0.15;$("printEstimateStatus").textContent="NOT CALCULATED";$("printEstimateLog").textContent="Parameters reset. Calculate a new estimate."; });
-$("printProcess").addEventListener("change",()=>{const map={fdm:"pla",sla:"resin",dlp:"resin",msla:"resin",sls:"nylon",mjf:"nylon",slm:"aluminum",ebm:"titanium",binder:"steel",materialjet:"resin",ded:"steel",waam:"steel",sheet:"abs",pellet:"pla",concrete:"concrete",bio:"resin"};$("printMaterial").value=map[$("printProcess").value];});
+$("printReset").addEventListener("click",()=>{$("printProcess").value="fdm";syncProcessControls();$("printMaterial").value="pla";$("printX").value=40;$("printY").value=40;$("printZ").value=30;$("printLayer").value=0.2;$("printInfill").value=20;$("printSpeed").value=50;$("printPrice").value=22;$("printPower").value=0.12;$("printRate").value=0.15;document.querySelector('[data-print-shape="cube"]')?.click();$("printEstimateStatus").textContent="NOT CALCULATED";$("printEstimateLog").textContent="Parameters reset. Calculate a new estimate."; });
+function syncProcessControls(){const processId=$("printProcess").value;const extrusion=["fdm","pellet"].includes(processId);const researchOnly=processId==="bio";$("printSpeed").disabled=!extrusion;$("printInfill").disabled=!extrusion;$("printEstimate").disabled=researchOnly;if(researchOnly){$("printEstimateStatus").textContent="RESEARCH OVERVIEW ONLY";$("printEstimateLog").textContent="Bioprinting is presented for high-level research awareness only. This lab does not model biological feedstocks, cells, sterility, viability, medical use or bioprinting process parameters; no estimate is provided.";}else if($("printEstimateStatus").textContent==="RESEARCH OVERVIEW ONLY"){$("printEstimateStatus").textContent="NOT CALCULATED";$("printEstimateLog").textContent="Select a process and calculate an estimate. Values are planning approximations, not a machine quote.";}}
+syncProcessControls();
+$("printProcess").addEventListener("change",()=>{const map={fdm:"pla",sla:"resin",dlp:"resin",msla:"resin",sls:"nylon",mjf:"nylon",slm:"aluminum",ebm:"titanium",binder:"steel",materialjet:"resin",ded:"steel",waam:"steel",sheet:"abs",pellet:"pla",concrete:"concrete"};$("printMaterial").value=map[$("printProcess").value];syncProcessControls();});
