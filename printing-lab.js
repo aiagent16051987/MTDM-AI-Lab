@@ -42,22 +42,22 @@ if (host) {
     }
     const mat = new THREE.MeshStandardMaterial({ color: 0x42c8b6, roughness: 0.48, metalness: 0.12 });
     const edgeMat = new THREE.LineBasicMaterial({ color: 0xb9fff4 });
-    const addMesh = (geometry, y = 0) => {
-      const mesh = new THREE.Mesh(geometry, mat); mesh.position.y = y; part.add(mesh);
-      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), edgeMat); edges.position.copy(mesh.position); part.add(edges);
+    const x = Number($("printX").value), y = Number($("printY").value), z = Number($("printZ").value);
+    const addMesh = (geometry, position, scale = [1, 1, 1]) => {
+      const mesh = new THREE.Mesh(geometry, mat);
+      mesh.position.set(position[0], position[1], position[2]);
+      mesh.scale.set(scale[0], scale[1], scale[2]);
+      part.add(mesh);
+      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), edgeMat);
+      edges.position.copy(mesh.position); edges.scale.copy(mesh.scale); part.add(edges);
     };
-    if (shape === "cube") addMesh(new THREE.BoxGeometry(40, 30, 40), 15);
-    if (shape === "cylinder") addMesh(new THREE.CylinderGeometry(20, 20, 30, 48), 15);
+    if (shape === "cube") addMesh(new THREE.BoxGeometry(x, z, y), [0, z / 2, 0]);
+    if (shape === "cylinder") addMesh(new THREE.CylinderGeometry(1, 1, 1, 48), [0, z / 2, 0], [x / 2, z, y / 2]);
     if (shape === "bracket") {
-      const vertical = new THREE.Mesh(new THREE.BoxGeometry(12, 42, 36), mat); vertical.position.set(-14, 21, 0); part.add(vertical);
-      const horizontal = new THREE.Mesh(new THREE.BoxGeometry(38, 12, 36), mat); horizontal.position.set(5, 6, 0); part.add(horizontal);
-      [vertical, horizontal].forEach(m => {const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), edgeMat); e.position.copy(m.position); part.add(e);});
-      const hole = new THREE.Mesh(new THREE.TorusGeometry(6, 1.4, 8, 32), new THREE.MeshStandardMaterial({color:0xffd166})); hole.rotation.y=Math.PI/2;hole.position.set(-7,28,0);part.add(hole);
+      const wall = Math.min(8, Math.max(2, Math.min(x, y) * 0.1));
+      addMesh(new THREE.BoxGeometry(wall, z, y), [-x / 2 + wall / 2, z / 2, 0]);
+      addMesh(new THREE.BoxGeometry(x, z, wall), [0, z / 2, -y / 2 + wall / 2]);
     }
-    const sx=Number($("printX").value)/ (shape==="bracket"?50:40);
-    const sy=Number($("printY").value)/ (shape==="bracket"?36:40);
-    const sz=Number($("printZ").value)/ (shape==="bracket"?42:30);
-    part.scale.set(sx,sz,sy);
     $("print3dStatus").textContent = "3D PREVIEW READY";
   }
   function resize() { const w = host.clientWidth || 600, h = host.clientHeight || 390; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
@@ -66,6 +66,7 @@ if (host) {
   host.addEventListener("pointerup",()=>dragging=false);host.addEventListener("pointercancel",()=>dragging=false);
   host.addEventListener("wheel",e=>{e.preventDefault();radius=Math.max(65,Math.min(280,radius+e.deltaY*0.12));updateCamera();},{passive:false});
   document.querySelectorAll("[data-print-shape]").forEach(btn=>btn.addEventListener("click",()=>{shape=btn.dataset.printShape;document.querySelectorAll("[data-print-shape]").forEach(b=>b.classList.toggle("active",b===btn));rebuild();}));
+  ["printX","printY","printZ"].forEach(id => $(id).addEventListener("change", rebuild));
   updateCamera();resize();rebuild();
   if ("ResizeObserver" in window) new ResizeObserver(resize).observe(host); else window.addEventListener("resize",resize);
   renderer.setAnimationLoop(()=>renderer.render(scene,camera));
@@ -130,7 +131,6 @@ function estimate(){
     "Do not use these values for quotations, structural release or machine operation."
   ].join("\n");
 }
-["printX","printY","printZ"].forEach(id=>$(id).addEventListener("change",()=>{if(host&&$("print3dStatus").textContent==="3D PREVIEW READY")document.querySelector("[data-print-shape].active")?.click();}));
 $("printEstimate").addEventListener("click",()=>{try{estimate()}catch(e){$("printEstimateStatus").textContent="CHECK INPUT";$("printEstimateLog").textContent="INPUT / PROCESS ERROR\n"+e.message}});
 $("printReset").addEventListener("click",()=>{document.querySelectorAll("[data-print-shape]").forEach((b,i)=>b.classList.toggle("active",i===0)); $("printProcess").value="fdm";$("printMaterial").value="pla";$("printX").value=40;$("printY").value=40;$("printZ").value=30;$("printLayer").value=0.2;$("printInfill").value=20;$("printSpeed").value=50;$("printPrice").value=22;$("printPower").value=0.12;$("printRate").value=0.15;$("printEstimateStatus").textContent="NOT CALCULATED";$("printEstimateLog").textContent="Parameters reset. Calculate a new estimate."; });
 $("printProcess").addEventListener("change",()=>{const map={fdm:"pla",sla:"resin",dlp:"resin",msla:"resin",sls:"nylon",mjf:"nylon",slm:"aluminum",ebm:"titanium",binder:"steel",materialjet:"resin",ded:"steel",waam:"steel",sheet:"abs",pellet:"pla",concrete:"concrete",bio:"resin"};$("printMaterial").value=map[$("printProcess").value];});
