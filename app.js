@@ -41,9 +41,9 @@ $("loadRlcExample").onclick=()=>loadExperiment("rlc");
 $("exportCsv").onclick=()=>{
  if(!lastSeries?.length)return;
  const rows=["x,value",...lastSeries.map(p=>p.x+","+p.y)];
- const blob=new Blob([rows.join("\\n")],{type:"text/csv;charset=utf-8"});
+ const blob=new Blob([rows.join("\n")],{type:"text/csv;charset=utf-8"});
  const url=URL.createObjectURL(blob),a=document.createElement("a");
- a.href=url;a.download="mtdm-circuit-results.csv";a.click();URL.revokeObjectURL(url);
+ a.href=url;a.download="mtdm-circuit-results.csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 loadExperiment("rc");
 function plot(canvas,series,logX=false){
@@ -147,19 +147,31 @@ function syntheticSample(){
  if(profile==="fault"&&Math.floor(sampleIndex/8)%3===1){d.voltage+=1.4;d.current+=1.2;d.temperature+=18}
  return {...d,timestamp:new Date().toISOString()};
 }
+function sensorTick(){
+ const d=syntheticSample();
+ try{updateSensor(d,"local")}catch(e){mqttLog("Local sample rejected: "+e.message);return}
+ if(client?.connected&&$("mqttPublishConsent").checked){
+  try{client.publish($("mqttTopic").value,JSON.stringify(d),{qos:0,retain:false},e=>{if(e)mqttLog("Publish failed: "+e.message)})}
+  catch(e){mqttLog("Publish error: "+e.message)}
+ }
+}
+function stopSensorStream(){
+ if(sensorTimer){clearInterval(sensorTimer);sensorTimer=null}
+ $("sensorStart").disabled=false;$("sensorStop").disabled=true;
+}
 $("sensorStart").onclick=()=>{
  if(sensorTimer)return;
- const tick=()=>{const d=syntheticSample();try{updateSensor(d,"local")}catch(e){mqttLog("Local sample rejected: "+e.message)}
-  if(client?.connected&&$("mqttPublishConsent").checked){
-   try{client.publish($("mqttTopic").value,JSON.stringify(d),{qos:0,retain:false},e=>{if(e)mqttLog("Publish failed: "+e.message)})}
-   catch(e){mqttLog("Publish error: "+e.message)}
-  }
- };
- tick();sensorTimer=setInterval(tick,Number($("sensorInterval").value));
+ sensorTick();sensorTimer=setInterval(sensorTick,Number($("sensorInterval").value));
  $("sensorStart").disabled=true;$("sensorStop").disabled=false;
 };
-$("sensorStop").onclick=()=>{clearInterval(sensorTimer);sensorTimer=null;$("sensorStart").disabled=false;$("sensorStop").disabled=true;$("sensorStatus").textContent="STOPPED"};
-$("sensorInterval").addEventListener("change",()=>{if(sensorTimer){clearInterval(sensorTimer);sensorTimer=setInterval(()=>{const d=syntheticSample();updateSensor(d,"local");if(client?.connected&&$("mqttPublishConsent").checked)client.publish($("mqttTopic").value,JSON.stringify(d),{qos:0,retain:false})},Number($("sensorInterval").value))}});
+$("sensorStop").onclick=()=>{stopSensorStream();$("sensorStatus").textContent="STOPPED"};
+$("sensorInterval").addEventListener("change",()=>{
+ if(sensorTimer){clearInterval(sensorTimer);sensorTimer=setInterval(sensorTick,Number($("sensorInterval").value))}
+});
+window.addEventListener("pagehide",()=>{
+ stopSensorStream();
+ if(client){client.end(true);client=null}
+},{once:true});
 ["voltageLimit","currentLimit","temperatureLimit"].forEach(id=>$(id).addEventListener("change",()=>{if(history.length)alertTelemetry(history.at(-1))}));
 $("exportTelemetry").onclick=()=>{
  if(!history.length)return;
