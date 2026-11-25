@@ -484,6 +484,18 @@
             "createdAt": {
               "type": "string",
               "format": "date-time"
+            },
+            "methodId": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "datasetIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         }
