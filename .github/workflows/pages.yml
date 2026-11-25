@@ -28,7 +28,7 @@ jobs:
         run: |
           test -s dist/index.html
           grep -Eq 'assets/[^"]+\.js' dist/index.html
-          if grep -q 'src="./app.js"' dist/index.html; then
+          if grep -Eq 'src="[^"]*app\.js' dist/index.html; then
             echo "Unbundled application entrypoint found in production HTML."
             exit 1
           fi
@@ -101,7 +101,7 @@ jobs:
             *) ASSET_URL="${BASE_URL%/}/$ASSET" ;;
           esac
           curl --fail --silent --show-error "$ASSET_URL" -o /tmp/mtdm-app.js
-          if grep -q 'from "@spice-ts/core"' /tmp/mtdm-app.js; then
+          if grep -Eq '(from|import)[[:space:]]*["\x27]@spice-ts/core' /tmp/mtdm-app.js; then
             echo "Bare package import leaked into deployed browser JavaScript."
             exit 1
           fi
