@@ -97,13 +97,16 @@
       "status": "experimental",
       "publicWorkspace": true,
       "implementation": [
-        "advanced-labs.js"
+        "advanced-labs.js",
+        "nano-core.mjs"
       ],
       "evidence": [
+        "scripts/nano-core-test.mjs",
         "tests/e2e/workspaces.spec.js"
       ],
       "limitations": [
-        "Reduced 2D Lennard-Jones model; no validated material-specific molecular dynamics or research-grade thermodynamics."
+        "Seeded two-dimensional Lennard-Jones model with velocity-Verlet integration, shifted pair potential and reflecting boundaries; all quantities use reduced units.",
+        "Not validated material-specific molecular dynamics, quantum chemistry, biological nanorobotics or research-grade thermodynamics; physical use requires validated potentials and convergence studies."
       ]
     },
     {
