@@ -162,7 +162,8 @@
         "scripts/research-spice-test.mjs",
         "scripts/source-governance-test.mjs",
         "scripts/research-cross-domain-test.mjs",
-        "scripts/marie-records-test.mjs"
+        "scripts/marie-records-test.mjs",
+        "scripts/marie-pipeline-test.mjs"
       ],
       "limitations": [
         "Read-only selected-source metadata; no full-text claim extraction, comprehensive global coverage or proof of novelty."
