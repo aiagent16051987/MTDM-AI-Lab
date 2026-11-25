@@ -127,6 +127,8 @@ test("non-extrusion processes disclose that infill is not used in material accou
   await page.goto("./");
   await page.getByRole("tab", { name: /3D Printing/i }).click();
   await page.locator("#printProcess").selectOption("sla");
+  await expect(page.locator("#printInfill")).toBeDisabled();
+  await expect(page.locator("#printSpeed")).toBeDisabled();
   await page.locator("#printEstimate").click();
   await expect(page.locator("#printEstimateLog")).toContainText("infill input ignored for this process family");
 });
