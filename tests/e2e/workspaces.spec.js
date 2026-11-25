@@ -78,7 +78,6 @@ test("circuit CSV export contains real newline-delimited rows", async ({ page })
   await page.locator("#exportCsv").click();
   const download = await downloadPromise;
   const fs = await import("node:fs/promises");
-  const path = await import("node:path");
   const file = await download.path();
   const csv = await fs.readFile(file, "utf8");
   expect(csv.split(/\r?\n/).length).toBeGreaterThan(2);
