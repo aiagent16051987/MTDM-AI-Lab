@@ -52,7 +52,7 @@ Pushes to `main` run the GitHub Actions Pages workflow. It installs dependencies
 
 The test suite checks selected reference cases and integration wiring. After deployment, a separate Playwright/Chromium job exercises all eight workspace tabs, keyboard navigation, SPICE execution, local IoT telemetry, synthetic AI training/inference, quantum gate and Bell-state paths, nano dynamics, swarm controls, the additive-manufacturing estimator, mobile tab access and uncaught browser exceptions. Failure screenshots, traces and the HTML report are uploaded as workflow artifacts. **A passing browser run covers only these tested paths and does not certify scientific accuracy, physical safety, production readiness, accessibility conformance or every external service.**
 
-Check the current workflow status and download the browser-audit evidence from [GitHub Actions](https://github.com/aiagent16051987/MTDM-AI-Lab/actions). To run the browser suite locally, install dependencies and Chromium with `npx playwright install chromium`, then use `npm run test:e2e`. Set `MTDM_BASE_URL` to the deployed site URL when testing GitHub Pages.
+Check the current workflow status and download the browser-audit evidence from [GitHub Actions](https://github.com/aiagent16051987/MTDM-AI-Lab/actions). To run the browser suite locally, build the production site first, install Chromium with `npx playwright install chromium`, then run `npm run test:e2e`; Playwright starts a local preview automatically. To test an already deployed site instead, set `MTDM_BASE_URL` to its URL; the local preview server is then skipped.
 
 ## Continuous improvement
 
