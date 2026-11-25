@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {runVoltageDividerValidation} from "../research-engine/spice-experiment-runner.mjs";
 const a=await runVoltageDividerValidation(),b=await runVoltageDividerValidation();
+console.log("SPICE bridge diagnostic",JSON.stringify(a.result.outputs));
 assert.equal(a.result.status,"pass");
 assert.ok(Math.abs(a.result.outputs.actual.value-4)<1e-5);
 assert.equal(a.result.inputHash,b.result.inputHash);
