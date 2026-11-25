@@ -149,14 +149,16 @@
         "scripts/run-marie.mjs",
         "research-engine/records.mjs",
         "research-engine/experiment-runner.mjs",
-        "research-engine/spice-experiment-runner.mjs"
+        "research-engine/spice-experiment-runner.mjs",
+        "research-engine/source-governance.mjs"
       ],
       "evidence": [
         "scripts/marie-test.mjs",
         "research-engine/schema-v1.json",
         "scripts/research-records-test.mjs",
         "scripts/research-experiment-test.mjs",
-        "scripts/research-spice-test.mjs"
+        "scripts/research-spice-test.mjs",
+        "scripts/source-governance-test.mjs"
       ],
       "limitations": [
         "Read-only selected-source metadata; no full-text claim extraction, comprehensive global coverage or proof of novelty."
