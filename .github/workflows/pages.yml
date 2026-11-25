@@ -20,6 +20,10 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Generate temporary dependency lock for audit
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Audit resolved dependencies
+        run: npm audit --audit-level=high
       - name: Run deterministic engineering and governance tests
         run: npm test
       - name: Build production site
@@ -50,6 +54,10 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm install
+      - name: Generate temporary dependency lock for audit
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Audit resolved dependencies
+        run: npm audit --audit-level=high
       - name: Run deterministic engineering and governance tests
         run: npm test
       - name: Build exact commit for browser audit
