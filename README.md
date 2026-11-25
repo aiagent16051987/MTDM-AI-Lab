@@ -20,6 +20,8 @@ The workspace is designed for learners and builders from beginner to advanced le
 | Nano | Simplified 2D classical Lennard-Jones molecular-dynamics teaching model | Not quantum chemistry, validated materials science or a biological nanorobot model. |
 | 3D Printing & Additive Manufacturing | Process/material exploration, interactive 3D preview and illustrative volume, mass, time and cost estimates | Not a CAD kernel, production slicer, machine controller, certified process model or supplier quotation. |
 
+**Research Hub:** retained internally for background research and existing simulations; it is not a public navigation tab. MARIE research processing remains an internal capability.
+
 ### Additive manufacturing scope
 
 The learning workspace covers material extrusion (FDM/FFF and pellet), vat photopolymerization (SLA/DLP/MSLA), polymer and metal powder-bed fusion (SLS/MJF/LPBF/EB-PBF), binder jetting, material jetting, directed-energy deposition, wire-arc additive manufacturing, sheet lamination, construction extrusion, research-only bioprinting and hybrid additive manufacturing.
