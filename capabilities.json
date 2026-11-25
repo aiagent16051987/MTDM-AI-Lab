@@ -10,11 +10,13 @@
       "publicWorkspace": true,
       "implementation": [
         "app.js",
-        "visual-circuit.js"
+        "visual-circuit.js",
+        "research-engine/spice-experiment-runner.mjs"
       ],
       "evidence": [
         "scripts/spice-smoke-test.js",
-        "scripts/integration-smoke-test.js"
+        "scripts/integration-smoke-test.js",
+        "scripts/research-spice-test.mjs"
       ],
       "limitations": [
         "Bounded SPICE subset; not a complete EDA suite or hardware certification.",
@@ -60,11 +62,13 @@
       "publicWorkspace": true,
       "implementation": [
         "robotics-core.js",
-        "advanced-labs.js"
+        "advanced-labs.js",
+        "research-engine/experiment-runner.mjs"
       ],
       "evidence": [
         "scripts/robotics-core-test.js",
-        "tests/e2e/workspaces.spec.js"
+        "tests/e2e/workspaces.spec.js",
+        "scripts/research-experiment-test.mjs"
       ],
       "limitations": [
         "Planar kinematics and grid planning; no validated motor dynamics, wheel slip, ROS integration or safety-rated control."
@@ -142,10 +146,17 @@
       "publicWorkspace": false,
       "implementation": [
         "research-engine/core.mjs",
-        "scripts/run-marie.mjs"
+        "scripts/run-marie.mjs",
+        "research-engine/records.mjs",
+        "research-engine/experiment-runner.mjs",
+        "research-engine/spice-experiment-runner.mjs"
       ],
       "evidence": [
-        "scripts/marie-test.mjs"
+        "scripts/marie-test.mjs",
+        "research-engine/schema-v1.json",
+        "scripts/research-records-test.mjs",
+        "scripts/research-experiment-test.mjs",
+        "scripts/research-spice-test.mjs"
       ],
       "limitations": [
         "Read-only selected-source metadata; no full-text claim extraction, comprehensive global coverage or proof of novelty."
