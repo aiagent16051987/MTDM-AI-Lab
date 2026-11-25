@@ -95,6 +95,16 @@ test("3D printing estimator responds and reports a result", async ({ page }) => 
   await expect(page.locator("#printEstimateLog")).not.toBeEmpty();
 });
 
+test("3D estimator remains usable when the preview CDN is unavailable", async ({ page }) => {
+  await page.route("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", route => route.abort());
+  await page.goto("./");
+  await page.getByRole("tab", { name: /3D Printing/i }).click();
+  await expect(page.locator("#print3dStatus")).toHaveText("3D PREVIEW UNAVAILABLE", { timeout: 30_000 });
+  await page.locator("#printEstimate").click();
+  await expect(page.locator("#printEstimateStatus")).toHaveText("ESTIMATE READY");
+  await expect(page.locator("#printMass")).not.toHaveText("—");
+});
+
 test("mobile viewport keeps all workspace tabs reachable", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("./");
