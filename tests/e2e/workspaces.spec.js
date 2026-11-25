@@ -133,6 +133,15 @@ test("non-extrusion processes disclose that infill is not used in material accou
   await expect(page.locator("#printEstimateLog")).toContainText("infill input ignored for this process family");
 });
 
+test("bioprinting remains research-only and cannot produce a material estimate", async ({ page }) => {
+  await page.goto("./");
+  await page.getByRole("tab", { name: /3D Printing/i }).click();
+  await page.locator("#printProcess").selectOption("bio");
+  await expect(page.locator("#printEstimate")).toBeDisabled();
+  await expect(page.locator("#printEstimateStatus")).toHaveText("RESEARCH OVERVIEW ONLY");
+  await expect(page.locator("#printEstimateLog")).toContainText("no estimate is provided");
+});
+
 test("3D estimator remains usable when the preview CDN is unavailable", async ({ page }) => {
   await page.route("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", route => route.abort());
   await page.goto("./");
