@@ -5,7 +5,7 @@ const hash=v=>"sha256:"+crypto.createHash("sha256").update(JSON.stringify(v)).di
 const finite=(v,n,min,max)=>{if(typeof v!=="number"||!Number.isFinite(v)||v<min||v>max)throw new RangeError(n+" must be finite and between "+min+" and "+max);return v};
 export function runNanoInvariantValidation(input={}){
  const count=input.count??16,seed=input.seed??20261125,steps=input.steps??100,dt=finite(input.dt??0.0005,"dt",1e-6,0.001);
- if(!Number.isInteger(count)||count<2||count>64)throw new RangeError("count must be an integer from 2 to 64");
+ if(!Number.isInteger(count)||count<2||count>36)throw new RangeError("count must be an integer from 2 to 36");
  if(!Number.isInteger(seed)||seed<0||seed>0xffffffff)throw new RangeError("seed must be an unsigned 32-bit integer");
  if(!Number.isInteger(steps)||steps<1||steps>1000)throw new RangeError("steps must be an integer from 1 to 1000");
  const createdAt=input.createdAt??"2026-11-25T16:00:00Z",model={epsilon:1,sigma:1,cutoff:2.5};
@@ -23,7 +23,7 @@ export function runNanoInvariantValidation(input={}){
   moduleId:"nano.lennard-jones-2d",moduleVersion:"1.0.0",
   parameters:{count:{value:count,unit:"particles"},seed:{value:seed,unit:"uint32"},steps:{value:steps,unit:"steps"},dt:{value:dt,unit:"reduced-time"}},
   assumptions:hypothesis.assumptions,safetyClass:"low-risk-software",createdAt});
- let particles=createNanoLattice({count,columns:Math.min(8,count),seed,velocityScale:0.08});
+ let particles=createNanoLattice({count,columns:Math.min(6,count),seed,velocityScale:0.08});
  const initial=calculateNanoObservables(particles,model),forces=calculateLennardJonesForces(particles,model);
  const forceResidual=Math.hypot(forces.reduce((s,f)=>s+f.fx,0),forces.reduce((s,f)=>s+f.fy,0));
  for(let i=0;i<steps;i++)particles=integrateNanoStep(particles,dt,{...model,bounds:{min:-100,max:100}});
