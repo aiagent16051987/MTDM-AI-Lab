@@ -7,4 +7,6 @@ for(const token of ["function validateTelemetry","function syntheticSample","Use
 assert(html.includes("Explicitly publish generated test data"),"publishing consent is clearly described");
 assert(js.includes("history.length>2000"),"telemetry history is bounded");
 assert(js.includes("reconnectPeriod:0"),"MQTT reconnect is explicit, not endless");
+assert.ok(js.includes("function sensorTick()")&&js.includes("function stopSensorStream()"),"sensor interval changes use one shared tick and cleanup path");
+assert.ok(js.includes("setTimeout(()=>URL.revokeObjectURL(url),1000)"),"CSV object URLs are revoked after download begins");
 console.log("MTDM IoT telemetry smoke tests passed: validated MQTT, local profiles, opt-in publishing, alert thresholds and CSV export.");
