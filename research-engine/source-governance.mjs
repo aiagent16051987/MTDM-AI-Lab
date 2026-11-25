@@ -27,7 +27,10 @@ export async function fetchPermittedOpenDocument(source,{fetchImpl=fetch,timeout
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
   try{
     const response=await fetchImpl(url.href,{method:"GET",redirect:"error",signal:controller.signal,
-      headers:{"accept":"text/plain, text/markdown, application/json","user-agent":"MTDM-AI-Lab-MARIE/1.0"}});
+      headers:{"accept":"text/plain, text/markdown, application/json","user-agent":"MTDM-AI-Lab-MARIE/1.0",
+        ...(source.freshness?.etag?{"if-none-match":source.freshness.etag}:{}),
+        ...(source.freshness?.lastModified?{"if-modified-since":source.freshness.lastModified}:{})}});
+    if(response.status===304)return {sourceId:source.id,url:url.href,notModified:true,checkedAt:new Date().toISOString()};
     if(!response.ok)throw new Error("Document request failed with HTTP "+response.status);
     const type=(response.headers.get("content-type")||"").split(";")[0].trim().toLowerCase();
     if(!MIME_TYPES.has(type))throw new Error("Document content type is not permitted: "+(type||"missing"));
