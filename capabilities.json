@@ -122,7 +122,7 @@
       ],
       "limitations": [
         "Dimension-aware idealized cube, elliptical-cylinder and L-bracket envelope calculations; no imported CAD mesh, watertightness validation or true slicer toolpath.",
-        "FDM/pellet material and throughput use simplified shell, bead-width and layer-height assumptions; other process throughput defaults are illustrative, not machine-validated.",
+        "FDM/pellet material and throughput use simplified shell, bead-width and layer-height assumptions; other process throughput defaults are illustrative, not machine-validated. Bioprinting is research overview only and is excluded from estimation.",
         "Not CAD, production slicing, G-code generation, machine control, certified process planning or a supplier quotation."
       ]
     },
