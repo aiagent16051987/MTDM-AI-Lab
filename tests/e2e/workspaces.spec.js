@@ -159,7 +159,7 @@ test("nano dynamics and swarm prototype start and stop", async ({ page }) => {
   await expect(page.locator("#nanoStatus")).not.toHaveText("READY");
   await page.locator("#nanoStop").click();
 
-  await page.getByRole("tab", { name: /Research Hub/i }).click();
+  await page.evaluate(() => window.mtdmShowTab("research"));
   await page.locator("#swarmCount").fill("40");
   await expect(page.locator("#swarmCountValue")).toHaveText("40");
   await page.locator("#swarmStart").click();
