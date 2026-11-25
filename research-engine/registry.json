@@ -120,5 +120,8 @@
     "quantum",
     "nano",
     "manufacturing"
+  ],
+  "openDocumentHosts": [
+    "raw.githubusercontent.com"
   ]
 }
