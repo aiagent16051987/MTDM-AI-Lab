@@ -1,6 +1,8 @@
 name: MTDM AI Lab Browser Audit
 
 on:
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -12,7 +14,6 @@ concurrency:
 
 jobs:
   chromium-e2e:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -26,25 +27,14 @@ jobs:
         run: npm install
       - name: Install Chromium and system dependencies
         run: npx playwright install --with-deps chromium
-      - name: Wait for GitHub Pages deployment
+      - name: Run unit and integration tests
+        run: npm test
+      - name: Build production site
+        run: npm run build
+      - name: Install Chromium and system dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Run production-build browser audit
         env:
-          BASE_URL: https://aiagent16051987.github.io/MTDM-AI-Lab/
-        run: |
-          for attempt in $(seq 1 18); do
-            if curl --fail --silent --show-error "$BASE_URL" -o /tmp/mtdm-home.html; then
-              if grep -q "MTDM AI Lab" /tmp/mtdm-home.html; then
-                echo "GitHub Pages is responding."
-                exit 0
-              fi
-            fi
-            echo "Pages not ready (attempt $attempt/18); waiting 10 seconds."
-            sleep 10
-          done
-          echo "GitHub Pages did not become ready in time."
-          exit 1
-      - name: Run deployed-site browser audit
-        env:
-          MTDM_BASE_URL: https://aiagent16051987.github.io/MTDM-AI-Lab/
           CI: true
         run: npm run test:e2e
       - name: Upload browser audit report and failure evidence
