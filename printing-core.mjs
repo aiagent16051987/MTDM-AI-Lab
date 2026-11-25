@@ -44,6 +44,9 @@ export function calculatePartGeometry({ shape, x, y, z }) {
 }
 
 export function calculatePrintEstimate(input) {
+  if (input.process === "bio") {
+    throw new RangeError("Bioprinting is a research overview only; no biological feedstock or process estimate is provided.");
+  }
   const geometry = calculatePartGeometry(input);
   const layerHeight = boundedNumber("Layer height", input.layerHeight, LIMITS.layerHeight);
   const extrusion = input.process === "fdm" || input.process === "pellet";
