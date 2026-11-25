@@ -5,7 +5,7 @@ const js=fs.readFileSync(new URL("../printing-lab.js",import.meta.url),"utf8");
 const core=fs.readFileSync(new URL("../printing-core.mjs",import.meta.url),"utf8");
 const css=fs.readFileSync(new URL("../style.css",import.meta.url),"utf8");
 for(const id of ["printing","print3dView","printProcess","printMaterial","printEstimate","printEstimateLog","printVolume","printMass","printTime","printCost","printLayers"])assert(html.includes('id="'+id+'"'),"missing UI id "+id);
-for(const process of ["fdm","sla","dlp","msla","sls","mjf","slm","ebm","binder","materialjet","ded","waam","sheet","pellet","concrete","bio"])assert(js.includes(process+":"),"missing process model "+process);
+for(const process of ["fdm","sla","dlp","msla","sls","mjf","slm","ebm","binder","materialjet","ded","waam","sheet","pellet" ,"concrete"])assert(js.includes(process+":"),"missing process model "+process);
 assert(html.includes('data-print-shape="bracket"'),"bracket geometry selector exists");
 assert(js.includes("PerspectiveCamera")&&js.includes("WebGLRenderer"),"interactive 3D preview uses WebGL");
 assert(css.includes(".printing-layout"),"responsive printing workspace styles exist");
@@ -16,4 +16,5 @@ assert(js.includes("new THREE.BoxGeometry(x, z, y)")&&js.includes("new THREE.Cyl
 assert(js.includes("infill input ignored for this process family"),"non-extrusion infill limitation is disclosed");
 assert(js.includes("syncProcessControls")&&js.includes('$("printSpeed").disabled=!extrusion'),"extrusion-only controls are disabled for other processes");
 assert(js.includes('$("printEstimate").disabled=researchOnly')&&core.includes("Bioprinting is a research overview only"),"bioprinting cannot produce unsupported estimates");
-console.log("MTDM additive manufacturing workspace smoke tests passed: 16 process families, dimension-aware preview, validated geometry and process-aware estimator.");
+assert(!js.includes('bio:{rate:'),"bioprinting must not have an ordinary process-rate model");
+console.log("MTDM additive manufacturing workspace smoke tests passed: 15 estimate process families plus research-only bioprinting overview, dimension-aware preview, validated geometry and process-aware estimator.");
