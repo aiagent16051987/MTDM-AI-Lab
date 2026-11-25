@@ -30,14 +30,17 @@
       "status": "experimental",
       "publicWorkspace": true,
       "implementation": [
-        "app.js"
+        "app.js",
+        "research-engine/iot-experiment-runner.mjs"
       ],
       "evidence": [
         "scripts/iot-smoke-test.js",
-        "tests/e2e/workspaces.spec.js"
+        "tests/e2e/workspaces.spec.js",
+        "scripts/research-iot-test.mjs"
       ],
       "limitations": [
-        "Synthetic local telemetry and optional public MQTT demonstration; not a production IoT backend or safety controller."
+        "Synthetic local telemetry and optional public MQTT demonstration; not a production IoT backend or safety controller.",
+        "Research bridge validates bounded synthetic telemetry schema and timestamp normalization only; it does not authenticate or calibrate a physical device."
       ]
     },
     {
@@ -46,14 +49,17 @@
       "status": "experimental",
       "publicWorkspace": true,
       "implementation": [
-        "app.js"
+        "app.js",
+        "research-engine/ai-experiment-runner.mjs"
       ],
       "evidence": [
         "scripts/ai-smoke-test.js",
-        "tests/e2e/workspaces.spec.js"
+        "tests/e2e/workspaces.spec.js",
+        "scripts/research-ai-test.mjs"
       ],
       "limitations": [
-        "Synthetic sensor dataset only; no evidence of real-world predictive performance or calibrated safety probabilities."
+        "Synthetic sensor dataset only; no evidence of real-world predictive performance or calibrated safety probabilities.",
+        "Research bridge validates confusion-matrix and macro-metric arithmetic on a supplied label fixture; it does not train or validate a real-world model."
       ]
     },
     {
