@@ -30,6 +30,9 @@ const research=registry.capabilities.find(c=>c.id==="research");
 assert.ok(research&&!research.publicWorkspace,"Research Hub must remain internal");
 assert.ok(/<section[^>]*id="research"[^>]*data-internal-workspace="true"/.test(html),"internal research workspace must remain in source without a public tab");
 assert.ok(!publicTabs.includes("research"),"Research Hub must not appear in public navigation");
+const schema=JSON.parse(read("research-engine/schema-v1.json"));
+for(const type of ["source","claim","evidence","method","dataset","contradiction","hypothesis","experiment","result","review"])
+  assert.ok(schema.$defs[type],"versioned research schema missing record type: "+type);
 const records=read("research-engine/records.mjs");
 for(const fn of ["createSourceRecord","createClaimRecord","createEvidenceRecord","createMethodRecord","createDatasetRecord","createContradictionRecord","createHypothesisRecord","createExperimentRecord","createResultRecord","createReviewDecision","assertResearchReferences"])
   assert.ok(records.includes("function "+fn),"research record contract missing: "+fn);
