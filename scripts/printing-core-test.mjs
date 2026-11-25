@@ -27,7 +27,7 @@ assert.ok(fdmHigh.durationHours<fdmLow.durationHours,"higher FDM volumetric flow
 assert.ok(Math.abs(fdmLow.materialCost-fdmLow.materialKg*22)<1e-10);
 assert.ok(Math.abs(fdmLow.energyCost-fdmLow.energyKwh*0.15)<1e-10);
 
-const sla=calculatePrintEstimate({...base,process:"sla",processModel:{rate:12,factor:1.15,setup:18},materialDensity:1.1});
+const sla=calculatePrintEstimate({...base,process:"sla",speed:501,infill:101,processModel:{rate:12,factor:1.15,setup:18},materialDensity:1.1});
 assert.equal(sla.materialFraction,1,"infill must not silently reduce vat photopolymer material");
 assert.equal(sla.infillApplied,false);
 assert.ok(sla.durationHours>0);
