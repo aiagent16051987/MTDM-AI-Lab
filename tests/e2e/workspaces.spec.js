@@ -95,6 +95,18 @@ test("3D printing estimator responds and reports a result", async ({ page }) => 
   await expect(page.locator("#printEstimateLog")).not.toBeEmpty();
 });
 
+test("FDM machine speed changes the estimated build duration", async ({ page }) => {
+  await page.goto("./");
+  await page.getByRole("tab", { name: /3D Printing/i }).click();
+  await page.locator("#printEstimate").click();
+  await expect(page.locator("#printEstimateStatus")).toHaveText("ESTIMATE READY");
+  const atDefaultSpeed = Number.parseFloat(await page.locator("#printTime").innerText());
+  await page.locator("#printSpeed").fill("100");
+  await page.locator("#printEstimate").click();
+  const atHigherSpeed = Number.parseFloat(await page.locator("#printTime").innerText());
+  expect(atHigherSpeed).toBeLessThan(atDefaultSpeed);
+});
+
 test("3D estimator remains usable when the preview CDN is unavailable", async ({ page }) => {
   await page.route("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", route => route.abort());
   await page.goto("./");
