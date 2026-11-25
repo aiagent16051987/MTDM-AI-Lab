@@ -93,8 +93,8 @@ const sensorLimits={voltage:[-100,1000],current:[0,1000],temperature:[-100,1000]
 function validateTelemetry(d){
  if(!d||typeof d!=="object"||Array.isArray(d))throw Error("Message must be a JSON object.");
  for(const k of ["voltage","current","temperature"]){
-  const n=Number(d[k]),[lo,hi]=sensorLimits[k];
-  if(d[k]===null||d[k]===""||!Number.isFinite(n)||n<lo||n>hi)throw Error("Invalid "+k+" value; accepted range "+lo+" to "+hi+".");
+  const n=d[k],[lo,hi]=sensorLimits[k];
+  if(typeof n!=="number"||!Number.isFinite(n)||n<lo||n>hi)throw Error("Invalid "+k+" value; provide a JSON number from "+lo+" to "+hi+".");
  }
  let timestamp=new Date().toISOString();
  if(d.timestamp!==undefined&&d.timestamp!==null&&d.timestamp!==""){
