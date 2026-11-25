@@ -108,6 +108,29 @@ test("FDM machine speed changes the estimated build duration", async ({ page }) 
   expect(atHigherSpeed).toBeLessThan(atDefaultSpeed);
 });
 
+test("3D geometry dimensions change volume and invalid dimensions are rejected", async ({ page }) => {
+  await page.goto("./");
+  await page.getByRole("tab", { name: /3D Printing/i }).click();
+  await page.locator("#printEstimate").click();
+  await expect(page.locator("#printVolume")).toHaveText("48.00 cm³");
+  await page.locator("#printX").fill("80");
+  await page.locator("#printX").dispatchEvent("change");
+  await page.locator("#printEstimate").click();
+  await expect(page.locator("#printVolume")).toHaveText("96.00 cm³");
+  await page.locator("#printX").fill("0");
+  await page.locator("#printEstimate").click();
+  await expect(page.locator("#printEstimateStatus")).toHaveText("CHECK INPUT");
+  await expect(page.locator("#printEstimateLog")).toContainText("X must be");
+});
+
+test("non-extrusion processes disclose that infill is not used in material accounting", async ({ page }) => {
+  await page.goto("./");
+  await page.getByRole("tab", { name: /3D Printing/i }).click();
+  await page.locator("#printProcess").selectOption("sla");
+  await page.locator("#printEstimate").click();
+  await expect(page.locator("#printEstimateLog")).toContainText("infill input ignored for this process family");
+});
+
 test("3D estimator remains usable when the preview CDN is unavailable", async ({ page }) => {
   await page.route("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", route => route.abort());
   await page.goto("./");
