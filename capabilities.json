@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-25",
+  "policy": "Capability status describes verified software scope, not scientific validity or hardware readiness.",
+  "capabilities": [
+    {
+      "id": "electronics",
+      "name": "Electronics and SPICE",
+      "status": "experimental",
+      "publicWorkspace": true,
+      "implementation": [
+        "app.js",
+        "visual-circuit.js"
+      ],
+      "evidence": [
+        "scripts/spice-smoke-test.js",
+        "scripts/integration-smoke-test.js"
+      ],
+      "limitations": [
+        "Bounded SPICE subset; not a complete EDA suite or hardware certification.",
+        "Browser execution depends on the production bundle resolving the SPICE dependency."
+      ]
+    },
+    {
+      "id": "iot",
+      "name": "IoT telemetry",
+      "status": "experimental",
+      "publicWorkspace": true,
+      "implementation": [
+        "app.js"
+      ],
+      "evidence": [
+        "scripts/iot-smoke-test.js",
+        "tests/e2e/workspaces.spec.js"
+      ],
+      "limitations": [
+        "Synthetic local telemetry and optional public MQTT demonstration; not a production IoT backend or safety controller."
+      ]
+    },
+    {
+      "id": "ai",
+      "name": "Browser machine learning",
+      "status": "experimental",
+      "publicWorkspace": true,
+      "implementation": [
+        "app.js"
+      ],
+      "evidence": [
+        "scripts/ai-smoke-test.js",
+        "tests/e2e/workspaces.spec.js"
+      ],
+      "limitations": [
+        "Synthetic sensor dataset only; no evidence of real-world predictive performance or calibrated safety probabilities."
+      ]
+    },
+    {
+      "id": "robotics",
+      "name": "Differential-drive robotics",
+      "status": "experimental",
+      "publicWorkspace": true,
+      "implementation": [
+        "robotics-core.js",
+        "advanced-labs.js"
+      ],
+      "evidence": [
+        "scripts/robotics-core-test.js",
+        "tests/e2e/workspaces.spec.js"
+      ],
+      "limitations": [
+        "Planar kinematics and grid planning; no validated motor dynamics, wheel slip, ROS integration or safety-rated control."
+      ]
+    },
+    {
+      "id": "quantum",
+      "name": "Quantum state visualization",
+      "status": "experimental",
+      "publicWorkspace": true,
+      "implementation": [
+        "advanced-labs.js",
+        "research-next.js"
+      ],
+      "evidence": [
+        "scripts/advanced-research-test.js",
+        "tests/e2e/workspaces.spec.js"
+      ],
+      "limitations": [
+        "Small state-vector demonstrations; not a fault-tolerant quantum computer simulator or hardware interface."
+      ]
+    },
+    {
+      "id": "nano",
+      "name": "Molecular dynamics demonstration",
+      "status": "experimental",
+      "publicWorkspace": true,
+      "implementation": [
+        "advanced-labs.js"
+      ],
+      "evidence": [
+        "tests/e2e/workspaces.spec.js"
+      ],
+      "limitations": [
+        "Reduced 2D Lennard-Jones model; no validated material-specific molecular dynamics or research-grade thermodynamics."
+      ]
+    },
+    {
+      "id": "printing",
+      "name": "Additive manufacturing estimator",
+      "status": "experimental",
+      "publicWorkspace": true,
+      "implementation": [
+        "printing-lab.js"
+      ],
+      "evidence": [
+        "scripts/printing-smoke-test.js",
+        "tests/e2e/workspaces.spec.js"
+      ],
+      "limitations": [
+        "Planning estimator and preview only; not CAD, slicing, G-code generation or machine control."
+      ]
+    },
+    {
+      "id": "research",
+      "name": "Internal research workspace",
+      "status": "experimental",
+      "publicWorkspace": false,
+      "implementation": [
+        "research-labs.js",
+        "research-next.js"
+      ],
+      "evidence": [
+        "scripts/advanced-research-test.js",
+        "scripts/research-smoke-test.js"
+      ],
+      "limitations": [
+        "Internal browser demonstrations; not a public research hub, autonomous discovery engine or validated scientific workflow."
+      ]
+    },
+    {
+      "id": "marie",
+      "name": "MARIE metadata research monitor",
+      "status": "experimental",
+      "publicWorkspace": false,
+      "implementation": [
+        "research-engine/core.mjs",
+        "scripts/run-marie.mjs"
+      ],
+      "evidence": [
+        "scripts/marie-test.mjs"
+      ],
+      "limitations": [
+        "Read-only selected-source metadata; no full-text claim extraction, comprehensive global coverage or proof of novelty."
+      ]
+    }
+  ]
+}
