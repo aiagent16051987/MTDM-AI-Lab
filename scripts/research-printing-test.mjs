@@ -1,0 +1,11 @@
+import assert from "node:assert/strict";
+import {runPrintingEstimateValidation} from "../research-engine/printing-experiment-runner.mjs";
+const a=runPrintingEstimateValidation(),b=runPrintingEstimateValidation();
+assert.equal(a.result.status,"pass");
+assert.equal(a.result.inputHash,b.result.inputHash);
+assert.deepEqual(a.result.outputs,b.result.outputs);
+assert.ok(a.estimate.volumeCm3>0&&a.estimate.materialKg>0&&a.estimate.durationHours>0);
+assert.equal(a.records.length,3);
+assert.throws(()=>runPrintingEstimateValidation({x:0}),/X must/);
+assert.throws(()=>runPrintingEstimateValidation({process:"bio"}),/Bioprinting/);
+console.log("Research-to-printing bridge passed: idealized geometry, bounded estimator inputs, deterministic outputs, explicit units and provenance-linked result.");
