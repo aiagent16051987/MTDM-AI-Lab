@@ -15,4 +15,5 @@ assert(core.includes("LIMITS")&&core.includes("effectiveRate"),"calculation core
 assert(js.includes("new THREE.BoxGeometry(x, z, y)")&&js.includes("new THREE.CylinderGeometry(1, 1, 1, 48)"),"preview geometry is generated from entered dimensions");
 assert(js.includes("infill input ignored for this process family"),"non-extrusion infill limitation is disclosed");
 assert(js.includes("syncProcessControls")&&js.includes('$("printSpeed").disabled=!extrusion'),"extrusion-only controls are disabled for other processes");
+assert(js.includes('$("printEstimate").disabled=researchOnly')&&core.includes("Bioprinting is a research overview only"),"bioprinting cannot produce unsupported estimates");
 console.log("MTDM additive manufacturing workspace smoke tests passed: 16 process families, dimension-aware preview, validated geometry and process-aware estimator.");
