@@ -9,7 +9,7 @@ export default defineConfig({
   reporter: [["list"], ["html", { outputFolder: "playwright-report", open: "never" }]],
   timeout: 90_000,
   expect: { timeout: 15_000 },
-  webServer: {
+  webServer: process.env.MTDM_BASE_URL ? undefined : {
     command: "npm run preview -- --host 127.0.0.1 --port 4173 --strictPort",
     url: "http://127.0.0.1:4173/MTDM-AI-Lab/",
     reuseExistingServer: !process.env.CI,
