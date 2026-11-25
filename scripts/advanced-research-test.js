@@ -6,7 +6,7 @@ const h=applySingleQubitGate(zero,"H",0);
 const bell=applyCNOT(h);
 const p=measurementProbabilities(bell);
 close(p[0],.5);close(p[3],.5);close(p[1],0);close(p[2],0);
-const plusI=[[Math.SQRT1_2,0],[0,Math.SQRT1_2],[0,0],[0,0]];
+const plusI=[[Math.SQRT1_2,0],[0,0],[0,Math.SQRT1_2],[0,0]];
 const plusIBloch=reducedBlochVector(plusI,0);
 close(plusIBloch.y,1,1e-9);
 const bloch=reducedBlochVector(bell,0);
