@@ -20,7 +20,8 @@
       ],
       "limitations": [
         "Bounded SPICE subset; not a complete EDA suite or hardware certification.",
-        "Browser execution depends on the production bundle resolving the SPICE dependency."
+        "Browser execution depends on the production bundle resolving the SPICE dependency.",
+        "Research bridge validates a bounded ideal DC voltage-divider fixture against an independent analytical equation, not a physical circuit."
       ]
     },
     {
@@ -71,7 +72,8 @@
         "scripts/research-experiment-test.mjs"
       ],
       "limitations": [
-        "Planar kinematics and grid planning; no validated motor dynamics, wheel slip, ROS integration or safety-rated control."
+        "Planar kinematics and grid planning; no validated motor dynamics, wheel slip, ROS integration or safety-rated control.",
+        "Research bridge validates an ideal differential-drive kinematic invariant only; it does not validate physical robot dynamics or safety."
       ]
     },
     {
@@ -101,15 +103,18 @@
       "publicWorkspace": true,
       "implementation": [
         "advanced-labs.js",
-        "nano-core.mjs"
+        "nano-core.mjs",
+        "research-engine/nano-experiment-runner.mjs"
       ],
       "evidence": [
         "scripts/nano-core-test.mjs",
-        "tests/e2e/workspaces.spec.js"
+        "tests/e2e/workspaces.spec.js",
+        "scripts/research-nano-test.mjs"
       ],
       "limitations": [
         "Seeded two-dimensional Lennard-Jones model with velocity-Verlet integration, shifted pair potential and reflecting boundaries; all quantities use reduced units.",
-        "Not validated material-specific molecular dynamics, quantum chemistry, biological nanorobotics or research-grade thermodynamics; physical use requires validated potentials and convergence studies."
+        "Not validated material-specific molecular dynamics, quantum chemistry, biological nanorobotics or research-grade thermodynamics; physical use requires validated potentials and convergence studies.",
+        "Internal research bridge checks pair-force symmetry and momentum conservation for a bounded seeded 2D reduced-unit fixture; it is not a validated material model."
       ]
     },
     {
@@ -119,17 +124,20 @@
       "publicWorkspace": true,
       "implementation": [
         "printing-lab.js",
-        "printing-core.mjs"
+        "printing-core.mjs",
+        "research-engine/printing-experiment-runner.mjs"
       ],
       "evidence": [
         "scripts/printing-core-test.mjs",
         "scripts/printing-smoke-test.js",
-        "tests/e2e/workspaces.spec.js"
+        "tests/e2e/workspaces.spec.js",
+        "scripts/research-printing-test.mjs"
       ],
       "limitations": [
         "Dimension-aware idealized cube, elliptical-cylinder and L-bracket envelope calculations; no imported CAD mesh, watertightness validation or true slicer toolpath.",
         "FDM/pellet material and throughput use simplified shell, bead-width and layer-height assumptions; other process throughput defaults are illustrative, not machine-validated. Bioprinting is research overview only and is excluded from estimation.",
-        "Not CAD, production slicing, G-code generation, machine control, certified process planning or a supplier quotation."
+        "Not CAD, production slicing, G-code generation, machine control, certified process planning or a supplier quotation.",
+        "Research bridge records deterministic dimension-based estimator outputs with user-supplied process assumptions; it is not CAD mesh validation, slicing or machine calibration."
       ]
     },
     {
