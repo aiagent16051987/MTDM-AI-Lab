@@ -5,6 +5,8 @@ import {validateRegistry,normalizeRecord,deduplicateRecords,generateHypotheses,b
 
 assert.equal(validateRegistry(registry),true);
 assert.throws(()=>validateRegistry({...registry,policy:{...registry.policy,maxSourcesPerRun:999}}),/limits out of bounds/);
+assert.throws(()=>validateRegistry({...registry,policy:{...registry.policy,allowedHosts:[...registry.policy.allowedHosts,"evil.example"]}}),/only the two reviewed API hosts/);
+assert.throws(()=>validateRegistry({...registry,githubReleases:[{...registry.githubReleases[0],repository:"evil.example/path/extra"}]}),/Invalid GitHub repository locator/);
 assert.throws(()=>validateRegistry({...registry,githubReleases:[...registry.githubReleases,{...registry.githubReleases[0]}]}),/duplicate source ID/);
 assert.equal(normalizeRecord({title:"bad",url:"javascript:alert(1)"}),null);
 assert.equal(normalizeRecord({title:"bad",url:"http://example.com"}),null);
