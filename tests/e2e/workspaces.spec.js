@@ -202,3 +202,19 @@ test("nano dynamics and swarm prototype start and stop", async ({ page }) => {
   await expect(page.locator("#swarmStatus")).not.toHaveText("READY");
   await page.locator("#swarmPause").click();
 });
+
+test("Nano dynamics exposes deterministic energy observables and reproducible reset", async ({ page }) => {
+  await page.goto("./");
+  await page.getByRole("tab", { name: /Nano Lab/i }).click();
+  await expect(page.locator("#nanoKinetic")).not.toHaveText("—");
+  await expect(page.locator("#nanoPotential")).not.toHaveText("—");
+  await expect(page.locator("#nanoTotal")).not.toHaveText("—");
+  const initial = await page.locator("#nanoTotal").innerText();
+  await page.locator("#nanoStart").click();
+  await expect(page.locator("#nanoStatus")).toContainText("velocity-Verlet");
+  await page.waitForTimeout(250);
+  await page.locator("#nanoStop").click();
+  await page.locator("#nanoReset").click();
+  await expect(page.locator("#nanoTotal")).toHaveText(initial);
+  await expect(page.locator("#nanoTemperature")).not.toHaveText("—");
+});
