@@ -25,6 +25,10 @@ jobs:
           node-version: 22
       - name: Install project and browser-test dependencies
         run: npm install
+      - name: Generate temporary dependency lock for audit
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Audit resolved dependencies
+        run: npm audit --audit-level=high
       - name: Run unit and integration tests
         run: npm test
       - name: Build production site
