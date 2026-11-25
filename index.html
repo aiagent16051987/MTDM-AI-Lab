@@ -175,9 +175,15 @@ C1 out 0 1u
         <div class="panel-head"><strong>PARTICLE SIMULATION</strong><span id="nanoStatus" class="status">READY</span></div>
         <canvas id="nanoCanvas" class="lab-canvas nano-canvas" aria-label="2D molecular dynamics particle simulation"></canvas>
         <div class="button-row"><button id="nanoStart" class="primary-btn">Run dynamics</button><button id="nanoStop" class="subtle-btn">Pause</button><button id="nanoReset" class="subtle-btn">Reset particles</button></div>
-        <p id="nanoCount" class="hint">36 particles · reduced Lennard-Jones units</p>
+        <p id="nanoCount" class="hint">36 particles · seeded 2D Lennard-Jones · reduced units</p>
+        <div class="metrics">
+          <div><small>KINETIC ENERGY</small><b id="nanoKinetic">—</b></div>
+          <div><small>POTENTIAL ENERGY</small><b id="nanoPotential">—</b></div>
+          <div><small>TOTAL ENERGY</small><b id="nanoTotal">—</b></div>
+          <div><small>REDUCED T (2D)</small><b id="nanoTemperature">—</b></div>
+        </div>
       </div>
-      <div class="notice"><b>Scientific limitation</b><span>Educational 2D classical Lennard-Jones toy model with reduced units and reflecting boundaries. It is not quantum chemistry, atomistic material validation, molecular biology or a nanorobot simulator. Research work needs validated potentials, ensembles, boundary conditions and convergence checks.</span></div>
+      <div class="notice"><b>Scientific limitation</b><span>Educational 2D classical Lennard-Jones model with seeded initial conditions, velocity-Verlet integration, shifted pair potential and reflecting walls. Energies and temperature are in reduced Lennard-Jones units; this is not a calibrated physical temperature or material model. It is not quantum chemistry, atomistic material validation, molecular biology or a nanorobot simulator. Research use requires validated potentials, ensembles, boundary conditions, finite-size and timestep convergence studies.</span></div>
       <div class="resource-row"><a href="https://www.lammps.org/" target="_blank" rel="noreferrer">LAMMPS molecular dynamics ↗</a></div>
     </section>
 
