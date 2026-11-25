@@ -1,0 +1,584 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mtdm-ai-lab.github.io/schemas/research-record-v1.json",
+  "title": "MTDM AI Lab Research Record",
+  "description": "Versioned provenance-preserving record envelope. Runtime semantic checks are enforced by research-engine/records.mjs.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/source"
+    },
+    {
+      "$ref": "#/$defs/claim"
+    },
+    {
+      "$ref": "#/$defs/evidence"
+    },
+    {
+      "$ref": "#/$defs/hypothesis"
+    },
+    {
+      "$ref": "#/$defs/experiment"
+    },
+    {
+      "$ref": "#/$defs/result"
+    },
+    {
+      "$ref": "#/$defs/review"
+    }
+  ],
+  "$defs": {
+    "base": {
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "recordType",
+        "id"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+        }
+      }
+    },
+    "source": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": [
+            "recordType",
+            "title",
+            "url",
+            "publisher",
+            "sourceType",
+            "retrievedAt",
+            "license",
+            "freshness",
+            "status"
+          ],
+          "properties": {
+            "recordType": {
+              "const": "source"
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https://"
+            },
+            "publisher": {
+              "type": "string"
+            },
+            "sourceType": {
+              "type": "string"
+            },
+            "retrievedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "publishedAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "license": {
+              "type": "object",
+              "required": [
+                "status"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "open-verified",
+                    "metadata-only",
+                    "not-assessed",
+                    "restricted"
+                  ]
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "termsUrl": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uri"
+                }
+              }
+            },
+            "freshness": {
+              "type": "object",
+              "required": [
+                "lastCheckedAt"
+              ],
+              "properties": {
+                "lastCheckedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "reviewAfter": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "etag": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "lastModified": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "status": {
+              "enum": [
+                "permitted",
+                "metadata-only",
+                "restricted",
+                "stale",
+                "unavailable"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "claim": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": [
+            "recordType",
+            "statement",
+            "claimType",
+            "sourceId",
+            "locator",
+            "confidence",
+            "status"
+          ],
+          "properties": {
+            "recordType": {
+              "const": "claim"
+            },
+            "statement": {
+              "type": "string",
+              "maxLength": 1200
+            },
+            "claimType": {
+              "enum": [
+                "reported-fact",
+                "measurement",
+                "interpretation",
+                "inference"
+              ]
+            },
+            "sourceId": {
+              "type": "string"
+            },
+            "locator": {
+              "type": "object",
+              "required": [
+                "url",
+                "location"
+              ],
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "pattern": "^https://"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "confidence": {
+              "type": "object",
+              "required": [
+                "level",
+                "rationale"
+              ],
+              "properties": {
+                "level": {
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ]
+                },
+                "rationale": {
+                  "type": "string"
+                }
+              }
+            },
+            "status": {
+              "enum": [
+                "unverified",
+                "supported",
+                "contested",
+                "rejected"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": [
+            "recordType",
+            "claimId",
+            "sourceId",
+            "relation",
+            "locator",
+            "excerpt",
+            "collectedAt"
+          ],
+          "properties": {
+            "recordType": {
+              "const": "evidence"
+            },
+            "claimId": {
+              "type": "string"
+            },
+            "sourceId": {
+              "type": "string"
+            },
+            "relation": {
+              "enum": [
+                "supports",
+                "contradicts",
+                "qualifies"
+              ]
+            },
+            "locator": {
+              "type": "object",
+              "required": [
+                "url",
+                "location"
+              ],
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "pattern": "^https://"
+                },
+                "location": {
+                  "type": "string"
+                }
+              }
+            },
+            "excerpt": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "collectedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      ]
+    },
+    "hypothesis": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": [
+            "recordType",
+            "title",
+            "statement",
+            "domains",
+            "supportingEvidenceIds",
+            "opposingEvidenceIds",
+            "assumptions",
+            "alternatives",
+            "predictions",
+            "falsificationCriteria",
+            "validationPlan",
+            "uncertainty",
+            "status"
+          ],
+          "properties": {
+            "recordType": {
+              "const": "hypothesis"
+            },
+            "title": {
+              "type": "string"
+            },
+            "statement": {
+              "type": "string"
+            },
+            "domains": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "supportingEvidenceIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "opposingEvidenceIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "assumptions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "alternatives": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "predictions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "falsificationCriteria": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "validationPlan": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "uncertainty": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "unvalidated",
+                "testing",
+                "supported",
+                "refuted",
+                "inconclusive"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "experiment": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": [
+            "recordType",
+            "hypothesisId",
+            "moduleId",
+            "moduleVersion",
+            "parameters",
+            "assumptions",
+            "safetyClass",
+            "createdAt"
+          ],
+          "properties": {
+            "recordType": {
+              "const": "experiment"
+            },
+            "hypothesisId": {
+              "type": "string"
+            },
+            "moduleId": {
+              "type": "string"
+            },
+            "moduleVersion": {
+              "type": "string"
+            },
+            "parameters": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "value",
+                  "unit"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  },
+                  "unit": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "assumptions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "safetyClass": {
+              "enum": [
+                "low-risk-software",
+                "supervised-lab",
+                "safety-critical-prohibited"
+              ]
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      ]
+    },
+    "result": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": [
+            "recordType",
+            "experimentId",
+            "status",
+            "startedAt",
+            "finishedAt",
+            "inputHash",
+            "toolVersion",
+            "outputs",
+            "notes"
+          ],
+          "properties": {
+            "recordType": {
+              "const": "result"
+            },
+            "experimentId": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "pass",
+                "fail",
+                "inconclusive",
+                "error"
+              ]
+            },
+            "startedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "finishedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "inputHash": {
+              "type": "string"
+            },
+            "toolVersion": {
+              "type": "string"
+            },
+            "outputs": {
+              "type": "object"
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "review": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "required": [
+            "recordType",
+            "targetId",
+            "decision",
+            "reviewer",
+            "reviewedAt",
+            "rationale"
+          ],
+          "properties": {
+            "recordType": {
+              "const": "review"
+            },
+            "targetId": {
+              "type": "string"
+            },
+            "decision": {
+              "enum": [
+                "approved",
+                "rejected",
+                "needs-revision"
+              ]
+            },
+            "reviewer": {
+              "type": "string"
+            },
+            "reviewedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "rationale": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
