@@ -151,7 +151,8 @@
         "research-engine/experiment-runner.mjs",
         "research-engine/spice-experiment-runner.mjs",
         "research-engine/source-governance.mjs",
-        "research-engine/marie-records.mjs"
+        "research-engine/marie-records.mjs",
+        "research-engine/schema-v1.json"
       ],
       "evidence": [
         "scripts/marie-test.mjs",
