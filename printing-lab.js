@@ -1,8 +1,14 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
+let THREE = null;
+try {
+  THREE = await import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js");
+} catch (error) {
+  console.warn("MTDM 3D preview library unavailable; estimator remains usable.", error);
+}
 
 const $ = (id) => document.getElementById(id);
 const host = $("print3dView");
-if (host) {
+if (host && THREE) {
+  try {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color("#091321");
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 1000);
@@ -53,6 +59,14 @@ if (host) {
   updateCamera();resize();rebuild();
   if ("ResizeObserver" in window) new ResizeObserver(resize).observe(host); else window.addEventListener("resize",resize);
   renderer.setAnimationLoop(()=>renderer.render(scene,camera));
+  } catch (error) {
+    $("print3dStatus").textContent = "3D PREVIEW UNAVAILABLE";
+    host.textContent = "Interactive 3D preview is unavailable in this browser. The process and cost estimator remains available.";
+    console.warn("MTDM 3D preview initialization failed; estimator remains usable.", error);
+  }
+} else if (host) {
+  $("print3dStatus").textContent = "3D PREVIEW UNAVAILABLE";
+  host.textContent = "Interactive 3D preview requires WebGL and access to the Three.js CDN. The process and cost estimator remains available.";
 }
 
 const processData = {
