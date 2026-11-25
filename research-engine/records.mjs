@@ -158,6 +158,8 @@ export function createExperimentRecord(input) {
     parameters[key]={value:p.value,unit:cleanText(p.unit,"parameter unit",40)};
   }
   return {...b,hypothesisId:id(input.hypothesisId,"experiment.hypothesisId"),
+    methodId:input.methodId==null?null:id(input.methodId,"experiment.methodId"),
+    datasetIds:list(input.datasetIds??[],"experiment.datasetIds",20),
     moduleId:id(input.moduleId,"experiment.moduleId"),moduleVersion:cleanText(input.moduleVersion,"experiment.moduleVersion",80),
     parameters,assumptions:list(input.assumptions??[],"experiment.assumptions",20),
     safetyClass:enumValue(input.safetyClass,new Set(["low-risk-software","supervised-lab","safety-critical-prohibited"]),"experiment.safetyClass"),
@@ -212,7 +214,11 @@ export function assertResearchReferences(records) {
       if(r.supportingEvidenceIds.some(ref=>r.opposingEvidenceIds.includes(ref)))
         throw new Error(r.id+" cannot classify the same evidence as both supporting and opposing");
     }
-    if(r.recordType==="experiment")requireType(r.hypothesisId,"hypothesis","hypothesisId");
+    if(r.recordType==="experiment"){
+      requireType(r.hypothesisId,"hypothesis","hypothesisId");
+      if(r.methodId)requireType(r.methodId,"method","methodId");
+      for(const ref of r.datasetIds)requireType(ref,"dataset","datasetIds");
+    }
     if(r.recordType==="result")requireType(r.experimentId,"experiment","experimentId");
     if(r.recordType==="review"&&!byId.has(r.targetId))throw new Error(r.id+" references missing review target: "+r.targetId);
   }
