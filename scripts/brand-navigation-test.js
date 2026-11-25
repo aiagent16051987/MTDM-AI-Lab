@@ -5,7 +5,9 @@ const nav=fs.readFileSync(new URL("../navigation.js",import.meta.url),"utf8");
 const logo=fs.readFileSync(new URL("../assets/mtdm-ai-lab-logo.svg",import.meta.url),"utf8");
 const icon=fs.readFileSync(new URL("../assets/mtdm-ai-lab-favicon.svg",import.meta.url),"utf8");
 const ids=[...html.matchAll(/data-tab="([^"]+)"/g)].map(m=>m[1]);
-assert.equal(ids.length,8,"expected eight public workspace tabs");
+assert.equal(ids.length,7,"expected seven public workspace tabs");
+assert(html.includes('data-internal-workspace="true"'),"internal Research Hub must remain available");
+assert(!ids.includes("research"),"Research Hub must not be publicly navigable");
 assert.equal(new Set(ids).size,ids.length,"workspace tab IDs must be unique");
 for(const id of ids)assert(html.includes('id="'+id+'"'),"missing panel for "+id);
 assert(html.includes('href="./assets/mtdm-ai-lab-favicon.svg"'),"browser favicon is linked");
@@ -14,4 +16,4 @@ assert(html.includes('role="tablist"')&&html.includes('aria-controls="electronic
 assert(logo.includes("data:image/webp;base64,"),"brand SVG embeds the supplied logo image");
 assert(icon.includes("<svg"),"favicon SVG exists");
 for(const key of ["ArrowRight","ArrowLeft","Home","End","aria-selected","window.mtdmShowTab"])assert(nav.includes(key),"navigation feature missing: "+key);
-console.log("MTDM brand/navigation checks passed: favicon, visible logo, eight mapped tabs, keyboard support.");
+console.log("MTDM brand/navigation checks passed: favicon, visible logo, seven public mapped tabs and internal Research Hub, keyboard support.");
