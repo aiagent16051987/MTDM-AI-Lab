@@ -17,6 +17,8 @@ export function validateRegistry(registry) {
     throw new Error("Host allowlist must contain only the two reviewed API hosts");
   if (typeof p.userAgent!=="string" || p.userAgent.length<10 || p.userAgent.length>200)
     throw new Error("Research user agent is missing or out of bounds");
+  if(!Array.isArray(registry.openDocumentHosts)||registry.openDocumentHosts.length!==1||registry.openDocumentHosts[0]!=="raw.githubusercontent.com")
+    throw new Error("Open-document host allowlist must contain only the reviewed raw GitHub host");
   const github=registry.githubReleases||[],crossref=registry.crossrefQueries||[];
   if (!Array.isArray(github)||!Array.isArray(crossref)||github.length+crossref.length>p.maxSourcesPerRun)
     throw new Error("Source registry exceeds the configured per-run budget");
