@@ -81,14 +81,17 @@
       "publicWorkspace": true,
       "implementation": [
         "advanced-labs.js",
-        "research-next.js"
+        "research-next.js",
+        "research-engine/quantum-experiment-runner.mjs"
       ],
       "evidence": [
         "scripts/advanced-research-test.js",
+        "scripts/research-quantum-test.mjs",
         "tests/e2e/workspaces.spec.js"
       ],
       "limitations": [
-        "Small state-vector demonstrations; not a fault-tolerant quantum computer simulator or hardware interface."
+        "Small state-vector demonstrations; not a fault-tolerant quantum computer simulator or hardware interface.",
+        "Research bridge validates ideal one-qubit unitary normalization and Bloch-vector invariants only; it does not model hardware noise, decoherence, entanglement, scalable circuits or quantum advantage."
       ]
     },
     {
