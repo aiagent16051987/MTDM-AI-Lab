@@ -8,7 +8,7 @@
 
 The workspace is designed for learners and builders from beginner to advanced level. Simulations are educational models; each module's assumptions and limits matter.
 
-## Workspaces
+## Public workspaces
 
 | Workspace | What you can explore | Important limits |
 |---|---|---|
@@ -58,6 +58,8 @@ Check the current workflow status and download the browser-audit evidence from [
 ## Continuous improvement
 
 Research and improvement capabilities are maintained as internal engineering functions, not as a separate public workspace. The machine-readable [capability registry](./capabilities.json) records implementation status, evidence and limitations. Any future automated research or AI integrations must follow the project's privacy, source-attribution, security and human-review requirements.
+
+The internal research data model is versioned in [research-engine/schema-v1.json](./research-engine/schema-v1.json): sources, claims, evidence, methods, datasets, contradictions, hypotheses, experiments, results and review decisions. MARIE stores source metadata with retrieval/freshness provenance and unvalidated hypothesis seeds, then runs deterministic robotics and SPICE reference experiments. Its metadata monitor does **not** perform comprehensive full-text literature extraction, prove novelty or establish scientific truth. Open-document retrieval is separately gated by explicit permission, a reviewed host allowlist, declared licence and strict size/type limits.
 
 ## Runtime, privacy and security
 
