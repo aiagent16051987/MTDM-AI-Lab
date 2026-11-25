@@ -3,6 +3,9 @@ import path from "node:path";
 import registry from "../research-engine/registry.json" with { type: "json" };
 import { validateRegistry, buildResearchReport } from "../research-engine/core.mjs";
 import { buildMARIERecords } from "../research-engine/marie-records.mjs";
+import { runStraightDriveValidation } from "../research-engine/experiment-runner.mjs";
+import { runVoltageDividerValidation } from "../research-engine/spice-experiment-runner.mjs";
+import { assertResearchReferences } from "../research-engine/records.mjs";
 
 validateRegistry(registry);
 const policy=registry.policy;
@@ -63,6 +66,11 @@ for(const source of sources) {
 
 const report=buildResearchReport({records,errors,registryVersion:registry.schemaVersion});
 const researchRecords=buildMARIERecords(report);
+const roboticsValidation=runStraightDriveValidation();
+const electronicsValidation=await runVoltageDividerValidation();
+researchRecords.records.push(...roboticsValidation.records,...electronicsValidation.records);
+assertResearchReferences(researchRecords.records);
+researchRecords.engineeringValidation={robotics:roboticsValidation.result.status,electronics:electronicsValidation.result.status};
 const outputDir="artifacts/marie";
 fs.mkdirSync(outputDir,{recursive:true});
 fs.writeFileSync(path.join(outputDir,"research-report.json"),JSON.stringify(report,null,2)+"\n");
