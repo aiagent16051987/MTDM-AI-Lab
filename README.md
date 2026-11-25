@@ -8,7 +8,7 @@
 
 The workspace is designed for learners and builders from beginner to advanced level. Simulations are educational models; each module's assumptions and limits matter.
 
-## Workspaces
+## Public workspaces
 
 | Workspace | What you can explore | Important limits |
 |---|---|---|
@@ -18,8 +18,9 @@ The workspace is designed for learners and builders from beginner to advanced le
 | Robotics | 2D differential-drive kinematics, manual wheel controls, idealized range rays, obstacle course and A* route planning | Not full rigid-body physics, wheel-slip simulation, ROS integration or a safety-rated controller. |
 | Quantum | Ideal single-qubit gates and measurement; two-qubit state-vector gates, CNOT, Bell-state preparation, measurement and reduced Bloch-vector projection; abstract leaky-integrate-and-fire neuron model | No noisy hardware model, density-matrix simulator, scalable quantum computer or biological neuron model. |
 | Nano | Simplified 2D classical Lennard-Jones molecular-dynamics teaching model | Not quantum chemistry, validated materials science or a biological nanorobot model. |
-| Research Hub | Local 2D swarm/Boids prototype and a roadmap of emerging-technology topics | The roadmap is not a claim that every listed technology has a working simulator. See [research safety policy](./RESEARCH_SAFETY.md). |
 | 3D Printing & Additive Manufacturing | Process/material exploration, interactive 3D preview and illustrative volume, mass, time and cost estimates | Not a CAD kernel, production slicer, machine controller, certified process model or supplier quotation. |
+
+**Research Hub:** retained internally for background research and existing simulations; it is not a public navigation tab. MARIE research processing remains an internal capability.
 
 ### Additive manufacturing scope
 
@@ -50,13 +51,15 @@ npm run preview
 
 Pushes to `main` run the GitHub Actions Pages workflow. It installs dependencies, runs the repository's smoke/regression checks, builds the static site and deploys the build output to GitHub Pages.
 
-The test suite checks selected reference cases and integration wiring. After deployment, a separate Playwright/Chromium job exercises all eight workspace tabs, keyboard navigation, SPICE execution, local IoT telemetry, synthetic AI training/inference, quantum gate and Bell-state paths, nano dynamics, swarm controls, the additive-manufacturing estimator, mobile tab access and uncaught browser exceptions. Failure screenshots, traces and the HTML report are uploaded as workflow artifacts. **A passing browser run covers only these tested paths and does not certify scientific accuracy, physical safety, production readiness, accessibility conformance or every external service.**
+The test suite checks selected reference cases, capability registry integrity, research record validation, provenance links and deterministic electronics/robotics experiment bridges. Before deployment, a Playwright/Chromium job exercises all seven public workspace tabs, keyboard navigation, SPICE execution, local IoT telemetry, synthetic AI training/inference, quantum gate and Bell-state paths, nano dynamics, swarm controls, the additive-manufacturing estimator, mobile tab access and uncaught browser exceptions. Failure screenshots, traces and the HTML report are uploaded as workflow artifacts. **A passing browser run covers only these tested paths and does not certify scientific accuracy, physical safety, production readiness, accessibility conformance or every external service.**
 
 Check the current workflow status and download the browser-audit evidence from [GitHub Actions](https://github.com/aiagent16051987/MTDM-AI-Lab/actions). To run the browser suite locally, build the production site first, install Chromium with `npx playwright install chromium`, then run `npm run test:e2e`; Playwright starts a local preview automatically. To test an already deployed site instead, set `MTDM_BASE_URL` to its URL; the local preview server is then skipped.
 
 ## Continuous improvement
 
-Research and improvement capabilities are maintained as internal engineering functions, not as a separate public workspace. Any future automated research or AI integrations must follow the project's privacy, source-attribution, security and human-review requirements.
+Research and improvement capabilities are maintained as internal engineering functions, not as a separate public workspace. The machine-readable [capability registry](./capabilities.json) records implementation status, evidence and limitations. Any future automated research or AI integrations must follow the project's privacy, source-attribution, security and human-review requirements.
+
+The internal research data model is versioned in [research-engine/schema-v1.json](./research-engine/schema-v1.json): sources, claims, evidence, methods, datasets, contradictions, hypotheses, experiments, results and review decisions. MARIE stores source metadata with retrieval/freshness provenance and unvalidated hypothesis seeds, then runs deterministic robotics and SPICE reference experiments. Its metadata monitor does **not** perform comprehensive full-text literature extraction, prove novelty or establish scientific truth. Open-document retrieval is separately gated by explicit permission, a reviewed host allowlist, declared licence and strict size/type limits.
 
 ## Runtime, privacy and security
 

@@ -7,13 +7,33 @@ const stableId = value => crypto.createHash("sha256").update(String(value)).dige
 export function validateRegistry(registry) {
   if (!registry || registry.schemaVersion !== 1 || !registry.policy) throw new Error("Unsupported registry schema");
   const p=registry.policy;
-  if (p.maxSourcesPerRun<1 || p.maxSourcesPerRun>20 || p.maxRecordsPerSource<1 || p.maxRecordsPerSource>10) throw new Error("Registry limits out of bounds");
-  if (!Array.isArray(p.allowedHosts) || !p.allowedHosts.includes("api.github.com") || !p.allowedHosts.includes("api.crossref.org")) throw new Error("Required host allowlist missing");
+  if (!Number.isInteger(p.maxSourcesPerRun) || p.maxSourcesPerRun<1 || p.maxSourcesPerRun>20 ||
+      !Number.isInteger(p.maxRecordsPerSource) || p.maxRecordsPerSource<1 || p.maxRecordsPerSource>10 ||
+      !Number.isInteger(p.timeoutMs) || p.timeoutMs<1000 || p.timeoutMs>15000 ||
+      !Number.isInteger(p.minimumDelayMs) || p.minimumDelayMs<500 || p.minimumDelayMs>10000)
+    throw new Error("Registry limits out of bounds");
+  if (!Array.isArray(p.allowedHosts) || p.allowedHosts.length!==2 ||
+      !p.allowedHosts.includes("api.github.com") || !p.allowedHosts.includes("api.crossref.org"))
+    throw new Error("Host allowlist must contain only the two reviewed API hosts");
+  if (typeof p.userAgent!=="string" || p.userAgent.length<10 || p.userAgent.length>200)
+    throw new Error("Research user agent is missing or out of bounds");
+  if(!Array.isArray(registry.openDocumentHosts)||registry.openDocumentHosts.length!==1||registry.openDocumentHosts[0]!=="raw.githubusercontent.com")
+    throw new Error("Open-document host allowlist must contain only the reviewed raw GitHub host");
+  const github=registry.githubReleases||[],crossref=registry.crossrefQueries||[];
+  if (!Array.isArray(github)||!Array.isArray(crossref)||github.length+crossref.length>p.maxSourcesPerRun)
+    throw new Error("Source registry exceeds the configured per-run budget");
   const ids=new Set();
   for (const source of [...(registry.githubReleases||[]),...(registry.crossrefQueries||[])]) {
     if (!source.id || ids.has(source.id)) throw new Error("Missing or duplicate source ID");
     ids.add(source.id);
-    if (!Array.isArray(source.domains) || source.domains.some(d=>!DOMAIN_SET.has(d))) throw new Error("Unknown domain in source "+source.id);
+    if (!Array.isArray(source.domains) || !source.domains.length || source.domains.some(d=>!DOMAIN_SET.has(d)) || new Set(source.domains).size!==source.domains.length)
+      throw new Error("Invalid or duplicate domain in source "+source.id);
+    if(source.type==="github" || source.repository!==undefined){
+      if(typeof source.repository!=="string" || !/^[A-Za-z0-9_.-]{1,100}\/[A-Za-z0-9_.-]{1,100}$/.test(source.repository))
+        throw new Error("Invalid GitHub repository locator for "+source.id);
+    }
+    if(source.query!==undefined && (typeof source.query!=="string" || !source.query.trim() || source.query.length>200))
+      throw new Error("Invalid bounded Crossref query for "+source.id);
   }
   return true;
 }
@@ -53,23 +73,27 @@ export function deduplicateRecords(records) {
 }
 
 export function generateHypotheses(domains=[]) {
-  const selected=[...new Set(domains)].filter(d=>DOMAIN_SET.has(d));
-  const pairs=[];
+  const selected=[...new Set(domains)].filter(d=>DOMAIN_SET.has(d)).sort();
+  const candidates=[];
   for(let i=0;i<selected.length;i++) for(let j=i+1;j<selected.length;j++) {
     const a=selected[i],b=selected[j];
-    const overlap=(a==="ai"||b==="ai")?1:0;
-    const score=Math.min(100,55+overlap*12+((a.charCodeAt(0)+b.charCodeAt(0))%9));
-    pairs.push({
+    candidates.push({
       id:"H-"+stableId([a,b].join("|")).slice(0,8).toUpperCase(),
-      title:`Explore a ${a} × ${b} integrated system`,
-      hypothesis:`A bounded prototype combining ${a} methods with ${b} methods may improve a measurable engineering outcome compared with a single-domain baseline.`,
-      domains:[a,b],priorityScore:score,
-      validationPlan:["Define one measurable target and baseline","Specify units, constraints, cost and failure limits","Build a deterministic simulation or bench test","Run parameter sweeps and compare against baseline","Record negative results and reproducible evidence"],
-      status:"unvalidated hypothesis",
+      title:"Explore a "+a+" × "+b+" integrated system",
+      hypothesis:"A bounded prototype combining "+a+" methods with "+b+" methods may improve a predeclared engineering metric compared with a single-domain baseline.",
+      domains:[a,b],
+      assumptions:["Domain tags describe metadata categories only; they do not establish technical compatibility.","No performance improvement is assumed before a controlled comparison.","A single-domain baseline and resource budget must be declared before testing."],
+      alternatives:["The single-domain baseline performs equally or better.","Any apparent improvement is caused by workload, tuning or measurement confounders."],
+      predictions:["A reproducible comparison can determine whether the integrated prototype improves the predeclared metric under equal workload and resource constraints."],
+      falsificationCriteria:["The integrated prototype fails to exceed the baseline within a predeclared tolerance, or the result cannot be independently reproduced."],
+      validationPlan:["Define one measurable target, unit, baseline and acceptance threshold before implementation","Specify constraints, cost, compute budget and failure limits","Build a deterministic simulation or supervised bench test","Run repeated trials and compare against the baseline","Record negative results, uncertainty and reproducible evidence"],
+      priority:"unranked",
+      status:"unvalidated hypothesis seed",
+      evidenceStatus:"no supporting or opposing evidence attached; generated from source metadata domain tags only",
       safety:"Concept generation only. No physical, biological, medical or safety-critical deployment."
     });
   }
-  return pairs.sort((a,b)=>b.priorityScore-a.priorityScore||a.id.localeCompare(b.id));
+  return candidates;
 }
 
 export function buildResearchReport({records=[],errors=[],generatedAt=new Date().toISOString(),registryVersion=1}) {

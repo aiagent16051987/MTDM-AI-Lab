@@ -1,0 +1,16 @@
+import assert from "node:assert/strict";
+import {runStraightDriveValidation} from "../research-engine/experiment-runner.mjs";
+const a=runStraightDriveValidation();
+const b=runStraightDriveValidation();
+assert.equal(a.result.status,"pass");
+assert.deepEqual(a.result.outputs.actual,{x:0.2,y:0,theta:0});
+assert.equal(a.result.outputs.absoluteError.x,0);
+assert.equal(a.result.inputHash,b.result.inputHash,"identical inputs must produce identical provenance hashes");
+assert.deepEqual(a.result.outputs,b.result.outputs,"identical inputs must produce identical outputs");
+assert.equal(a.records.length,3);
+assert.throws(()=>runStraightDriveValidation({leftAngular:Infinity}),/finite and between/);
+assert.throws(()=>runStraightDriveValidation({wheelRadius:0}),/finite and between/);
+assert.throws(()=>runStraightDriveValidation({duration:100}),/finite and between/);
+const turn=runStraightDriveValidation({leftAngular:1,rightAngular:2});
+assert.equal(turn.result.status,"fail","straight-line invariant must fail for unequal wheel speeds");
+console.log("Research-to-robotics bridge passed: bounded SI-unit parameters, deterministic kinematic experiment, analytical comparison, reproducible input hash and pass/fail outcomes.");

@@ -7,14 +7,15 @@ const workspaces = [
   ["robotics", /Robotics/i],
   ["quantum", /Quantum/i],
   ["nano", /Nano Lab/i],
-  ["research", /Research Hub/i],
   ["printing", /3D Printing/i]
 ];
 
-test("all eight public workspaces navigate and expose exactly one active panel", async ({ page }) => {
+test("all seven public workspaces navigate and expose exactly one active panel", async ({ page }) => {
   await page.goto("./");
   const tabs = page.getByRole("tab");
-  await expect(tabs).toHaveCount(8);
+  await expect(tabs).toHaveCount(7);
+  await expect(page.locator("#research")).toBeHidden();
+  await expect(page.getByRole("tab", { name: /Research Hub/i })).toHaveCount(0);
 
   for (const [id, label] of workspaces) {
     await page.getByRole("tab", { name: label }).click();
@@ -138,7 +139,7 @@ test("navigation does not produce uncaught JavaScript exceptions", async ({ page
   expect(pageErrors, "uncaught browser exceptions").toEqual([]);
 });
 
-test("single-qubit gates and two-qubit Bell-state path respond", async ({ page }) => {
+test("single-qubit gates and internal two-qubit research path respond", async ({ page }) => {
   await page.goto("./");
   await page.getByRole("tab", { name: /Quantum/i }).click();
   await page.locator('[data-gate="H"]').click();
@@ -147,7 +148,7 @@ test("single-qubit gates and two-qubit Bell-state path respond", async ({ page }
   await page.locator("#quantumMeasure").click();
   await expect(page.locator("#quantumLog")).not.toBeEmpty();
 
-  await page.getByRole("tab", { name: /Research Hub/i }).click();
+  await page.evaluate(() => window.mtdmShowTab("research"));
   await page.locator("#qBell").click();
   await expect(page.locator("#twoQubitState")).not.toBeEmpty();
   await expect(page.locator("#twoQubitProbabilities")).toContainText("50.0%");
@@ -160,7 +161,7 @@ test("nano dynamics and swarm prototype start and stop", async ({ page }) => {
   await expect(page.locator("#nanoStatus")).not.toHaveText("READY");
   await page.locator("#nanoStop").click();
 
-  await page.getByRole("tab", { name: /Research Hub/i }).click();
+  await page.evaluate(() => window.mtdmShowTab("research"));
   await page.locator("#swarmCount").fill("40");
   await expect(page.locator("#swarmCountValue")).toHaveText("40");
   await page.locator("#swarmStart").click();

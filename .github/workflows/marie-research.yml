@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   research:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout
@@ -28,6 +28,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install project dependencies
+        run: npm install
+      - name: Generate dependency lock and audit resolved packages
+        run: |
+          npm install --package-lock-only --ignore-scripts
+          npm audit --audit-level=high
       - name: Run MARIE deterministic tests
         run: npm run marie:test
       - name: Run read-only research monitor
