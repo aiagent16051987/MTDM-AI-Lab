@@ -8,4 +8,7 @@ for(const process of ["fdm","sla","dlp","msla","sls","mjf","slm","ebm","binder",
 assert(html.includes('data-print-shape="bracket"'),"bracket geometry selector exists");
 assert(js.includes("PerspectiveCamera")&&js.includes("WebGLRenderer"),"interactive 3D preview uses WebGL");
 assert(css.includes(".printing-layout"),"responsive printing workspace styles exist");
+assert.ok(js.includes("const massGrams=massKg*1000"),"material mass is converted from kg to displayed grams");
+assert.ok(js.includes("const materialCost=massKg*price"),"material cost uses kg against price per kg");
+assert.ok(js.includes("50/speed"),"extrusion speed affects FDM/pellet duration estimates");
 console.log("MTDM additive manufacturing smoke tests passed: 16 process families, 3D preview, estimator and responsive UI.");

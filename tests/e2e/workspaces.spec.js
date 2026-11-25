@@ -8,14 +8,13 @@ const workspaces = [
   ["quantum", /Quantum/i],
   ["nano", /Nano Lab/i],
   ["research", /Research Hub/i],
-  ["printing", /3D Printing/i],
-  ["knowledge", /Knowledge Hub/i]
+  ["printing", /3D Printing/i]
 ];
 
-test("all nine workspaces navigate and expose exactly one active panel", async ({ page }) => {
+test("all eight public workspaces navigate and expose exactly one active panel", async ({ page }) => {
   await page.goto("./");
   const tabs = page.getByRole("tab");
-  await expect(tabs).toHaveCount(9);
+  await expect(tabs).toHaveCount(8);
 
   for (const [id, label] of workspaces) {
     await page.getByRole("tab", { name: label }).click();
@@ -70,6 +69,21 @@ test("AI model trains on its built-in synthetic teaching dataset", async ({ page
   await expect(page.locator("#prediction b")).not.toContainText("Awaiting");
 });
 
+test("circuit CSV export contains real newline-delimited rows", async ({ page }) => {
+  await page.goto("./");
+  await page.locator("#loadDivider").click();
+  await page.locator("#runSim").click();
+  await expect(page.locator("#simStatus")).toHaveText("COMPLETE", { timeout: 45_000 });
+  const downloadPromise = page.waitForEvent("download");
+  await page.locator("#exportCsv").click();
+  const download = await downloadPromise;
+  const fs = await import("node:fs/promises");
+  const file = await download.path();
+  const csv = await fs.readFile(file, "utf8");
+  expect(csv.split(/\r?\n/).length).toBeGreaterThan(2);
+  expect(csv).toContain("x,value");
+});
+
 test("3D printing estimator responds and reports a result", async ({ page }) => {
   await page.goto("./");
   await page.getByRole("tab", { name: /3D Printing/i }).click();
@@ -77,7 +91,30 @@ test("3D printing estimator responds and reports a result", async ({ page }) => 
   await page.locator("#printEstimate").click();
   await expect(page.locator("#printEstimateStatus")).not.toHaveText("NOT CALCULATED");
   await expect(page.locator("#printVolume")).not.toHaveText("—");
+  await expect.poll(async () => Number.parseFloat(await page.locator("#printMass").innerText())).toBeGreaterThan(1);
   await expect(page.locator("#printEstimateLog")).not.toBeEmpty();
+});
+
+test("FDM machine speed changes the estimated build duration", async ({ page }) => {
+  await page.goto("./");
+  await page.getByRole("tab", { name: /3D Printing/i }).click();
+  await page.locator("#printEstimate").click();
+  await expect(page.locator("#printEstimateStatus")).toHaveText("ESTIMATE READY");
+  const atDefaultSpeed = Number.parseFloat(await page.locator("#printTime").innerText());
+  await page.locator("#printSpeed").fill("100");
+  await page.locator("#printEstimate").click();
+  const atHigherSpeed = Number.parseFloat(await page.locator("#printTime").innerText());
+  expect(atHigherSpeed).toBeLessThan(atDefaultSpeed);
+});
+
+test("3D estimator remains usable when the preview CDN is unavailable", async ({ page }) => {
+  await page.route("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", route => route.abort());
+  await page.goto("./");
+  await page.getByRole("tab", { name: /3D Printing/i }).click();
+  await expect(page.locator("#print3dStatus")).toHaveText("3D PREVIEW UNAVAILABLE", { timeout: 30_000 });
+  await page.locator("#printEstimate").click();
+  await expect(page.locator("#printEstimateStatus")).toHaveText("ESTIMATE READY");
+  await expect(page.locator("#printMass")).not.toHaveText("—");
 });
 
 test("mobile viewport keeps all workspace tabs reachable", async ({ page }) => {
@@ -89,18 +126,6 @@ test("mobile viewport keeps all workspace tabs reachable", async ({ page }) => {
   await expect(page.locator("#printing")).toBeVisible();
 });
 
-
-test("Knowledge Hub searches curated sources and exposes provider candidates without credentials", async ({ page }) => {
-  await page.goto("./");
-  await page.getByRole("tab", { name: /Knowledge Hub/i }).click();
-  await expect(page.locator("#knowledgeCount")).toContainText("SOURCES");
-  await expect(page.locator("#knowledgeResults .knowledge-card")).not.toHaveCount(0);
-  await page.locator("#knowledgeSearch").fill("quantum");
-  await expect(page.locator("#knowledgeResults .knowledge-card")).toHaveCount(2);
-  await expect(page.locator("#knowledgeResults")).toContainText("IBM Quantum Learning");
-  await expect(page.locator("#providerResults .provider-card")).toHaveCount(6);
-  await expect(page.locator("#providerResults")).toContainText("NOT CONNECTED");
-});
 
 test("navigation does not produce uncaught JavaScript exceptions", async ({ page }) => {
   const pageErrors = [];

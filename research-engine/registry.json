@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "policy": {
+    "mode": "read-only-metadata",
+    "maxSourcesPerRun": 12,
+    "maxRecordsPerSource": 5,
+    "timeoutMs": 10000,
+    "minimumDelayMs": 500,
+    "userAgent": "MTDM-AI-Lab-MARIE/1.0 (https://github.com/aiagent16051987/MTDM-AI-Lab)",
+    "allowedHosts": [
+      "api.github.com",
+      "api.crossref.org"
+    ],
+    "note": "Only public metadata from fixed, reviewed endpoints is collected. No full-text harvesting, crawling, authentication, private data, or execution of retrieved content."
+  },
+  "githubReleases": [
+    {
+      "id": "kicad",
+      "name": "KiCad",
+      "repository": "KiCad/kicad-source-mirror",
+      "domains": [
+        "electronics",
+        "manufacturing"
+      ]
+    },
+    {
+      "id": "espressif",
+      "name": "Espressif ESP-IDF",
+      "repository": "espressif/esp-idf",
+      "domains": [
+        "iot",
+        "electronics"
+      ]
+    },
+    {
+      "id": "ros2",
+      "name": "ROS 2",
+      "repository": "ros2/ros2",
+      "domains": [
+        "robotics",
+        "iot"
+      ]
+    },
+    {
+      "id": "qiskit",
+      "name": "Qiskit",
+      "repository": "Qiskit/qiskit",
+      "domains": [
+        "quantum",
+        "ai"
+      ]
+    },
+    {
+      "id": "pytorch",
+      "name": "PyTorch",
+      "repository": "pytorch/pytorch",
+      "domains": [
+        "ai",
+        "robotics"
+      ]
+    },
+    {
+      "id": "openmm",
+      "name": "OpenMM",
+      "repository": "openmm/openmm",
+      "domains": [
+        "nano",
+        "ai"
+      ]
+    },
+    {
+      "id": "freecad",
+      "name": "FreeCAD",
+      "repository": "FreeCAD/FreeCAD",
+      "domains": [
+        "manufacturing",
+        "robotics"
+      ]
+    }
+  ],
+  "crossrefQueries": [
+    {
+      "id": "advanced-manufacturing",
+      "query": "additive manufacturing process monitoring machine learning",
+      "domains": [
+        "manufacturing",
+        "ai"
+      ]
+    },
+    {
+      "id": "robotics-control",
+      "query": "robotics motion planning control optimization",
+      "domains": [
+        "robotics",
+        "ai"
+      ]
+    },
+    {
+      "id": "embedded-energy",
+      "query": "low power embedded systems energy harvesting IoT",
+      "domains": [
+        "electronics",
+        "iot"
+      ]
+    },
+    {
+      "id": "computational-materials",
+      "query": "computational materials discovery molecular dynamics",
+      "domains": [
+        "nano",
+        "quantum"
+      ]
+    }
+  ],
+  "inventionDomains": [
+    "electronics",
+    "iot",
+    "ai",
+    "robotics",
+    "quantum",
+    "nano",
+    "manufacturing"
+  ]
+}

@@ -11,4 +11,11 @@ assert.ok(Math.abs(straight.x-.2)<1e-12&&Math.abs(straight.y)<1e-12,"equal wheel
 const turn=stepDiffDrive({x:0,y:0,theta:0},-1,1,.1,.5,1);
 assert.ok(turn.theta>0&&Math.abs(turn.x)<1e-12,"opposite wheel speeds rotate in place");
 assert.ok(Math.abs(wrapAngle(4*Math.PI))<1e-12,"heading wraps to principal angle");
+assert.throws(()=>wrapAngle(Infinity),RangeError,"non-finite headings are rejected");
+assert.throws(()=>stepDiffDrive({x:0,y:0,theta:0},NaN,1,.1,.5,1),TypeError,"non-finite wheel speed is rejected");
+assert.throws(()=>stepDiffDrive({x:0,y:0,theta:0},2,2,1e308,.5,1),RangeError,"numeric pose overflow is rejected");
+const sameCell=planGridPath({start:{x:.1,y:.1},goal:{x:.2,y:.2},cols:5,rows:5,cellSize:1,originX:0,originY:0});
+assert.deepEqual(sameCell,[{x:.1,y:.1},{x:.2,y:.2}],"same-cell routes preserve both exact endpoints");
+assert.throws(()=>planGridPath({start:{x:0,y:0},goal:{x:1,y:1},cols:1000,rows:1000,cellSize:1,originX:0,originY:0}),RangeError,"excessive grids are rejected");
+assert.throws(()=>planGridPath({start:{x:0,y:0},goal:{x:1,y:1},cols:5,rows:5,cellSize:1,originX:0,originY:0,obstacles:[{x:0,y:0,w:NaN,h:1}]}),TypeError,"invalid obstacle geometry is rejected");
 console.log("Robotics tests passed: differential-drive integration, A* obstacle avoidance and blocked-start handling.");

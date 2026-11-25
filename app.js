@@ -41,9 +41,9 @@ $("loadRlcExample").onclick=()=>loadExperiment("rlc");
 $("exportCsv").onclick=()=>{
  if(!lastSeries?.length)return;
  const rows=["x,value",...lastSeries.map(p=>p.x+","+p.y)];
- const blob=new Blob([rows.join("\\n")],{type:"text/csv;charset=utf-8"});
+ const blob=new Blob([rows.join("\n")],{type:"text/csv;charset=utf-8"});
  const url=URL.createObjectURL(blob),a=document.createElement("a");
- a.href=url;a.download="mtdm-circuit-results.csv";a.click();URL.revokeObjectURL(url);
+ a.href=url;a.download="mtdm-circuit-results.csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 loadExperiment("rc");
 function plot(canvas,series,logX=false){
@@ -93,10 +93,16 @@ const sensorLimits={voltage:[-100,1000],current:[0,1000],temperature:[-100,1000]
 function validateTelemetry(d){
  if(!d||typeof d!=="object"||Array.isArray(d))throw Error("Message must be a JSON object.");
  for(const k of ["voltage","current","temperature"]){
-  const n=Number(d[k]),[lo,hi]=sensorLimits[k];
-  if(d[k]===null||d[k]===""||!Number.isFinite(n)||n<lo||n>hi)throw Error("Invalid "+k+" value; accepted range "+lo+" to "+hi+".");
+  const n=d[k],[lo,hi]=sensorLimits[k];
+  if(typeof n!=="number"||!Number.isFinite(n)||n<lo||n>hi)throw Error("Invalid "+k+" value; provide a JSON number from "+lo+" to "+hi+".");
  }
- return {voltage:Number(d.voltage),current:Number(d.current),temperature:Number(d.temperature),timestamp:d.timestamp?String(d.timestamp):new Date().toISOString()};
+ let timestamp=new Date().toISOString();
+ if(d.timestamp!==undefined&&d.timestamp!==null&&d.timestamp!==""){
+  if(typeof d.timestamp!=="string"||d.timestamp.length>64||!Number.isFinite(Date.parse(d.timestamp)))
+   throw Error("Invalid timestamp; provide a valid ISO-compatible date/time string.");
+  timestamp=new Date(d.timestamp).toISOString();
+ }
+ return {voltage:Number(d.voltage),current:Number(d.current),temperature:Number(d.temperature),timestamp};
 }
 function alertTelemetry(d){
  const alerts=[];
@@ -122,23 +128,29 @@ function connectMqtt(){
  if(!/^wss:\/\//i.test(url))throw Error("Use a secure WSS:// broker URL.");
  if(url.length>500||topic.length<1||topic.length>200||/[\u0000-\u001f]/.test(topic))throw Error("Broker URL or topic is invalid.");
  if(!window.mqtt?.connect)throw Error("MQTT client library did not load. Check internet connection.");
- if(client)client.end(true);
+ if(client){const previous=client;client=null;previous.end(true)}
  $("mqttStatus").textContent="CONNECTING";
- client=mqtt.connect(url,{connectTimeout:8000,clean:true,reconnectPeriod:0,clientId:"mtdm_lab_"+Math.random().toString(16).slice(2)});
- client.on("connect",()=>client.subscribe(topic,{qos:0},e=>{
-  if(e){mqttLog("Subscribe error: "+e.message);return}
-  $("mqttStatus").textContent="CONNECTED";$("mqttDisconnect").disabled=false;mqttLog("Connected securely and subscribed to "+topic);
- }));
- client.on("message",(receivedTopic,payload)=>{
+ const connection=mqtt.connect(url,{connectTimeout:8000,clean:true,reconnectPeriod:0,clientId:"mtdm_lab_"+Math.random().toString(16).slice(2)});
+ client=connection;
+ connection.on("connect",()=>{
+  if(client!==connection)return;
+  connection.subscribe(topic,{qos:0},e=>{
+   if(client!==connection)return;
+   if(e){mqttLog("Subscribe error: "+e.message);$("mqttStatus").textContent="ERROR";return}
+   $("mqttStatus").textContent="CONNECTED";$("mqttDisconnect").disabled=false;mqttLog("Connected securely and subscribed to "+topic);
+  });
+ });
+ connection.on("message",(receivedTopic,payload)=>{
+  if(client!==connection)return;
   if(payload.length>4096){mqttLog("Rejected oversized MQTT payload.");return}
   try{const d=JSON.parse(payload.toString());updateSensor(d,"mqtt");mqttLog("Accepted "+receivedTopic+" · "+payload.toString().slice(0,300))}
   catch(e){mqttLog("Rejected MQTT message: "+e.message)}
  });
- client.on("error",e=>{mqttLog("MQTT error: "+e.message);$("mqttStatus").textContent="ERROR"});
- client.on("close",()=>{$("mqttStatus").textContent="OFFLINE";$("mqttDisconnect").disabled=true});
+ connection.on("error",e=>{if(client!==connection)return;mqttLog("MQTT error: "+e.message);$("mqttStatus").textContent="ERROR"});
+ connection.on("close",()=>{if(client!==connection)return;$("mqttStatus").textContent="OFFLINE";$("mqttDisconnect").disabled=true});
 }
 $("mqttConnect").onclick=()=>{try{connectMqtt()}catch(e){$("mqttStatus").textContent="ERROR";mqttLog(e.message)}};
-$("mqttDisconnect").onclick=()=>{client?.end(true);client=null;$("mqttStatus").textContent="OFFLINE";$("mqttDisconnect").disabled=true};
+$("mqttDisconnect").onclick=()=>{const active=client;client=null;active?.end(true);$("mqttStatus").textContent="OFFLINE";$("mqttDisconnect").disabled=true};
 function syntheticSample(){
  const t=sampleIndex++*.1,profile=$("sensorProfile").value;
  let d={voltage:5+Math.sin(t)*.035+(Math.random()-.5)*.04,current:1.1+Math.sin(t*.7)*.08+(Math.random()-.5)*.08,temperature:30+Math.sin(t*.25)*1.5+(Math.random()-.5)*.5};
@@ -147,19 +159,31 @@ function syntheticSample(){
  if(profile==="fault"&&Math.floor(sampleIndex/8)%3===1){d.voltage+=1.4;d.current+=1.2;d.temperature+=18}
  return {...d,timestamp:new Date().toISOString()};
 }
+function sensorTick(){
+ const d=syntheticSample();
+ try{updateSensor(d,"local")}catch(e){mqttLog("Local sample rejected: "+e.message);return}
+ if(client?.connected&&$("mqttPublishConsent").checked){
+  try{client.publish($("mqttTopic").value,JSON.stringify(d),{qos:0,retain:false},e=>{if(e)mqttLog("Publish failed: "+e.message)})}
+  catch(e){mqttLog("Publish error: "+e.message)}
+ }
+}
+function stopSensorStream(){
+ if(sensorTimer){clearInterval(sensorTimer);sensorTimer=null}
+ $("sensorStart").disabled=false;$("sensorStop").disabled=true;
+}
 $("sensorStart").onclick=()=>{
  if(sensorTimer)return;
- const tick=()=>{const d=syntheticSample();try{updateSensor(d,"local")}catch(e){mqttLog("Local sample rejected: "+e.message)}
-  if(client?.connected&&$("mqttPublishConsent").checked){
-   try{client.publish($("mqttTopic").value,JSON.stringify(d),{qos:0,retain:false},e=>{if(e)mqttLog("Publish failed: "+e.message)})}
-   catch(e){mqttLog("Publish error: "+e.message)}
-  }
- };
- tick();sensorTimer=setInterval(tick,Number($("sensorInterval").value));
+ sensorTick();sensorTimer=setInterval(sensorTick,Number($("sensorInterval").value));
  $("sensorStart").disabled=true;$("sensorStop").disabled=false;
 };
-$("sensorStop").onclick=()=>{clearInterval(sensorTimer);sensorTimer=null;$("sensorStart").disabled=false;$("sensorStop").disabled=true;$("sensorStatus").textContent="STOPPED"};
-$("sensorInterval").addEventListener("change",()=>{if(sensorTimer){clearInterval(sensorTimer);sensorTimer=setInterval(()=>{const d=syntheticSample();updateSensor(d,"local");if(client?.connected&&$("mqttPublishConsent").checked)client.publish($("mqttTopic").value,JSON.stringify(d),{qos:0,retain:false})},Number($("sensorInterval").value))}});
+$("sensorStop").onclick=()=>{stopSensorStream();$("sensorStatus").textContent="STOPPED"};
+$("sensorInterval").addEventListener("change",()=>{
+ if(sensorTimer){clearInterval(sensorTimer);sensorTimer=setInterval(sensorTick,Number($("sensorInterval").value))}
+});
+window.addEventListener("pagehide",()=>{
+ stopSensorStream();
+ if(client){client.end(true);client=null}
+});
 ["voltageLimit","currentLimit","temperatureLimit"].forEach(id=>$(id).addEventListener("change",()=>{if(history.length)alertTelemetry(history.at(-1))}));
 $("exportTelemetry").onclick=()=>{
  if(!history.length)return;

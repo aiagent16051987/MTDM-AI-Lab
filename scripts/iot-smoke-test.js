@@ -7,4 +7,10 @@ for(const token of ["function validateTelemetry","function syntheticSample","Use
 assert(html.includes("Explicitly publish generated test data"),"publishing consent is clearly described");
 assert(js.includes("history.length>2000"),"telemetry history is bounded");
 assert(js.includes("reconnectPeriod:0"),"MQTT reconnect is explicit, not endless");
+assert.ok(js.includes("function sensorTick()")&&js.includes("function stopSensorStream()"),"sensor interval changes use one shared tick and cleanup path");
+assert.ok(js.includes("setTimeout(()=>URL.revokeObjectURL(url),1000)"),"CSV object URLs are revoked after download begins");
+assert.ok(js.includes("typeof n!==\"number\""),"telemetry readings require JSON numbers, not coercible strings or booleans");
+assert.ok(js.includes("Date.parse(d.timestamp)")&&js.includes("new Date(d.timestamp).toISOString()"),"untrusted telemetry timestamps are validated and canonicalized before CSV export");
+assert.ok(js.includes("if(client!==connection)return"),"stale MQTT connection events cannot overwrite the active connection state");
+assert.ok(js.includes('window.addEventListener("pagehide"'),"active MQTT and sensor resources are cleaned up on page exit");
 console.log("MTDM IoT telemetry smoke tests passed: validated MQTT, local profiles, opt-in publishing, alert thresholds and CSV export.");

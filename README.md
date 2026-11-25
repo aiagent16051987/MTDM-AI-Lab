@@ -52,7 +52,7 @@ Pushes to `main` run the GitHub Actions Pages workflow. It installs dependencies
 
 The test suite checks selected reference cases and integration wiring. After deployment, a separate Playwright/Chromium job exercises all eight workspace tabs, keyboard navigation, SPICE execution, local IoT telemetry, synthetic AI training/inference, quantum gate and Bell-state paths, nano dynamics, swarm controls, the additive-manufacturing estimator, mobile tab access and uncaught browser exceptions. Failure screenshots, traces and the HTML report are uploaded as workflow artifacts. **A passing browser run covers only these tested paths and does not certify scientific accuracy, physical safety, production readiness, accessibility conformance or every external service.**
 
-Check the current workflow status and download the browser-audit evidence from [GitHub Actions](https://github.com/aiagent16051987/MTDM-AI-Lab/actions). To run the browser suite locally, install dependencies and Chromium with `npx playwright install chromium`, then use `npm run test:e2e`. Set `MTDM_BASE_URL` to the deployed site URL when testing GitHub Pages.
+Check the current workflow status and download the browser-audit evidence from [GitHub Actions](https://github.com/aiagent16051987/MTDM-AI-Lab/actions). To run the browser suite locally, build the production site first, install Chromium with `npx playwright install chromium`, then run `npm run test:e2e`; Playwright starts a local preview automatically. To test an already deployed site instead, set `MTDM_BASE_URL` to its URL; the local preview server is then skipped.
 
 ## Continuous improvement
 
@@ -72,6 +72,17 @@ Use these tools for learning, prototyping and bounded simulations—not as subst
 
 For project-wide safety, privacy, security, scientific-integrity and release principles, read [RESEARCH_SAFETY.md](./RESEARCH_SAFETY.md). Applicable laws and specialist requirements must be reviewed before real-world use; this project documentation is not legal advice.
 
-## License
+## Open-source licence and attribution
 
-No repository-wide open-source license is currently declared. Unless a license is added, do not assume the project source is available for unrestricted reuse. Third-party components retain their own licenses; see their respective project documentation.
+MTDM AI Lab is free and open-source software released under the [MIT License](./LICENSE). You may use, copy, modify, merge, publish, distribute, sublicense and sell copies of the software, subject to the licence's conditions.
+
+**Original project:** MTDM AI Lab  
+**Original project maintainer:** [@aiagent16051987](https://github.com/aiagent16051987)
+
+Please retain the MIT copyright and permission notice in copies or substantial portions of the Software. Contributions remain subject to the MIT License when incorporated and distributed with this project. Contributors retain their copyright in their original contributions.
+
+The MIT License does not grant rights to MTDM AI Lab trademarks, logos, third-party materials, or any patent rights not expressly covered by a separate grant. Third-party dependencies, assets, datasets and models retain their own licences and terms.
+
+The software is provided "AS IS", without warranty, to the maximum extent permitted by applicable law. Users are responsible for evaluating, modifying, deploying and using their own copies and for complying with applicable laws. This disclaimer does not remove liabilities that cannot legally be excluded.
+
+See [LICENSE](./LICENSE) and [CONTRIBUTING.md](./CONTRIBUTING.md).

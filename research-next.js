@@ -11,6 +11,10 @@ const mul=(a,b)=>[a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];
 const mag2=a=>a[0]*a[0]+a[1]*a[1];
 export function normalizeState(state) {
   if (!Array.isArray(state)||state.length!==4) throw new TypeError("A two-qubit state must contain four amplitudes.");
+  for(const amplitude of state){
+    if(!Array.isArray(amplitude)||amplitude.length!==2||!amplitude.every(Number.isFinite))
+      throw new TypeError("Each complex amplitude must be a finite [real, imaginary] pair.");
+  }
   const n=Math.sqrt(state.reduce((s,a)=>s+mag2(a),0));
   if (!Number.isFinite(n)||n<1e-12) throw new RangeError("State norm must be finite and non-zero.");
   return state.map(a=>[a[0]/n,a[1]/n]);
@@ -34,8 +38,11 @@ export function measurementProbabilities(state) {
   return s.map(mag2);
 }
 export function measureTwoQubit(state, random=Math.random) {
-  const s=normalizeState(state), p=measurementProbabilities(s), r=Math.max(0,Math.min(0.999999999,Number(random())));
-  let cumulative=0, result=3;
+  if(typeof random!=="function")throw new TypeError("Measurement random source must be a function.");
+  const r=Number(random());
+  if(!Number.isFinite(r)||r<0||r>=1)throw new RangeError("Measurement random value must be finite and in [0, 1).");
+  const s=normalizeState(state), p=measurementProbabilities(s);
+  let cumulative=0, result=p.findLastIndex(probability=>probability>0);
   for(let i=0;i<4;i++){cumulative+=p[i];if(r<cumulative){result=i;break;}}
   const collapsed=s.map((a,i)=>i===result?[1,0]:[0,0]);
   return {result, state:collapsed};
@@ -47,7 +54,7 @@ export function reducedBlochVector(state, qubit=0) {
   for(const [i,j] of pairs){
     p0+=mag2(s[i]);p1+=mag2(s[j]);
     re+=s[i][0]*s[j][0]+s[i][1]*s[j][1];
-    im+=s[i][1]*s[j][0]-s[i][0]*s[j][1];
+    im+=s[i][0]*s[j][1]-s[i][1]*s[j][0];
   }
   return {x:2*re,y:2*im,z:p0-p1};
 }
