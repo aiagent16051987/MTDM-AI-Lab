@@ -8,10 +8,12 @@ export function stepDiffDrive(state,leftAngular,rightAngular,wheelRadius,wheelBa
  if(!(wheelRadius>0&&wheelBase>0&&dt>=0))throw new RangeError("wheel dimensions must be positive and dt non-negative");
  const vl=leftAngular*wheelRadius,vr=rightAngular*wheelRadius,v=(vl+vr)/2,omega=(vr-vl)/wheelBase;
  const thetaMid=state.theta+omega*dt/2;
- return {x:state.x+v*Math.cos(thetaMid)*dt,y:state.y+v*Math.sin(thetaMid)*dt,theta:wrapAngle(state.theta+omega*dt)};
+ const next={x:state.x+v*Math.cos(thetaMid)*dt,y:state.y+v*Math.sin(thetaMid)*dt,theta:wrapAngle(state.theta+omega*dt)};
+ if(![next.x,next.y,next.theta].every(Number.isFinite))throw new RangeError("robot pose overflowed the finite numeric range");
+ return next;
 }
 export function planGridPath({start,goal,cols,rows,cellSize,originX,originY,obstacles=[],robotRadius=0}){
- if(!Number.isInteger(cols)||!Number.isInteger(rows)||cols<1||rows<1||cols*rows>250000||
+ if(!Number.isInteger(cols)||!Number.isInteger(rows)||cols<1||rows<1||cols*rows>10000||
     ![cellSize,originX,originY,robotRadius].every(Number.isFinite)||!(cellSize>0)||robotRadius<0)
   throw new RangeError("invalid grid dimensions, origin, cell size or robot radius");
  const validPoint=p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y);
