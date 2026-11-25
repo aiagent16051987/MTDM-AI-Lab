@@ -18,7 +18,7 @@ assert.throws(()=>calculatePartGeometry({...base,shape:"sphere"}),/Unsupported g
 assert.throws(()=>calculatePrintEstimate({...base,layerHeight:0}),/Layer height must be/);
 assert.throws(()=>calculatePrintEstimate({...base,speed:501}),/Machine speed must be/);
 assert.throws(()=>calculatePrintEstimate({...base,materialDensity:0}),/Material density/);
-assert.throws(()=>calculatePrintEstimate({...base,processModel:{rate:0,factor:1,setup:0}),/valid process model/);
+assert.throws(()=>calculatePrintEstimate({...base,processModel:{rate:0,factor:1,setup:0}}),/valid process model/);
 
 const fdmLow=calculatePrintEstimate(base);
 const fdmHigh=calculatePrintEstimate({...base,speed:100});
