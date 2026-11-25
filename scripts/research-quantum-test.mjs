@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import {runQuantumUnitaryValidation} from "../research-engine/quantum-experiment-runner.mjs";
-const hh=runQuantumUnitaryValidation({gates:["H","H"]});
+const hh=await runQuantumUnitaryValidation({gates:["H","H"]});
 assert.equal(hh.result.status,"pass");
 assert.ok(Math.abs(hh.result.outputs.probabilities.p0-1)<1e-12);
 assert.ok(Math.abs(hh.result.outputs.probabilities.p1)<1e-12);
-assert.equal(hh.result.inputHash,runQuantumUnitaryValidation({gates:["H","H"]}).result.inputHash);
-const x=runQuantumUnitaryValidation({initial:"0",gates:["X"]});
+assert.equal(hh.result.inputHash,(await runQuantumUnitaryValidation({gates:["H","H"]})).result.inputHash);
+const x=await runQuantumUnitaryValidation({initial:"0",gates:["X"]});
 assert.ok(Math.abs(x.result.outputs.probabilities.p1-1)<1e-12);
-const y=runQuantumUnitaryValidation({initial:"0",gates:["H","S"]});
+const y=await runQuantumUnitaryValidation({initial:"0",gates:["H","S"]});
 assert.ok(Math.abs(y.result.outputs.blochNorm-1)<1e-12);
 assert.equal(y.result.status,"pass");
 assert.throws(()=>runQuantumUnitaryValidation({gates:[]}),/sequence/);
