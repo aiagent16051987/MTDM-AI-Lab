@@ -3,7 +3,8 @@ import {stepDiffDrive} from "../robotics-core.js";
 import {createHypothesisRecord,createExperimentRecord,createResultRecord,assertResearchReferences} from "./records.mjs";
 
 const finite=(n,name,min,max)=>{if(typeof n!=="number"||!Number.isFinite(n)||n<min||n>max)throw new RangeError(name+" must be finite and between "+min+" and "+max);return n};
-const stable=value=>JSON.stringify(value,Object.keys(value).sort());
+const canonical=value=>Array.isArray(value)?value.map(canonical):value&&typeof value==="object"?Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key])])):value;
+const stable=value=>JSON.stringify(canonical(value));
 const hash=value=>"sha256:"+crypto.createHash("sha256").update(stable(value)).digest("hex");
 
 export function runStraightDriveValidation(input={}) {
