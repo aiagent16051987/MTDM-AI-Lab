@@ -1,4 +1,4 @@
-const TYPES = new Set(["source","claim","evidence","hypothesis","experiment","result","review"]);
+const TYPES = new Set(["source","claim","evidence","method","dataset","contradiction","hypothesis","experiment","result","review"]);
 const STATUSES = {
   source: new Set(["permitted","metadata-only","restricted","stale","unavailable"]),
   claim: new Set(["unverified","supported","contested","rejected"]),
@@ -91,6 +91,42 @@ export function createEvidenceRecord(input) {
     collectedAt:date(input.collectedAt,"evidence.collectedAt")};
 }
 
+
+export function createMethodRecord(input) {
+  const b=base("method",input),sourceIds=list(input.sourceIds,"method.sourceIds",20),
+    assumptions=list(input.assumptions,"method.assumptions",20),procedure=list(input.procedure,"method.procedure",30);
+  if(!sourceIds.length||!procedure.length)throw new Error("A method requires source provenance and a reproducible procedure");
+  return {...b,name:cleanText(input.name,"method.name",240),
+    domain:cleanText(input.domain,"method.domain",80),version:cleanText(input.version,"method.version",80),
+    description:cleanText(input.description,"method.description",1200),sourceIds,assumptions,procedure,
+    limitations:list(input.limitations,"method.limitations",20)};
+}
+
+export function createDatasetRecord(input) {
+  const b=base("dataset",input);
+  if(!Number.isSafeInteger(input.recordCount)||input.recordCount<0)throw new RangeError("dataset.recordCount must be a non-negative safe integer");
+  const checksum=cleanText(input.checksum,"dataset.checksum",80);
+  if(!/^sha256:[a-f0-9]{64}$/.test(checksum))throw new TypeError("dataset.checksum must be a SHA-256 digest");
+  return {...b,name:cleanText(input.name,"dataset.name",240),
+    sourceId:id(input.sourceId,"dataset.sourceId"),format:cleanText(input.format,"dataset.format",80),
+    recordCount:input.recordCount,checksum,
+    licenseStatus:enumValue(input.licenseStatus,new Set(["open-verified","metadata-only","not-assessed","restricted"]),"dataset.licenseStatus"),
+    schemaDescription:cleanText(input.schemaDescription,"dataset.schemaDescription",1200),
+    privacyClass:enumValue(input.privacyClass,new Set(["public","synthetic","de-identified","personal","sensitive"]),"dataset.privacyClass")};
+}
+
+export function createContradictionRecord(input) {
+  const b=base("contradiction",input),claimIds=list(input.claimIds,"contradiction.claimIds",20);
+  if(claimIds.length<2)throw new Error("A contradiction requires at least two distinct claims");
+  const status=enumValue(input.status,new Set(["unresolved","resolved"]),"contradiction.status");
+  const resolution=input.resolution==null?null:cleanText(input.resolution,"contradiction.resolution",1000);
+  if(status==="resolved"&&!resolution)throw new Error("A resolved contradiction requires a documented resolution");
+  if(status==="unresolved"&&resolution)throw new Error("An unresolved contradiction cannot claim a resolution");
+  return {...b,claimIds,description:cleanText(input.description,"contradiction.description",1200),
+    conflictType:enumValue(input.conflictType,new Set(["numerical","methodological","scope","temporal","interpretation","other"]),"contradiction.conflictType"),
+    status,resolution};
+}
+
 export function createHypothesisRecord(input) {
   const b=base("hypothesis",input);
   const predictions=list(input.predictions,"hypothesis.predictions",20);
@@ -154,6 +190,7 @@ export function createReviewDecision(input) {
 export function validateResearchRecord(input) {
   if(!input||!TYPES.has(input.recordType)) throw new TypeError("Unknown research record type");
   const factories={source:createSourceRecord,claim:createClaimRecord,evidence:createEvidenceRecord,
+    method:createMethodRecord,dataset:createDatasetRecord,contradiction:createContradictionRecord,
     hypothesis:createHypothesisRecord,experiment:createExperimentRecord,result:createResultRecord,review:createReviewDecision};
   return factories[input.recordType](input);
 }
@@ -166,6 +203,9 @@ export function assertResearchReferences(records) {
     const requireType=(ref,type,field)=>{const found=byId.get(ref);if(!found||found.recordType!==type)throw new Error(r.id+" references missing or wrong-type "+field+": "+ref)};
     if(r.recordType==="claim")requireType(r.sourceId,"source","sourceId");
     if(r.recordType==="evidence"){requireType(r.sourceId,"source","sourceId");requireType(r.claimId,"claim","claimId");}
+    if(r.recordType==="method")for(const ref of r.sourceIds)requireType(ref,"source","method.sourceIds");
+    if(r.recordType==="dataset")requireType(r.sourceId,"source","dataset.sourceId");
+    if(r.recordType==="contradiction")for(const ref of r.claimIds)requireType(ref,"claim","contradiction.claimIds");
     if(r.recordType==="hypothesis"){
       for(const ref of r.supportingEvidenceIds)requireType(ref,"evidence","supportingEvidenceIds");
       for(const ref of r.opposingEvidenceIds)requireType(ref,"evidence","opposingEvidenceIds");
