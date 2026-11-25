@@ -1,0 +1,13 @@
+import assert from "node:assert/strict";
+import {runNanoInvariantValidation} from "../research-engine/nano-experiment-runner.mjs";
+const a=runNanoInvariantValidation(),b=runNanoInvariantValidation();
+assert.equal(a.result.status,"pass");
+assert.equal(a.result.inputHash,b.result.inputHash);
+assert.deepEqual(a.result.outputs,b.result.outputs);
+assert.ok(a.result.outputs.forceResidual.value<1e-10);
+assert.ok(a.result.outputs.momentumDrift.value<1e-5);
+assert.equal(a.records.length,3);
+assert.throws(()=>runNanoInvariantValidation({count:1}),/count must/);
+assert.throws(()=>runNanoInvariantValidation({steps:1001}),/steps must/);
+assert.throws(()=>runNanoInvariantValidation({dt:0}),/finite and between/);
+console.log("Research-to-Nano bridge passed: pair-force symmetry, seeded reproducibility, momentum conservation, bounded inputs and provenance-linked result.");
