@@ -73,23 +73,27 @@ export function deduplicateRecords(records) {
 }
 
 export function generateHypotheses(domains=[]) {
-  const selected=[...new Set(domains)].filter(d=>DOMAIN_SET.has(d));
-  const pairs=[];
+  const selected=[...new Set(domains)].filter(d=>DOMAIN_SET.has(d)).sort();
+  const candidates=[];
   for(let i=0;i<selected.length;i++) for(let j=i+1;j<selected.length;j++) {
     const a=selected[i],b=selected[j];
-    const overlap=(a==="ai"||b==="ai")?1:0;
-    const score=Math.min(100,55+overlap*12+((a.charCodeAt(0)+b.charCodeAt(0))%9));
-    pairs.push({
+    candidates.push({
       id:"H-"+stableId([a,b].join("|")).slice(0,8).toUpperCase(),
-      title:`Explore a ${a} × ${b} integrated system`,
-      hypothesis:`A bounded prototype combining ${a} methods with ${b} methods may improve a measurable engineering outcome compared with a single-domain baseline.`,
-      domains:[a,b],priorityScore:score,
-      validationPlan:["Define one measurable target and baseline","Specify units, constraints, cost and failure limits","Build a deterministic simulation or bench test","Run parameter sweeps and compare against baseline","Record negative results and reproducible evidence"],
-      status:"unvalidated hypothesis",
+      title:"Explore a "+a+" × "+b+" integrated system",
+      hypothesis:"A bounded prototype combining "+a+" methods with "+b+" methods may improve a predeclared engineering metric compared with a single-domain baseline.",
+      domains:[a,b],
+      assumptions:["Domain tags describe metadata categories only; they do not establish technical compatibility.","No performance improvement is assumed before a controlled comparison.","A single-domain baseline and resource budget must be declared before testing."],
+      alternatives:["The single-domain baseline performs equally or better.","Any apparent improvement is caused by workload, tuning or measurement confounders."],
+      predictions:["A reproducible comparison can determine whether the integrated prototype improves the predeclared metric under equal workload and resource constraints."],
+      falsificationCriteria:["The integrated prototype fails to exceed the baseline within a predeclared tolerance, or the result cannot be independently reproduced."],
+      validationPlan:["Define one measurable target, unit, baseline and acceptance threshold before implementation","Specify constraints, cost, compute budget and failure limits","Build a deterministic simulation or supervised bench test","Run repeated trials and compare against the baseline","Record negative results, uncertainty and reproducible evidence"],
+      priority:"unranked",
+      status:"unvalidated hypothesis seed",
+      evidenceStatus:"no supporting or opposing evidence attached; generated from source metadata domain tags only",
       safety:"Concept generation only. No physical, biological, medical or safety-critical deployment."
     });
   }
-  return pairs.sort((a,b)=>b.priorityScore-a.priorityScore||a.id.localeCompare(b.id));
+  return candidates;
 }
 
 export function buildResearchReport({records=[],errors=[],generatedAt=new Date().toISOString(),registryVersion=1}) {
