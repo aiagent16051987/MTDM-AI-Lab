@@ -64,6 +64,8 @@ export function createSourceRecord(input) {
     status:enumValue(input.status??"metadata-only",STATUSES.source,"source.status")};
   if(result.license.status==="open-verified"&&(!result.license.name||!result.license.termsUrl))
     throw new Error("open-verified sources require a named licence and terms URL");
+  if(result.freshness.reviewAfter&&Date.parse(result.freshness.reviewAfter)<Date.parse(result.freshness.lastCheckedAt))
+    throw new Error("source reviewAfter cannot precede lastCheckedAt");
   return result;
 }
 
@@ -129,10 +131,13 @@ export function createExperimentRecord(input) {
 export function createResultRecord(input) {
   const b=base("result",input), outputs=input.outputs;
   if(!outputs||typeof outputs!=="object"||Array.isArray(outputs)) throw new TypeError("result.outputs must be an object");
+  const startedAt=date(input.startedAt,"result.startedAt"),finishedAt=date(input.finishedAt,"result.finishedAt");
+  if(Date.parse(finishedAt)<Date.parse(startedAt))throw new Error("result finishedAt cannot precede startedAt");
+  const inputHash=cleanText(input.inputHash,"result.inputHash",80);
+  if(!/^sha256:[a-f0-9]{64}$/.test(inputHash))throw new TypeError("result.inputHash must be a SHA-256 digest");
   return {...b,experimentId:id(input.experimentId,"result.experimentId"),
     status:enumValue(input.status,STATUSES.result,"result.status"),
-    startedAt:date(input.startedAt,"result.startedAt"),finishedAt:date(input.finishedAt,"result.finishedAt"),
-    inputHash:cleanText(input.inputHash,"result.inputHash",128),
+    startedAt,finishedAt,inputHash,
     toolVersion:cleanText(input.toolVersion,"result.toolVersion",100),
     outputs,notes:cleanText(input.notes??"No additional notes","result.notes",1000)};
 }
@@ -161,6 +166,12 @@ export function assertResearchReferences(records) {
     const requireType=(ref,type,field)=>{const found=byId.get(ref);if(!found||found.recordType!==type)throw new Error(r.id+" references missing or wrong-type "+field+": "+ref)};
     if(r.recordType==="claim")requireType(r.sourceId,"source","sourceId");
     if(r.recordType==="evidence"){requireType(r.sourceId,"source","sourceId");requireType(r.claimId,"claim","claimId");}
+    if(r.recordType==="hypothesis"){
+      for(const ref of r.supportingEvidenceIds)requireType(ref,"evidence","supportingEvidenceIds");
+      for(const ref of r.opposingEvidenceIds)requireType(ref,"evidence","opposingEvidenceIds");
+      if(r.supportingEvidenceIds.some(ref=>r.opposingEvidenceIds.includes(ref)))
+        throw new Error(r.id+" cannot classify the same evidence as both supporting and opposing");
+    }
     if(r.recordType==="experiment")requireType(r.hypothesisId,"hypothesis","hypothesisId");
     if(r.recordType==="result")requireType(r.experimentId,"experiment","experimentId");
     if(r.recordType==="review"&&!byId.has(r.targetId))throw new Error(r.id+" references missing review target: "+r.targetId);
