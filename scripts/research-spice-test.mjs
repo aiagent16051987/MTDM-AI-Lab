@@ -1,15 +1,11 @@
 import assert from "node:assert/strict";
 import {runVoltageDividerValidation} from "../research-engine/spice-experiment-runner.mjs";
 const a=await runVoltageDividerValidation(),b=await runVoltageDividerValidation();
-import {simulate} from "@spice-ts/core";
-const reference=await simulate(`V1 in 0 DC 12\nR1 in out 20k\nR2 out 0 10k\n.op\n.end`);
-console.log("SPICE reference",reference.dc?.voltage("out"));
-console.log("SPICE bridge diagnostic",JSON.stringify({netlist:a.netlist,outputs:a.result.outputs}));
 assert.equal(a.result.status,"pass");
 assert.ok(Math.abs(a.result.outputs.actual.value-4)<1e-5);
 assert.equal(a.result.inputHash,b.result.inputHash);
 assert.deepEqual(a.result.outputs,b.result.outputs);
-assert.match(a.netlist,/\.op/);
+assert.match(a.netlist,/^\\* MTDM MARIE/m);\nassert.match(a.netlist,/\\.op/);
 assert.throws(()=>runVoltageDividerValidation({voltage:100}),/finite and between/);
 assert.throws(()=>runVoltageDividerValidation({r1:0}),/finite and between/);
 console.log("Research-to-electronics bridge passed: bounded SI parameters, SPICE DC solve, independent divider equation, provenance hash and reproducible pass/fail result.");
