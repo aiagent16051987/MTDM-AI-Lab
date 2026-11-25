@@ -42,7 +42,10 @@ if (host) {
     }
     const mat = new THREE.MeshStandardMaterial({ color: 0x42c8b6, roughness: 0.48, metalness: 0.12 });
     const edgeMat = new THREE.LineBasicMaterial({ color: 0xb9fff4 });
-    const x = Number($("printX").value), y = Number($("printY").value), z = Number($("printZ").value);\n    cameraTargetY = Number.isFinite(z) ? z / 2 : 15;\n    radius = Math.max(130, (Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z) ? Math.max(x, y, z) : 50) * 2.6);\n    updateCamera();
+    const x = Number($("printX").value), y = Number($("printY").value), z = Number($("printZ").value);
+    cameraTargetY = Number.isFinite(z) ? z / 2 : 15;
+    radius = Math.max(130, (Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z) ? Math.max(x, y, z) : 50) * 2.6);
+    updateCamera();
     const addMesh = (geometry, position, scale = [1, 1, 1]) => {
       const mesh = new THREE.Mesh(geometry, mat);
       mesh.position.set(position[0], position[1], position[2]);
