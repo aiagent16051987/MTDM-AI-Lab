@@ -4,6 +4,15 @@ const MAX_BYTES=256*1024;
 const MAX_TIMEOUT_MS=10000;
 const clean=(value,max)=>typeof value==="string"&&value.trim()&&value.length<=max&&!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(value)?value.trim():null;
 
+export function evaluateSourceFreshness(source,now=new Date().toISOString()) {
+  const reviewAfter=source?.freshness?.reviewAfter;
+  if(!reviewAfter)return "unknown";
+  const checked=Date.parse(source.freshness.lastCheckedAt||source.retrievedAt||"");
+  const deadline=Date.parse(reviewAfter),current=Date.parse(now);
+  if(!Number.isFinite(checked)||!Number.isFinite(deadline)||!Number.isFinite(current))throw new TypeError("Invalid source freshness timestamp");
+  return current>=deadline?"stale":"fresh";
+}
+
 export async function fetchPermittedOpenDocument(source,{fetchImpl=fetch,timeoutMs=8000}={}) {
   if(!source||typeof source!=="object")throw new TypeError("An explicit source record is required");
   if(source.status!=="permitted"||source.license?.status!=="open-verified"||
