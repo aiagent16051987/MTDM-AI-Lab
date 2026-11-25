@@ -78,13 +78,16 @@ function estimate(){
   const layers=Math.ceil(z/layer);
   const buildVolume=volume/1000;
   const geometryFactor=shape==="bracket"?1.22:shape==="cylinder"?1.08:1;
-  const hours=(buildVolume*p.factor*geometryFactor/p.rate)+layers*0.0015+p.setup/60;
+  const speedFactor=["fdm","pellet"].includes($("printProcess").value)?50/speed:1;
+  const hours=((buildVolume*p.factor*geometryFactor/p.rate)+layers*0.0015+p.setup/60)*speedFactor;
   const energy=hours*power;
-  const materialCost=mass*price;
+  const massKg=mass;
+  const massGrams=massKg*1000;
+  const materialCost=massKg*price;
   const energyCost=energy*rate;
   const total=materialCost+energyCost;
   $("printVolume").textContent=volume.toFixed(1)+" cm³";
-  $("printMass").textContent=mass.toFixed(1)+" g";
+  $("printMass").textContent=massGrams.toFixed(1)+" g";
   $("printTime").textContent=hours<1?(hours*60).toFixed(0)+" min":hours.toFixed(2)+" h";
   $("printCost").textContent="$"+total.toFixed(2);
   $("printLayers").textContent=layers.toLocaleString();
@@ -94,8 +97,9 @@ function estimate(){
     "GEOMETRY: "+shape+" · "+x+" × "+y+" × "+z+" mm",
     "FEEDSTOCK: "+$("printMaterial").selectedOptions[0].text,
     "ESTIMATED SOLID VOLUME: "+solid.toFixed(1)+" cm³",
-    "ESTIMATED MATERIAL: "+mass.toFixed(2)+" g (includes process factor)",
+    "ESTIMATED MATERIAL: "+massGrams.toFixed(2)+" g (includes process factor)",
     "ESTIMATED BUILD DURATION: "+(hours*60).toFixed(1)+" min",
+    "SPEED ADJUSTMENT: "+(["fdm","pellet"].includes($("printProcess").value)?speed+" mm/s · "+speedFactor.toFixed(2)+"× duration factor":"not applied to this process family"),
     "ESTIMATED ENERGY: "+energy.toFixed(3)+" kWh",
     "MATERIAL COST: $"+materialCost.toFixed(2)+" · ENERGY COST: $"+energyCost.toFixed(2),
     "",
