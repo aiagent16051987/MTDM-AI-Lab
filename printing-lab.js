@@ -28,11 +28,11 @@ if (host) {
   const axes = new THREE.AxesHelper(35); scene.add(axes);
   const part = new THREE.Group(); scene.add(part);
   let shape = "cube", dragging = false, lastX = 0, lastY = 0;
-  let radius = 130, theta = Math.PI / 4, phi = Math.PI / 3;
+  let radius = 130, theta = Math.PI / 4, phi = Math.PI / 3, cameraTargetY = 20;
   const updateCamera = () => {
     phi = Math.max(0.18, Math.min(Math.PI - 0.18, phi));
     camera.position.set(radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi), radius * Math.sin(phi) * Math.sin(theta));
-    camera.lookAt(0, 20, 0);
+    camera.lookAt(0, cameraTargetY, 0);
   };
   function rebuild() {
     while (part.children.length) {
@@ -42,7 +42,7 @@ if (host) {
     }
     const mat = new THREE.MeshStandardMaterial({ color: 0x42c8b6, roughness: 0.48, metalness: 0.12 });
     const edgeMat = new THREE.LineBasicMaterial({ color: 0xb9fff4 });
-    const x = Number($("printX").value), y = Number($("printY").value), z = Number($("printZ").value);
+    const x = Number($("printX").value), y = Number($("printY").value), z = Number($("printZ").value);\n    cameraTargetY = Number.isFinite(z) ? z / 2 : 15;\n    radius = Math.max(130, (Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z) ? Math.max(x, y, z) : 50) * 2.6);\n    updateCamera();
     const addMesh = (geometry, position, scale = [1, 1, 1]) => {
       const mesh = new THREE.Mesh(geometry, mat);
       mesh.position.set(position[0], position[1], position[2]);
@@ -64,7 +64,7 @@ if (host) {
   host.addEventListener("pointerdown", e => {dragging=true;lastX=e.clientX;lastY=e.clientY;host.setPointerCapture(e.pointerId);});
   host.addEventListener("pointermove", e => {if(!dragging)return;theta-=(e.clientX-lastX)*0.008;phi+=(e.clientY-lastY)*0.008;lastX=e.clientX;lastY=e.clientY;updateCamera();});
   host.addEventListener("pointerup",()=>dragging=false);host.addEventListener("pointercancel",()=>dragging=false);
-  host.addEventListener("wheel",e=>{e.preventDefault();radius=Math.max(65,Math.min(280,radius+e.deltaY*0.12));updateCamera();},{passive:false});
+  host.addEventListener("wheel",e=>{e.preventDefault();radius=Math.max(65,Math.min(1200,radius+e.deltaY*0.12));updateCamera();},{passive:false});
   document.querySelectorAll("[data-print-shape]").forEach(btn=>btn.addEventListener("click",()=>{shape=btn.dataset.printShape;document.querySelectorAll("[data-print-shape]").forEach(b=>b.classList.toggle("active",b===btn));rebuild();}));
   ["printX","printY","printZ"].forEach(id => $(id).addEventListener("change", rebuild));
   updateCamera();resize();rebuild();
