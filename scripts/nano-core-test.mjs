@@ -3,8 +3,8 @@ import {calculateLennardJonesForces,calculateNanoObservables,createNanoLattice,i
 const close=(actual,expected,tolerance=1e-10)=>assert.ok(Math.abs(actual-expected)<=tolerance,actual+" != "+expected);
 const minimum=2**(1/6);
 close(lennardJonesPair(minimum).forceMagnitude,0,1e-12);
-close(lennardJonesPair(minimum).potential,-1,1e-12);
-close(lennardJonesPair(1).forceMagnitude,0,1e-12);
+const cutoffSr6=(1/(2.5*2.5))**3;\nclose(lennardJonesPair(minimum).potential,-1-4*(cutoffSr6*cutoffSr6-cutoffSr6),1e-12);
+close(lennardJonesPair(1).forceMagnitude,24,1e-12);
 const pair=[{x:4,y:5,vx:0,vy:0},{x:5.5,y:5,vx:0,vy:0}];
 const forces=calculateLennardJonesForces(pair);
 close(forces[0].fx+forces[1].fx,0);close(forces[0].fy+forces[1].fy,0);
