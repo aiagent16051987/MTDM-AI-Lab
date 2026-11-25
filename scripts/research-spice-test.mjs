@@ -7,6 +7,6 @@ assert.equal(a.result.inputHash,b.result.inputHash);
 assert.deepEqual(a.result.outputs,b.result.outputs);
 assert.match(a.netlist,/^\* MTDM MARIE/m);
 assert.match(a.netlist,/\.op/);
-assert.throws(()=>runVoltageDividerValidation({voltage:100}),/finite and between/);
-assert.throws(()=>runVoltageDividerValidation({r1:0}),/finite and between/);
+await assert.rejects(()=>runVoltageDividerValidation({voltage:100}),/finite and between/);
+await assert.rejects(()=>runVoltageDividerValidation({r1:0}),/finite and between/);
 console.log("Research-to-electronics bridge passed: bounded SI parameters, SPICE DC solve, independent divider equation, provenance hash and reproducible pass/fail result.");
