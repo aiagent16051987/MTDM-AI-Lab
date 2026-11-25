@@ -23,8 +23,9 @@ export async function runVoltageDividerValidation(input={}) {
  const experiment=createExperimentRecord({schemaVersion:1,recordType:"experiment",id:"experiment:spice-divider-v1",hypothesisId:hypothesis.id,
   moduleId:"electronics.spice-divider",moduleVersion:"spice-ts@0.4.0",parameters,assumptions:hypothesis.assumptions,
   safetyClass:"low-risk-software",createdAt});
- const netlist="V1 in 0 DC "+voltage+"\nR1 in out "+r1+"\nR2 out 0 "+r2+"\n.op\n.end";
- const output=await simulate(netlist,{stepWorkers:false});
+ const spiceOhms=value=>value>=1e6?String(value/1e6)+"meg":value>=1e3?String(value/1e3)+"k":String(value);
+ const netlist="V1 in 0 DC "+voltage+"\nR1 in out "+spiceOhms(r1)+"\nR2 out 0 "+spiceOhms(r2)+"\n.op\n.end";
+ const output=await simulate(netlist);
  const actual=output.dc?.voltage("out");
  if(typeof actual!=="number"||!Number.isFinite(actual))throw new Error("SPICE solver did not return a finite DC output");
  const expected=voltage*r2/(r1+r2),error=Math.abs(actual-expected),passed=error<=tolerance;
