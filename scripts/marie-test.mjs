@@ -16,6 +16,11 @@ assert.equal(deduplicateRecords([
  {title:"one duplicate",url:"https://example.com/a#y",domains:["ai"]}
 ]).length,1);
 assert.equal(generateHypotheses(["ai","robotics","ai"]).length,1);
+const candidate=generateHypotheses(["ai","robotics"])[0];
+assert.equal(candidate.priority,"unranked");
+assert.equal(candidate.evidenceStatus,"no supporting or opposing evidence attached; generated from source metadata domain tags only");
+assert.ok(candidate.predictions.length&&candidate.falsificationCriteria.length&&candidate.alternatives.length);
+assert.ok(!("priorityScore" in candidate));
 assert.equal(generateHypotheses(["ai","malware"]).length,0);
 const report=buildResearchReport({records:[
  {title:"Research paper",url:"https://doi.org/10.1000/example",domains:["ai"],sourceId:"crossref"}
