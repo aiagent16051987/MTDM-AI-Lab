@@ -14,6 +14,8 @@ test("all seven public workspaces navigate and expose exactly one active panel",
   await page.goto("./");
   const tabs = page.getByRole("tab");
   await expect(tabs).toHaveCount(7);
+  await expect(page.locator("#research")).toBeHidden();
+  await expect(page.getByRole("tab", { name: /Research Hub/i })).toHaveCount(0);
 
   for (const [id, label] of workspaces) {
     await page.getByRole("tab", { name: label }).click();
