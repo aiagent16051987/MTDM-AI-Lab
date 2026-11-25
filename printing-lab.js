@@ -90,11 +90,12 @@ const processData = {
   binder:{rate:22,factor:1.8,setup:45,materials:["steel"]},materialjet:{rate:9,factor:1.35,setup:25,materials:["resin"]},
   ded:{rate:7,factor:1.8,setup:80,materials:["steel","titanium"]},waam:{rate:14,factor:1.7,setup:90,materials:["steel","aluminum"]},
   sheet:{rate:30,factor:1.3,setup:30,materials:["abs"]},pellet:{rate:65,factor:1.35,setup:25,materials:["pla","abs"]},
-  concrete:{rate:45,factor:1.5,setup:60,materials:["concrete"]},bio:{rate:2,factor:1.2,setup:60,materials:["resin"]}
+  concrete:{rate:45,factor:1.5,setup:60,materials:["concrete"]}
 };
 const density={pla:1.24,petg:1.27,abs:1.04,nylon:1.01,resin:1.1,tpu:1.2,aluminum:2.7,steel:8,titanium:4.43,concrete:2.2};
 function estimate(){
   const processId=$("printProcess").value;
+  if(processId==="bio")throw new Error("Bioprinting is a research overview only; no estimate is provided.");
   const p=processData[processId],mat=$("printMaterial").value;
   if(!p||!p.materials.includes(mat))throw new Error("Selected feedstock is not a representative match for this process. Choose a compatible material.");
   const shape=document.querySelector("[data-print-shape].active")?.dataset.printShape||"cube";
@@ -139,4 +140,4 @@ $("printEstimate").addEventListener("click",()=>{try{estimate()}catch(e){$("prin
 $("printReset").addEventListener("click",()=>{$("printProcess").value="fdm";syncProcessControls();$("printMaterial").value="pla";$("printX").value=40;$("printY").value=40;$("printZ").value=30;$("printLayer").value=0.2;$("printInfill").value=20;$("printSpeed").value=50;$("printPrice").value=22;$("printPower").value=0.12;$("printRate").value=0.15;document.querySelector('[data-print-shape="cube"]')?.click();$("printEstimateStatus").textContent="NOT CALCULATED";$("printEstimateLog").textContent="Parameters reset. Calculate a new estimate."; });
 function syncProcessControls(){const processId=$("printProcess").value;const extrusion=["fdm","pellet"].includes(processId);const researchOnly=processId==="bio";$("printSpeed").disabled=!extrusion;$("printInfill").disabled=!extrusion;$("printEstimate").disabled=researchOnly;if(researchOnly){$("printEstimateStatus").textContent="RESEARCH OVERVIEW ONLY";$("printEstimateLog").textContent="Bioprinting is presented for high-level research awareness only. This lab does not model biological feedstocks, cells, sterility, viability, medical use or bioprinting process parameters; no estimate is provided.";}else if($("printEstimateStatus").textContent==="RESEARCH OVERVIEW ONLY"){$("printEstimateStatus").textContent="NOT CALCULATED";$("printEstimateLog").textContent="Select a process and calculate an estimate. Values are planning approximations, not a machine quote.";}}
 syncProcessControls();
-$("printProcess").addEventListener("change",()=>{const map={fdm:"pla",sla:"resin",dlp:"resin",msla:"resin",sls:"nylon",mjf:"nylon",slm:"aluminum",ebm:"titanium",binder:"steel",materialjet:"resin",ded:"steel",waam:"steel",sheet:"abs",pellet:"pla",concrete:"concrete",bio:"resin"};$("printMaterial").value=map[$("printProcess").value];syncProcessControls();});
+$("printProcess").addEventListener("change",()=>{const map={fdm:"pla",sla:"resin",dlp:"resin",msla:"resin",sls:"nylon",mjf:"nylon",slm:"aluminum",ebm:"titanium",binder:"steel",materialjet:"resin",ded:"steel",waam:"steel",sheet:"abs",pellet:"pla",concrete:"concrete"};$("printMaterial").value=map[$("printProcess").value];syncProcessControls();});
