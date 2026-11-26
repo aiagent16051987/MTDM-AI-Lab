@@ -1,0 +1,61 @@
+name: MTDM Autonomous Maintenance
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 5 * * 1"
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: mtdm-autonomous-maintenance
+  cancel-in-progress: false
+jobs:
+  inspect-repair-and-propose:
+    if: github.repository == 'aiagent16051987/MTDM-AI-Lab'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install project dependencies
+        run: npm install --ignore-scripts
+      - name: Run bounded autonomous maintenance
+        run: node scripts/run-autonomous-maintenance.mjs
+      - name: Upload maintenance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtdm-autonomous-maintenance-\${{ github.run_number }}
+          path: artifacts/autonomous-maintenance/report.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Create review-only pull request for validated repairs
+        if: success()
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: \${{ secrets.GITHUB_TOKEN }}
+          branch: automation/validated-maintenance
+          delete-branch: false
+          commit-message: "Apply validated autonomous maintenance repairs"
+          title: "Automated maintenance: validated repair proposal"
+          body: |
+            ## Automated maintenance proposal
+
+            This PR was produced by the bounded MTDM remediation engine.
+
+            - Only maintainer-authored, enabled, exact-match recipes can edit files.
+            - Full project tests and production build must pass before a PR is opened.
+            - Failed validation rolls back every automated edit.
+            - Workflow files, dependencies, capability claims, engineering safety rules, main-branch merge and production deployment are outside autonomous permissions.
+
+            Review the maintenance report and inspect every changed line before merging.
+          labels: |
+            automated-maintenance
+            needs-human-review
