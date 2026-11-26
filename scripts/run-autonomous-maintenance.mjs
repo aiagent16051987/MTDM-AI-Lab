@@ -20,7 +20,7 @@ const report = {
   queuedFindings: queue.length,
   remediation: { applied: [], changedFiles: [], status: "no-applicable-recipe" },
   validation: { tests: "not-run", build: "not-run" },
-  safety: { allowlistedExactPatchesOnly: true, maxFilesPerRun: 3, workflowChanges: false,
+  safety: { allowlistedExactPatchesOnly: true, maxFilesPerRun: 1, workflowChanges: false,
     dependencyChanges: false, engineeringSafetyRuleChanges: false, automaticMerge: false,
     productionDeployment: false }
 };
@@ -40,6 +40,13 @@ try {
         report.remediation.status = "rolled-back-validation-failed";
         throw new Error(label + " failed; all automated edits were rolled back.\n" + (result.stdout || "") + "\n" + (result.stderr || ""));
       }
+    }
+    const postRepairAudit = auditCapabilities({ root });
+    report.postRepairAudit = { status: postRepairAudit.status, summary: postRepairAudit.summary };
+    if (postRepairAudit.status === "blocked") {
+      transaction.rollback();
+      report.remediation.status = "rolled-back-post-audit-failed";
+      throw new Error("Post-repair capability audit is blocked; all automated edits were rolled back.");
     }
     report.remediation.status = "validated";
   }
