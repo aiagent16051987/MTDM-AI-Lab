@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "maxAppliedRecipes": 1,
+  "policy": "Only reviewed, exact-match source patches may execute. New recipes require maintainer-authored review and tests before being enabled.",
+  "recipes": []
+}
