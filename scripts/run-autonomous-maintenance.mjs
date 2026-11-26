@@ -73,6 +73,16 @@ try {
   report.engineeringDiscovery.status = discovery.status;
   report.evidenceGate.status = "evaluated";
   for (const proposal of discovery.proposals) {
+    const evidence = evaluateEngineeringEvidence(proposal);
+    report.evidenceGate.evaluated += 1;
+    if (evidence.blockers.length) report.evidenceGate.blocked += 1;
+    if (evidence.releaseEligible) report.evidenceGate.eligible += 1;
+    report.evidenceGate.results.push({
+      id: proposal.id,
+      status: evidence.status,
+      releaseEligible: evidence.releaseEligible,
+      blockers: evidence.blockers
+    });
     const destination = path.join(proposalsDir, proposal.id + ".json");
     if (fs.existsSync(destination)) continue;
     fs.writeFileSync(destination, JSON.stringify(proposal, null, 2) + "\n", { flag: "wx" });
