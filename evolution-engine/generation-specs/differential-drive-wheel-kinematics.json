@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "enabled": true,
+  "enabled": false,
   "id": "differential-drive-wheel-kinematics",
   "title": "Differential-drive wheel kinematics",
   "description": "Ideal differential-drive wheel-speed to chassis-velocity mapping; bounded educational model only.",
-  "reviewStatus": "engineering-review-passed",
+  "reviewStatus": "evidence-pending-original-source-artifacts",
   "parameters": [
     {
       "name": "leftWheelAngularSpeed",
@@ -132,5 +132,77 @@
     "Ideal planar differential-drive kinematics only; wheel slip, tire deformation, actuator dynamics, backlash, encoder quantization and terrain interaction are excluded.",
     "Inputs use wheel angular speed in rad/s, wheel radius and track width in metres, and outputs use SI units.",
     "Not a validated robot dynamics model, localization system, collision planner, motor controller or safety-rated control software."
+  ],
+  "sourceTemplateFile": "evolution-engine/model-templates/differential-drive-wheel-kinematics.template.md",
+  "sourceTemplateSha256": "d71997421e94d3b2d96caf38baf2c5e5d5924e13600dbf3dc4e8919d9b1a3875",
+  "governingEquations": "v = r*(wR+wL)/2; omega = r*(wR-wL)/b",
+  "parameterUnits": {
+    "leftWheelAngularSpeed": "rad/s",
+    "rightWheelAngularSpeed": "rad/s",
+    "wheelRadius": "m",
+    "wheelBase": "m"
+  },
+  "domainOfValidity": {
+    "description": "Declared parameter bounds only; physical validity remains subject to source-document review.",
+    "bounds": {
+      "leftWheelAngularSpeed": [
+        -200,
+        200
+      ],
+      "rightWheelAngularSpeed": [
+        -200,
+        200
+      ],
+      "wheelRadius": [
+        0.01,
+        1
+      ],
+      "wheelBase": [
+        0.05,
+        5
+      ]
+    }
+  },
+  "uncertainty": {
+    "method": "not-quantified-pending-original-source-review",
+    "description": "Numerical replay confirms equation arithmetic only; physical parameter and model uncertainty has not been established."
+  },
+  "evidenceSources": [
+    {
+      "id": "ros2-differential-drive",
+      "type": "official-documentation",
+      "artifactKind": "source-summary",
+      "title": "Wheeled Mobile Robot Kinematics",
+      "publisher": "Open Robotics / ROS 2 Control",
+      "url": "https://control.ros.org/lyrical/doc/ros2_controllers/doc/mobile_robot_kinematics.html",
+      "accessedAt": "2026-11-26",
+      "evidenceFile": "evolution-engine/evidence/ros2-differential-drive.md",
+      "documentSha256": "ff15d0e913a39e77dc353c71d96b0b1d8ae52f1701e07d5321fb88a8f9dd3399"
+    },
+    {
+      "id": "mathworks-differential-drive",
+      "type": "official-documentation",
+      "artifactKind": "source-summary",
+      "title": "Mobile Robot Kinematics Equations",
+      "publisher": "MathWorks",
+      "url": "https://uk.mathworks.com/help/robotics/ug/mobile-robot-kinematics-equations.html",
+      "accessedAt": "2026-11-26",
+      "evidenceFile": "evolution-engine/evidence/mathworks-differential-drive.md",
+      "documentSha256": "ade286a41d7b217f9ca8f45c876f1b60aa1e207114f5930dc7ac165ffeda1d33"
+    }
+  ],
+  "independentChecks": [
+    {
+      "method": "independent-analytic-cross-check",
+      "result": "passed",
+      "evidenceSourceId": "ros2-differential-drive",
+      "tolerance": 1e-9
+    },
+    {
+      "method": "reference-implementation",
+      "result": "passed",
+      "evidenceSourceId": "mathworks-differential-drive",
+      "tolerance": 1e-9
+    }
   ]
 }

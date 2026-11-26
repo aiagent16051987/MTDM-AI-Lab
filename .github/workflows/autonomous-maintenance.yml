@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   inspect-repair-and-propose:
-    if: github.repository == 'aiagent16051987/MTDM-AI-Lab'
+    if: github.repository == 'aiagent16051987/MTDM-AI-Lab' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
@@ -21,20 +21,46 @@ jobs:
         with:
           ref: main
           persist-credentials: true
+      - name: Restore previous maintenance heartbeat
+        id: heartbeat-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .mtdm-maintenance-state
+          key: ${{ runner.os }}-mtdm-maintenance-heartbeat-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-mtdm-maintenance-heartbeat-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Record maintenance attempt before dependency installation
+        run: node evolution-engine/maintenance-heartbeat.mjs --success=false
       - name: Install project dependencies
-        run: npm install --ignore-scripts --no-package-lock
+        run: npm install --ignore-scripts --no-package-lock --fetch-retries=3 --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000
       - name: Run autonomous engineering discovery and validated maintenance
-        run: node scripts/run-autonomous-maintenance.mjs
-      - name: Upload maintenance evidence
+        id: maintenance
+        shell: bash
+        run: |
+          set +e
+          node scripts/run-autonomous-maintenance.mjs
+          result=$?
+          echo "maintenance_exit_code=$result" >> "$GITHUB_OUTPUT"
+          node evolution-engine/maintenance-heartbeat.mjs --success="$([ "$result" -eq 0 ] && echo true || echo false)"
+          exit "$result"
+      - name: Save maintenance heartbeat for the next scheduled run
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .mtdm-maintenance-state
+          key: ${{ runner.os }}-mtdm-maintenance-heartbeat-${{ github.run_id }}
+      - name: Upload maintenance evidence and heartbeat
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: mtdm-autonomous-maintenance-${{ github.run_number }}
-          path: artifacts/autonomous-maintenance/report.json
+          path: |
+            artifacts/autonomous-maintenance/report.json
+            artifacts/autonomous-maintenance/heartbeat.json
           if-no-files-found: warn
           retention-days: 30
       - name: Create review-only pull request for validated proposals and repairs

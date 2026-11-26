@@ -5,6 +5,7 @@ import { auditCapabilities, buildImprovementQueue } from "../evolution-engine/au
 import { applyRemediationRecipes } from "../evolution-engine/remediation-engine.mjs";
 import { compileEnabledSpecs } from "../evolution-engine/model-codegen.mjs";
 import { discoverEngineeringFeatures } from "../evolution-engine/engineering-discovery.mjs";
+import { evaluateEngineeringEvidence } from "../evolution-engine/engineering-evidence-gate.mjs";
 
 const root = process.cwd();
 const outputDir = path.join(root, "artifacts", "autonomous-maintenance");
@@ -24,11 +25,12 @@ const report = {
   audit: { status: audit.status, summary: audit.summary },
   queuedFindings: queue.length,
   engineeringDiscovery: { status: "not-run", proposed: [], autoEnabled: 0, domainCoverage: ["electronics"] },
+  evidenceGate: { status: "not-run", evaluated: 0, blocked: 0, eligible: 0, results: [] },
   codeGeneration: { compiled: [], status: "no-approved-specifications" },
   remediation: { applied: [], changedFiles: [], status: "no-applicable-recipe" },
   validation: { tests: "not-run", build: "not-run" },
   safety: { allowlistedRecipePatchesOnly: true, declarativeCodeGenerationOnly: true,
-    proposedFeaturesRemainDisabled: true, maxFilesPerRun: 1, workflowChanges: false,
+    proposedFeaturesRemainDisabled: true, evidenceGateRequiredForRelease: true, noEvidenceNoRelease: true, maxFilesPerRun: 1, workflowChanges: false,
     dependencyChanges: false, engineeringSafetyRuleChanges: false, automaticMerge: false,
     productionDeployment: false }
 };
@@ -69,7 +71,18 @@ try {
     maxCandidates: 10
   });
   report.engineeringDiscovery.status = discovery.status;
+  report.evidenceGate.status = "evaluated";
   for (const proposal of discovery.proposals) {
+    const evidence = evaluateEngineeringEvidence(proposal, { evidenceRoot: root });
+    report.evidenceGate.evaluated += 1;
+    if (evidence.blockers.length) report.evidenceGate.blocked += 1;
+    if (evidence.releaseEligible) report.evidenceGate.eligible += 1;
+    report.evidenceGate.results.push({
+      id: proposal.id,
+      status: evidence.status,
+      releaseEligible: evidence.releaseEligible,
+      blockers: evidence.blockers
+    });
     const destination = path.join(proposalsDir, proposal.id + ".json");
     if (fs.existsSync(destination)) continue;
     fs.writeFileSync(destination, JSON.stringify(proposal, null, 2) + "\n", { flag: "wx" });
@@ -77,10 +90,44 @@ try {
     report.engineeringDiscovery.proposed.push({ id: proposal.id, file: path.relative(root, destination), verificationVectors: proposal.verification.length });
   }
 
-  compiled = compileEnabledSpecs({
-    specsDirectory: path.join(root, "evolution-engine", "generation-specs"),
-    outputDirectory: generatedDir
-  });
+  const specsDirectory = path.join(root, "evolution-engine", "generation-specs");
+  const allSpecs = fs.readdirSync(specsDirectory).filter(name => name.endsWith(".json")).map(name => ({
+    file: name,
+    spec: JSON.parse(fs.readFileSync(path.join(specsDirectory, name), "utf8"))
+  }));
+  const enabledSpecs = allSpecs.filter(item => item.spec.enabled === true);
+  const existingEvidence = allSpecs.map(item => ({
+    id: item.spec.id,
+    file: item.file,
+    enabled: item.spec.enabled === true,
+    result: evaluateEngineeringEvidence(item.spec, { evidenceRoot: root })
+  }));
+  report.evidenceGate.existingSpecifications = existingEvidence.map(item => ({
+    id: item.id,
+    file: item.file,
+    enabled: item.enabled,
+    status: item.result.status,
+    releaseEligible: item.result.releaseEligible,
+    blockers: item.result.blockers
+  }));
+  const blockedEnabledSpecs = existingEvidence.filter(item => item.enabled && !item.result.releaseEligible);
+  const blockedCandidates = existingEvidence.filter(item => item.result.blockers.length > 0);
+  if (blockedEnabledSpecs.length) {
+    report.evidenceGate.status = "blocked-existing-enabled-specifications";
+    report.evidenceGate.blocked += blockedEnabledSpecs.length;
+    report.codeGeneration.status = "withheld-evidence-incomplete";
+    compiled = [];
+  } else if (blockedCandidates.length) {
+    report.evidenceGate.status = "blocked-candidates-withheld";
+    report.codeGeneration.status = "no-model-compiled-evidence-incomplete";
+    compiled = [];
+  } else {
+    report.evidenceGate.status = "evidence-complete-pending-human-approval";
+    compiled = compileEnabledSpecs({
+      specsDirectory,
+      outputDirectory: generatedDir
+    });
+  }
   report.codeGeneration.compiled = compiled.map(item => ({ id: item.id, model: path.relative(root, item.modelPath), test: path.relative(root, item.testPath) }));
   if (compiled.length) {
     report.codeGeneration.status = "compiled-pending-validation";

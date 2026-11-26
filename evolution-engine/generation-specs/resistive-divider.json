@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "enabled": true,
+  "enabled": false,
   "id": "resistive-divider",
   "title": "Resistive voltage divider model",
   "description": "Ideal two-resistor divider with input loading excluded; bounded educational calculation only.",
-  "reviewStatus": "engineering-review-passed",
+  "reviewStatus": "evidence-pending-original-source-artifacts",
   "parameters": [
     {
       "name": "inputVoltage",
@@ -151,5 +151,72 @@
     "Ideal unloaded divider only; source resistance, output loading, resistor tolerance, temperature coefficient and transient behaviour are excluded.",
     "Use consistent ohmic and SI units; calculated power is total resistor dissipation and does not replace component derating or thermal review.",
     "Not a validated circuit design, safety analysis or hardware control model."
+  ],
+  "sourceTemplateFile": "evolution-engine/model-templates/resistive-divider.template.md",
+  "sourceTemplateSha256": "93ae10099bdc451002d02c6f7491c0634b972d469d757b5ac17f1fe643513afb",
+  "governingEquations": "I = Vin/(Rtop+Rbottom); Vout = Vin*Rbottom/(Rtop+Rbottom); P = Vin^2/(Rtop+Rbottom)",
+  "parameterUnits": {
+    "inputVoltage": "V",
+    "topResistance": "ohm",
+    "bottomResistance": "ohm"
+  },
+  "domainOfValidity": {
+    "description": "Declared parameter bounds only; physical validity remains subject to source-document review.",
+    "bounds": {
+      "inputVoltage": [
+        0,
+        48
+      ],
+      "topResistance": [
+        0.1,
+        1000000
+      ],
+      "bottomResistance": [
+        0.1,
+        1000000
+      ]
+    }
+  },
+  "uncertainty": {
+    "method": "not-quantified-pending-original-source-review",
+    "description": "Numerical replay confirms equation arithmetic only; physical parameter and model uncertainty has not been established."
+  },
+  "evidenceSources": [
+    {
+      "id": "nptel-voltage-divider",
+      "type": "textbook",
+      "artifactKind": "source-summary",
+      "title": "Basic Electronics — Resistors / Voltage Dividers",
+      "publisher": "Indian Institute of Technology Madras, NPTEL",
+      "url": "https://archive.nptel.ac.in/content/storage2/courses/122106026/LECTURE2.pdf",
+      "accessedAt": "2026-11-26",
+      "evidenceFile": "evolution-engine/evidence/nptel-voltage-divider.md",
+      "documentSha256": "716b113c32f6497399299bae268b6db92e52be78d0aaf68f32f65d4e85464e58"
+    },
+    {
+      "id": "khan-voltage-divider",
+      "type": "official-documentation",
+      "artifactKind": "source-summary",
+      "title": "Voltage divider — Circuit analysis",
+      "publisher": "Khan Academy",
+      "url": "https://www.khanacademy.org/science/electrical-engineering/ee-circuit-analysis-topic/ee-resistors/a/ee-voltage-divider",
+      "accessedAt": "2026-11-26",
+      "evidenceFile": "evolution-engine/evidence/khan-academy-voltage-divider.md",
+      "documentSha256": "35b0da2cb461c8c2a063950cbefca85fce45396ee69ee7e6d74ad067d54d4365"
+    }
+  ],
+  "independentChecks": [
+    {
+      "method": "independent-analytic-cross-check",
+      "result": "passed",
+      "evidenceSourceId": "nptel-voltage-divider",
+      "tolerance": 1e-9
+    },
+    {
+      "method": "reference-implementation",
+      "result": "passed",
+      "evidenceSourceId": "khan-voltage-divider",
+      "tolerance": 1e-9
+    }
   ]
 }

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "enabled": true,
+  "enabled": false,
   "id": "dc-motor-steady-state",
   "title": "DC motor steady-state model",
   "description": "Ideal armature steady-state educational model with bounded inputs; not for hardware control.",
-  "reviewStatus": "engineering-review-passed",
+  "reviewStatus": "evidence-pending-original-source-artifacts",
   "parameters": [
     {
       "name": "voltage",
@@ -118,5 +118,82 @@
     "Ideal steady-state armature equations only; ignores inductance, saturation, brush drop, friction, thermal effects, transient response and controller dynamics.",
     "Torque and back-EMF constants are supplied independently; users must use consistent SI units.",
     "Not a validated motor design, physical prediction, hardware controller or safety model."
+  ],
+  "sourceTemplateFile": "evolution-engine/model-templates/dc-motor-steady-state.template.md",
+  "sourceTemplateSha256": "a9f75e07b32c7c407878ed472aecc6c0b80ed76734898fba807389e1867b2a38",
+  "governingEquations": "I = T_load / K_t; omega = (V - R*I) / K_e",
+  "parameterUnits": {
+    "voltage": "V",
+    "resistance": "ohm",
+    "torqueConstant": "N m/A",
+    "backEmfConstant": "V s/rad",
+    "loadTorque": "N m"
+  },
+  "domainOfValidity": {
+    "description": "Declared parameter bounds only; physical validity remains subject to source-document review.",
+    "bounds": {
+      "voltage": [
+        0,
+        48
+      ],
+      "resistance": [
+        0.1,
+        100
+      ],
+      "torqueConstant": [
+        0.001,
+        10
+      ],
+      "backEmfConstant": [
+        0.001,
+        10
+      ],
+      "loadTorque": [
+        0,
+        100
+      ]
+    }
+  },
+  "uncertainty": {
+    "method": "not-quantified-pending-original-source-review",
+    "description": "Numerical replay confirms equation arithmetic only; physical parameter and model uncertainty has not been established."
+  },
+  "evidenceSources": [
+    {
+      "id": "st-an4892",
+      "type": "official-documentation",
+      "artifactKind": "source-summary",
+      "title": "STMicroelectronics AN4892 — General concepts in DC motor control",
+      "publisher": "STMicroelectronics",
+      "url": "https://www.st.com.cn/resource/en/application_note/dm00310534.pdf",
+      "accessedAt": "2026-11-26",
+      "evidenceFile": "evolution-engine/evidence/st-an4892-dc-motor.md",
+      "documentSha256": "82f65157fabf874cb49dc62796d32a6929b53bda46594b73d7448633206ca29c"
+    },
+    {
+      "id": "mathworks-dc-motor",
+      "type": "official-documentation",
+      "artifactKind": "source-summary",
+      "title": "DC Motor block documentation",
+      "publisher": "MathWorks",
+      "url": "https://www.mathworks.com/help/simscape-electrical/ref/dcmotor.html",
+      "accessedAt": "2026-11-26",
+      "evidenceFile": "evolution-engine/evidence/mathworks-dc-motor.md",
+      "documentSha256": "c4f936c4ada88e5850910fd55d26d9ec9e164a0890a101f36073c4f50a68d429"
+    }
+  ],
+  "independentChecks": [
+    {
+      "method": "independent-analytic-cross-check",
+      "result": "passed",
+      "evidenceSourceId": "st-an4892",
+      "tolerance": 1e-9
+    },
+    {
+      "method": "reference-implementation",
+      "result": "passed",
+      "evidenceSourceId": "mathworks-dc-motor",
+      "tolerance": 1e-9
+    }
   ]
 }
