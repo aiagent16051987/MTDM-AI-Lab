@@ -43,7 +43,7 @@ function compileExpression(node, parameterNames, depth = 0) {
 
 function validateSpec(spec) {
   if (!spec || spec.schemaVersion !== 1 || spec.enabled !== true) throw new Error("Only enabled schema-v1 generation specs can compile");
-  assertIdentifier(spec.id, "model id");
+  if (typeof spec.id !== "string" || !/^[a-z][a-z0-9-]{0,62}$/.test(spec.id)) throw new Error("Invalid model id slug: " + String(spec.id));
   if (!Array.isArray(spec.parameters) || !spec.parameters.length || spec.parameters.length > 32) throw new Error("A model needs 1–32 parameters");
   if (!Array.isArray(spec.outputs) || !spec.outputs.length || spec.outputs.length > 32) throw new Error("A model needs 1–32 outputs");
   const names = new Set();
