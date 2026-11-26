@@ -90,10 +90,34 @@ try {
     report.engineeringDiscovery.proposed.push({ id: proposal.id, file: path.relative(root, destination), verificationVectors: proposal.verification.length });
   }
 
-  compiled = compileEnabledSpecs({
-    specsDirectory: path.join(root, "evolution-engine", "generation-specs"),
-    outputDirectory: generatedDir
-  });
+  const specsDirectory = path.join(root, "evolution-engine", "generation-specs");
+  const enabledSpecs = fs.readdirSync(specsDirectory).filter(name => name.endsWith(".json")).map(name => ({
+    file: name,
+    spec: JSON.parse(fs.readFileSync(path.join(specsDirectory, name), "utf8"))
+  })).filter(item => item.spec.enabled === true);
+  const existingEvidence = enabledSpecs.map(item => ({
+    id: item.spec.id,
+    file: item.file,
+    result: evaluateEngineeringEvidence(item.spec)
+  }));
+  report.evidenceGate.existingEnabledSpecs = existingEvidence.map(item => ({
+    id: item.id,
+    status: item.result.status,
+    releaseEligible: item.result.releaseEligible,
+    blockers: item.result.blockers
+  }));
+  const blockedEnabledSpecs = existingEvidence.filter(item => !item.result.releaseEligible);
+  if (blockedEnabledSpecs.length) {
+    report.evidenceGate.status = "blocked-existing-enabled-specifications";
+    report.evidenceGate.blocked += blockedEnabledSpecs.length;
+    report.codeGeneration.status = "withheld-evidence-incomplete";
+    compiled = [];
+  } else {
+    compiled = compileEnabledSpecs({
+      specsDirectory,
+      outputDirectory: generatedDir
+    });
+  }
   report.codeGeneration.compiled = compiled.map(item => ({ id: item.id, model: path.relative(root, item.modelPath), test: path.relative(root, item.testPath) }));
   if (compiled.length) {
     report.codeGeneration.status = "compiled-pending-validation";
