@@ -13,7 +13,7 @@ concurrency:
 jobs:
   assess:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,6 +21,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install project dependencies
+        run: npm install
       - name: Run deterministic self-assessment
         run: node scripts/run-self-assessment.mjs
       - name: Exercise bounded autonomous maintenance runtime
