@@ -30,7 +30,7 @@ export function auditCapabilities({root=process.cwd(),registryPath="capabilities
         if(!safePath(relative)||!fs.existsSync(path.join(root,relative))) findings.push({id:"missing-file:"+id+":"+relative,severity:"high",category:"integrity",message:"Referenced "+field+" file does not exist: "+relative});
       }
     }
-    if(capability.status==="implemented"&&Array.isArray(capability.evidence)&&!capability.evidence.some(file=>safePath(file)&&fs.existsSync(path.join(root,file))&&/(^tests\\/|^scripts\\/)/.test(file)))
+    if(capability.status==="implemented"&&Array.isArray(capability.evidence)&&!capability.evidence.some(file=>safePath(file)&&fs.existsSync(path.join(root,file))&&(file.startsWith("tests/")||file.startsWith("scripts/"))))
       findings.push({id:"no-executable-evidence:"+id,severity:"high",category:"verification",message:"Implemented capability has no executable test evidence: "+id});
   }
   const internalResearch=registry.capabilities.find(item=>item.id==="research");
