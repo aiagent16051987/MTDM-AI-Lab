@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 
 const ALLOWED_SOURCE_TYPES = new Set(["datasheet", "standard", "peer-reviewed", "textbook", "reference-implementation", "experimental-dataset", "official-documentation"]);
 const ALLOWED_CHECKS = new Set(["independent-analytic-cross-check", "reference-implementation", "experimental-data", "standards-conformance"]);
+const AUTHORITATIVE_ARTIFACT_KINDS = new Set(["primary-document", "peer-reviewed-paper", "standards-document", "official-reference"]);
 const OPS = new Set(["add", "sub", "mul", "div", "sqrt", "pow", "abs", "min", "max"]);
 
 function validDate(value) {
@@ -51,10 +52,12 @@ export function evaluateEngineeringEvidence(candidate, { evidenceRoot = process.
   const parameterNames = new Set(parameters.map(parameter => parameter?.name).filter(name => typeof name === "string"));
   const outputNames = new Set(outputs.map(output => output?.name).filter(name => typeof name === "string"));
 
-  if (!Array.isArray(candidate.evidenceSources) || candidate.evidenceSources.length === 0) {
-    blockers.push("missing-primary-or-authoritative-evidence-sources");
+  if (!Array.isArray(candidate.evidenceSources) || candidate.evidenceSources.length < 2) {
+    blockers.push("at-least-two-independent-authoritative-evidence-sources-required");
   } else {
     const ids = new Set();
+    const publishers = new Set();
+    const sourceUrls = new Set();
     for (const source of candidate.evidenceSources) {
       if (!source || typeof source !== "object" || !/^[a-z][a-z0-9-]{1,63}$/.test(source.id || "") || ids.has(source.id)) {
         blockers.push("invalid-or-duplicate-evidence-source-id");
@@ -62,11 +65,15 @@ export function evaluateEngineeringEvidence(candidate, { evidenceRoot = process.
       }
       ids.add(source.id);
       if (!ALLOWED_SOURCE_TYPES.has(source.type)) blockers.push("unsupported-evidence-source-type:" + source.id);
+      if (!AUTHORITATIVE_ARTIFACT_KINDS.has(source.artifactKind)) blockers.push("non-authoritative-or-summary-artifact:" + source.id);
       if (typeof source.title !== "string" || source.title.trim().length < 4) blockers.push("missing-evidence-title:" + source.id);
       if (typeof source.publisher !== "string" || !source.publisher.trim()) blockers.push("missing-evidence-publisher:" + source.id);
+      else publishers.add(source.publisher.trim().toLowerCase());
       try {
         const url = new URL(source.url);
         if (url.protocol !== "https:") blockers.push("evidence-url-must-use-https:" + source.id);
+        if (sourceUrls.has(url.href)) blockers.push("duplicate-evidence-url:" + source.id);
+        sourceUrls.add(url.href);
       } catch { blockers.push("invalid-evidence-url:" + source.id); }
       if (!validDate(source.accessedAt)) blockers.push("invalid-evidence-access-date:" + source.id);
       if (!/^[a-f0-9]{64}$/.test(source.documentSha256 || "")) {
@@ -93,6 +100,7 @@ export function evaluateEngineeringEvidence(candidate, { evidenceRoot = process.
         }
       }
     }
+    if (publishers.size < 2) blockers.push("two-distinct-evidence-publishers-required");
   }
 
   if (typeof candidate.governingEquations !== "string" || candidate.governingEquations.trim().length < 8) blockers.push("missing-governing-equations");
@@ -120,18 +128,20 @@ export function evaluateEngineeringEvidence(candidate, { evidenceRoot = process.
     blockers.push("missing-uncertainty-analysis");
   }
 
-  if (!Array.isArray(candidate.independentChecks) || candidate.independentChecks.length === 0) {
-    blockers.push("missing-independent-validation");
+  if (!Array.isArray(candidate.independentChecks) || candidate.independentChecks.length < 2) {
+    blockers.push("at-least-two-independent-validation-checks-required");
   } else {
     const methods = new Set();
+    const checkedSources = new Set();
     for (const check of candidate.independentChecks) {
       if (!check || !ALLOWED_CHECKS.has(check.method) || check.result !== "passed" ||
           typeof check.evidenceSourceId !== "string" || !check.evidenceSourceId ||
           !Number.isFinite(check.tolerance) || check.tolerance < 0) blockers.push("invalid-independent-validation-record");
       else if (!candidate.evidenceSources?.some(source => source.id === check.evidenceSourceId)) blockers.push("independent-check-source-not-found");
-      else methods.add(check.method);
+      else { methods.add(check.method); checkedSources.add(check.evidenceSourceId); }
     }
-    if (methods.size < 1) blockers.push("no-valid-independent-validation-method");
+    if (methods.size < 2) blockers.push("two-distinct-independent-validation-methods-required");
+    if (checkedSources.size < 2) blockers.push("independent-checks-must-use-two-distinct-sources");
   }
 
   let replayedVectors = 0;
@@ -180,7 +190,29 @@ export function evaluateEngineeringEvidence(candidate, { evidenceRoot = process.
 
   if (!Array.isArray(candidate.limitations) || candidate.limitations.length === 0 ||
       candidate.limitations.some(item => typeof item !== "string" || !item.trim())) blockers.push("missing-explicit-limitations");
-  if (!/^[a-f0-9]{64}$/.test(candidate.sourceTemplateSha256 || "")) blockers.push("missing-or-invalid-provenance-hash");
+  if (!/^[a-f0-9]{64}$/.test(candidate.sourceTemplateSha256 || "")) {
+    blockers.push("missing-or-invalid-provenance-hash");
+  } else if (typeof candidate.sourceTemplateFile !== "string" || !candidate.sourceTemplateFile.trim()) {
+    blockers.push("missing-source-template-file");
+  } else {
+    try {
+      const root = fs.realpathSync(evidenceRoot);
+      const target = path.resolve(root, candidate.sourceTemplateFile);
+      if (target !== root && !target.startsWith(root + path.sep)) {
+        blockers.push("source-template-path-escapes-root");
+      } else {
+        const actual = fs.realpathSync(target);
+        if (actual !== root && !actual.startsWith(root + path.sep)) {
+          blockers.push("source-template-path-escapes-root");
+        } else {
+          const actualHash = crypto.createHash("sha256").update(fs.readFileSync(actual)).digest("hex");
+          if (actualHash !== candidate.sourceTemplateSha256) blockers.push("source-template-hash-mismatch");
+        }
+      }
+    } catch {
+      blockers.push("source-template-file-unavailable");
+    }
+  }
   if (candidate.intendedUse !== "educational-only" || candidate.hardwareControl !== false) blockers.push("unsafe-or-undeclared-intended-use");
   const uniqueBlockers = [...new Set(blockers)];
   return {
