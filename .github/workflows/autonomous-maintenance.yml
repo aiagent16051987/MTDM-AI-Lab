@@ -8,45 +8,8 @@ concurrency:
   group: mtdm-autonomous-maintenance
   cancel-in-progress: false
 jobs:
-  trial-gate:
-    if: github.repository == 'aiagent16051987/MTDM-AI-Lab'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    permissions:
-      actions: write
-      variables: write
-    outputs:
-      active: ${{ steps.gate.outputs.active }}
-    steps:
-      - name: Start a 48-hour trial on first activation and self-disable at expiry
-        id: gate
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          variable_url="repos/${GITHUB_REPOSITORY}/actions/variables/MTDM_AUTONOMOUS_TRIAL_START"
-          start="$(gh api "$variable_url" --jq .value 2>/dev/null || true)"
-          if [ -z "$start" ]; then
-            now="$(date -u +%s)"
-            gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/variables" \
-              -f name=MTDM_AUTONOMOUS_TRIAL_START -f value="$now"
-            start="$now"
-            echo "48-hour trial started at first activation: $(date -u -d "@$start" --iso-8601=seconds)"
-          fi
-          end="$((start + 172800))"
-          now="$(date -u +%s)"
-          if [ "$now" -lt "$end" ]; then
-            echo "active=true" >> "$GITHUB_OUTPUT"
-            echo "48-hour autonomous trial active; expires $(date -u -d "@$end" --iso-8601=seconds)."
-          else
-            echo "active=false" >> "$GITHUB_OUTPUT"
-            echo "Trial expired; disabling this scheduled workflow."
-            gh api --method PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/autonomous-maintenance.yml/disable"
-          fi
-
   inspect-repair-and-propose:
-    needs: trial-gate
-    if: needs.trial-gate.outputs.active == 'true'
+    if: github.repository == 'aiagent16051987/MTDM-AI-Lab'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
