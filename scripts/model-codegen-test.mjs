@@ -19,6 +19,10 @@ try {
       { name: "backEmfConstant", min: 0.001, max: 10, default: 0.1 },
       { name: "loadTorque", min: 0, max: 100, default: 0.2 }
     ],
+    verification: [
+      { input: {}, expected: { armatureCurrent: 2, angularSpeed: 80 } },
+      { input: { voltage: 24, loadTorque: 0.3 }, expected: { armatureCurrent: 3, angularSpeed: 180 } }
+    ],
     outputs: [
       { name: "armatureCurrent", unit: "A", expression: { op: "div", args: [{ param: "loadTorque" }, { param: "torqueConstant" }] } },
       { name: "angularSpeed", unit: "rad/s", expression: { op: "div", args: [{ op: "sub", args: [{ param: "voltage" }, { op: "mul", args: [{ param: "resistance" }, { op: "div", args: [{ param: "loadTorque" }, { param: "torqueConstant" }] }] }] }, { param: "backEmfConstant" }] } }
