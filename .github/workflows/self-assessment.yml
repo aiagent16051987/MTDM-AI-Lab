@@ -1,0 +1,37 @@
+name: MTDM Self Assessment
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 * * 1"
+permissions:
+  contents: read
+concurrency:
+  group: mtdm-self-assessment
+  cancel-in-progress: true
+jobs:
+  assess:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install project dependencies
+        run: npm install
+      - name: Run deterministic self-assessment
+        run: node scripts/run-self-assessment.mjs
+      - name: Exercise bounded autonomous maintenance runtime
+        run: node scripts/run-autonomous-maintenance.mjs
+      - name: Upload assessment and improvement queue
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtdm-self-assessment-${{ github.run_number }}
+          path: artifacts/self-assessment/assessment.json
+          if-no-files-found: error
+          retention-days: 30

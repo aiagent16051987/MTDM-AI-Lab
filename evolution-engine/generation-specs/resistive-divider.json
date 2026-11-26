@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "enabled": true,
+  "id": "resistive-divider",
+  "title": "Resistive voltage divider model",
+  "description": "Ideal two-resistor divider with input loading excluded; bounded educational calculation only.",
+  "reviewStatus": "engineering-review-passed",
+  "parameters": [
+    {
+      "name": "inputVoltage",
+      "min": 0,
+      "max": 48,
+      "default": 12
+    },
+    {
+      "name": "topResistance",
+      "min": 0.1,
+      "max": 1000000,
+      "default": 10000
+    },
+    {
+      "name": "bottomResistance",
+      "min": 0.1,
+      "max": 1000000,
+      "default": 10000
+    }
+  ],
+  "outputs": [
+    {
+      "name": "outputVoltage",
+      "unit": "V",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "op": "mul",
+            "args": [
+              {
+                "param": "inputVoltage"
+              },
+              {
+                "param": "bottomResistance"
+              }
+            ]
+          },
+          {
+            "op": "add",
+            "args": [
+              {
+                "param": "topResistance"
+              },
+              {
+                "param": "bottomResistance"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "dividerCurrent",
+      "unit": "A",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "param": "inputVoltage"
+          },
+          {
+            "op": "add",
+            "args": [
+              {
+                "param": "topResistance"
+              },
+              {
+                "param": "bottomResistance"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "totalPower",
+      "unit": "W",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "op": "pow",
+            "args": [
+              {
+                "param": "inputVoltage"
+              },
+              2
+            ]
+          },
+          {
+            "op": "add",
+            "args": [
+              {
+                "param": "topResistance"
+              },
+              {
+                "param": "bottomResistance"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "verification": [
+    {
+      "input": {},
+      "expected": {
+        "outputVoltage": 6,
+        "dividerCurrent": 0.0006,
+        "totalPower": 0.0072
+      }
+    },
+    {
+      "input": {
+        "inputVoltage": 24,
+        "topResistance": 1000,
+        "bottomResistance": 2000
+      },
+      "expected": {
+        "outputVoltage": 16,
+        "dividerCurrent": 0.008,
+        "totalPower": 0.192
+      }
+    },
+    {
+      "input": {
+        "inputVoltage": 5,
+        "topResistance": 10000,
+        "bottomResistance": 1000
+      },
+      "expected": {
+        "outputVoltage": 0.45454545454545453,
+        "dividerCurrent": 0.00045454545454545455,
+        "totalPower": 0.0022727272727272726
+      },
+      "tolerance": 1e-10
+    }
+  ],
+  "intendedUse": "educational-only",
+  "hardwareControl": false,
+  "limitations": [
+    "Ideal unloaded divider only; source resistance, output loading, resistor tolerance, temperature coefficient and transient behaviour are excluded.",
+    "Use consistent ohmic and SI units; calculated power is total resistor dissipation and does not replace component derating or thermal review.",
+    "Not a validated circuit design, safety analysis or hardware control model."
+  ]
+}

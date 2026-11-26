@@ -1,0 +1,74 @@
+name: MTDM Autonomous Maintenance
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *"
+permissions: {}
+concurrency:
+  group: mtdm-autonomous-maintenance
+  cancel-in-progress: false
+jobs:
+  inspect-repair-and-propose:
+    if: github.repository == 'aiagent16051987/MTDM-AI-Lab'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install project dependencies
+        run: npm install --ignore-scripts --no-package-lock
+      - name: Run autonomous engineering discovery and validated maintenance
+        run: node scripts/run-autonomous-maintenance.mjs
+      - name: Upload maintenance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtdm-autonomous-maintenance-${{ github.run_number }}
+          path: artifacts/autonomous-maintenance/report.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Create review-only pull request for validated proposals and repairs
+        if: success()
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: automation/validated-maintenance
+          delete-branch: false
+          add-paths: |
+            scripts/
+            evolution-engine/
+            research-engine/
+            generated-simulations/
+            app.js
+            advanced-labs.js
+            robotics-core.js
+            nano-core.mjs
+            printing-core.mjs
+            printing-lab.js
+            research-labs.js
+            research-next.js
+            visual-circuit.js
+            navigation.js
+          commit-message: "Apply validated autonomous engineering proposals and maintenance"
+          title: "Automated engineering: validated proposals and maintenance"
+          body: |
+            ## Autonomous engineering proposal
+
+            The deterministic engineering discovery engine generated bounded candidate models from reviewed domain templates, checked their numerical vectors and left every proposal disabled pending engineering review.
+
+            - The maintenance runtime also compiles previously approved model specifications.
+            - Full project tests and production build must pass before a review PR is opened.
+            - Failed validation rolls back generated proposals, model outputs and automated source edits.
+            - Workflow files, dependencies, engineering safety rules, main-branch merge and production deployment remain outside autonomous permissions.
+
+            Inspect model assumptions, source provenance, limitations and every changed line before enabling or merging.

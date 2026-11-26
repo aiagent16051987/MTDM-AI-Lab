@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "enabled": true,
+  "id": "dc-motor-steady-state",
+  "title": "DC motor steady-state model",
+  "description": "Ideal armature steady-state educational model with bounded inputs; not for hardware control.",
+  "reviewStatus": "engineering-review-passed",
+  "parameters": [
+    {
+      "name": "voltage",
+      "min": 0,
+      "max": 48,
+      "default": 12
+    },
+    {
+      "name": "resistance",
+      "min": 0.1,
+      "max": 100,
+      "default": 2
+    },
+    {
+      "name": "torqueConstant",
+      "min": 0.001,
+      "max": 10,
+      "default": 0.1
+    },
+    {
+      "name": "backEmfConstant",
+      "min": 0.001,
+      "max": 10,
+      "default": 0.1
+    },
+    {
+      "name": "loadTorque",
+      "min": 0,
+      "max": 100,
+      "default": 0.2
+    }
+  ],
+  "outputs": [
+    {
+      "name": "armatureCurrent",
+      "unit": "A",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "param": "loadTorque"
+          },
+          {
+            "param": "torqueConstant"
+          }
+        ]
+      }
+    },
+    {
+      "name": "angularSpeed",
+      "unit": "rad/s",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "op": "sub",
+            "args": [
+              {
+                "param": "voltage"
+              },
+              {
+                "op": "mul",
+                "args": [
+                  {
+                    "param": "resistance"
+                  },
+                  {
+                    "op": "div",
+                    "args": [
+                      {
+                        "param": "loadTorque"
+                      },
+                      {
+                        "param": "torqueConstant"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "param": "backEmfConstant"
+          }
+        ]
+      }
+    }
+  ],
+  "verification": [
+    {
+      "input": {},
+      "expected": {
+        "armatureCurrent": 2,
+        "angularSpeed": 80
+      }
+    },
+    {
+      "input": {
+        "voltage": 24,
+        "loadTorque": 0.3
+      },
+      "expected": {
+        "armatureCurrent": 3,
+        "angularSpeed": 180
+      }
+    }
+  ],
+  "intendedUse": "educational-only",
+  "hardwareControl": false,
+  "limitations": [
+    "Ideal steady-state armature equations only; ignores inductance, saturation, brush drop, friction, thermal effects, transient response and controller dynamics.",
+    "Torque and back-EMF constants are supplied independently; users must use consistent SI units.",
+    "Not a validated motor design, physical prediction, hardware controller or safety model."
+  ]
+}

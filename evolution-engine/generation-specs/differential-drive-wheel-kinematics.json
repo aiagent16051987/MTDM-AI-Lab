@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "enabled": true,
+  "id": "differential-drive-wheel-kinematics",
+  "title": "Differential-drive wheel kinematics",
+  "description": "Ideal differential-drive wheel-speed to chassis-velocity mapping; bounded educational model only.",
+  "reviewStatus": "engineering-review-passed",
+  "parameters": [
+    {
+      "name": "leftWheelAngularSpeed",
+      "min": -200,
+      "max": 200,
+      "default": 10
+    },
+    {
+      "name": "rightWheelAngularSpeed",
+      "min": -200,
+      "max": 200,
+      "default": 10
+    },
+    {
+      "name": "wheelRadius",
+      "min": 0.01,
+      "max": 1,
+      "default": 0.05
+    },
+    {
+      "name": "wheelBase",
+      "min": 0.05,
+      "max": 5,
+      "default": 0.3
+    }
+  ],
+  "outputs": [
+    {
+      "name": "linearVelocity",
+      "unit": "m/s",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "op": "mul",
+            "args": [
+              {
+                "op": "add",
+                "args": [
+                  {
+                    "param": "leftWheelAngularSpeed"
+                  },
+                  {
+                    "param": "rightWheelAngularSpeed"
+                  }
+                ]
+              },
+              {
+                "param": "wheelRadius"
+              }
+            ]
+          },
+          2
+        ]
+      }
+    },
+    {
+      "name": "angularVelocity",
+      "unit": "rad/s",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "op": "mul",
+            "args": [
+              {
+                "op": "sub",
+                "args": [
+                  {
+                    "param": "rightWheelAngularSpeed"
+                  },
+                  {
+                    "param": "leftWheelAngularSpeed"
+                  }
+                ]
+              },
+              {
+                "param": "wheelRadius"
+              }
+            ]
+          },
+          {
+            "param": "wheelBase"
+          }
+        ]
+      }
+    }
+  ],
+  "verification": [
+    {
+      "input": {},
+      "expected": {
+        "linearVelocity": 0.5,
+        "angularVelocity": 0
+      }
+    },
+    {
+      "input": {
+        "leftWheelAngularSpeed": 8,
+        "rightWheelAngularSpeed": 12,
+        "wheelRadius": 0.1,
+        "wheelBase": 0.5
+      },
+      "expected": {
+        "linearVelocity": 1,
+        "angularVelocity": 0.8
+      }
+    },
+    {
+      "input": {
+        "leftWheelAngularSpeed": -10,
+        "rightWheelAngularSpeed": 10,
+        "wheelRadius": 0.05,
+        "wheelBase": 0.4
+      },
+      "expected": {
+        "linearVelocity": 0,
+        "angularVelocity": 2.5
+      }
+    }
+  ],
+  "intendedUse": "educational-only",
+  "hardwareControl": false,
+  "limitations": [
+    "Ideal planar differential-drive kinematics only; wheel slip, tire deformation, actuator dynamics, backlash, encoder quantization and terrain interaction are excluded.",
+    "Inputs use wheel angular speed in rad/s, wheel radius and track width in metres, and outputs use SI units.",
+    "Not a validated robot dynamics model, localization system, collision planner, motor controller or safety-rated control software."
+  ]
+}
