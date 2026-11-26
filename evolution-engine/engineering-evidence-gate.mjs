@@ -1,3 +1,7 @@
+import fs from "node:fs";
+import path from "node:path";
+import crypto from "node:crypto";
+
 const ALLOWED_SOURCE_TYPES = new Set(["datasheet", "standard", "peer-reviewed", "textbook", "reference-implementation", "experimental-dataset", "official-documentation"]);
 const ALLOWED_CHECKS = new Set(["independent-analytic-cross-check", "reference-implementation", "experimental-data", "standards-conformance"]);
 const OPS = new Set(["add", "sub", "mul", "div", "sqrt", "pow", "abs", "min", "max"]);
@@ -35,7 +39,7 @@ function evaluateAst(node, input, depth = 0) {
   }
 }
 
-export function evaluateEngineeringEvidence(candidate) {
+export function evaluateEngineeringEvidence(candidate, { evidenceRoot = process.cwd() } = {}) {
   const blockers = [];
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
     return { status: "blocked", releaseEligible: false, blockers: ["candidate-must-be-an-object"] };
@@ -65,7 +69,25 @@ export function evaluateEngineeringEvidence(candidate) {
         if (url.protocol !== "https:") blockers.push("evidence-url-must-use-https:" + source.id);
       } catch { blockers.push("invalid-evidence-url:" + source.id); }
       if (!validDate(source.accessedAt)) blockers.push("invalid-evidence-access-date:" + source.id);
-      if (!/^[a-f0-9]{64}$/.test(source.documentSha256 || "")) blockers.push("missing-evidence-document-hash:" + source.id);
+      if (!/^[a-f0-9]{64}$/.test(source.documentSha256 || "")) {
+        blockers.push("missing-evidence-document-hash:" + source.id);
+      } else if (typeof source.evidenceFile !== "string" || !source.evidenceFile.trim()) {
+        blockers.push("missing-archived-evidence-document:" + source.id);
+      } else {
+        try {
+          const root = fs.realpathSync(evidenceRoot);
+          const target = path.resolve(root, source.evidenceFile);
+          const actual = fs.realpathSync(target);
+          if (actual !== root && !actual.startsWith(root + path.sep)) {
+            blockers.push("evidence-document-path-escapes-root:" + source.id);
+          } else {
+            const actualHash = crypto.createHash("sha256").update(fs.readFileSync(actual)).digest("hex");
+            if (actualHash !== source.documentSha256) blockers.push("evidence-document-hash-mismatch:" + source.id);
+          }
+        } catch {
+          blockers.push("evidence-document-unavailable:" + source.id);
+        }
+      }
     }
   }
 
