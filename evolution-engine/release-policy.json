@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "mode": "review-gated-autonomous-development",
+  "automaticRepositoryWrites": false,
+  "automaticMerge": false,
+  "automaticProductionDeployment": false,
+  "allowedAutonomousStages": [
+    "inspect-version-controlled-capability-registry",
+    "run-deterministic-gap-audit",
+    "rank-findings",
+    "prepare-improvement-work-items",
+    "run-existing-tests"
+  ],
+  "approvalRequiredStages": [
+    "generate-or-modify-source-code",
+    "install-or-update-dependencies",
+    "change-engineering-models-or-safety-rules",
+    "modify-workflows-or-permissions",
+    "merge-pull-request",
+    "publish-production-release"
+  ],
+  "requiredGates": [
+    "unit-and-integration-tests",
+    "production-build",
+    "browser-end-to-end-audit",
+    "dependency-and-secret-audit",
+    "license-and-provenance-review",
+    "rollback-reference"
+  ]
+}
