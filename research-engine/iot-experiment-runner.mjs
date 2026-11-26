@@ -1,13 +1,14 @@
-import crypto from "node:crypto";
 import {createHypothesisRecord,createExperimentRecord,createResultRecord,assertResearchReferences} from "./records.mjs";
-const hash=v=>"sha256:"+crypto.createHash("sha256").update(JSON.stringify(v)).digest("hex");
-export function runTelemetrySchemaValidation(input={}){
+const hash=async v=>{const bytes=new TextEncoder().encode(JSON.stringify(v));const digest=await globalThis.crypto.subtle.digest("SHA-256",bytes);return "sha256:"+Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");};
+export async function runTelemetrySchemaValidation(input={}){
  const sample=input.sample??{voltage:5.1,current:1.2,temperature:31.5,timestamp:"2026-11-25T16:00:00Z"};
  const limits={voltage:[-100,1000],current:[0,1000],temperature:[-100,1000]};
  for(const key of Object.keys(limits)){const v=sample[key],[min,max]=limits[key];if(typeof v!=="number"||!Number.isFinite(v)||v<min||v>max)throw new RangeError(key+" must be a finite JSON number between "+min+" and "+max)}
  if(typeof sample.timestamp!=="string"||!Number.isFinite(Date.parse(sample.timestamp)))throw new TypeError("timestamp must be a valid date/time string");
  const normalized={voltage:sample.voltage,current:sample.current,temperature:sample.temperature,timestamp:new Date(sample.timestamp).toISOString()};
- const createdAt=input.createdAt??"2026-11-25T16:00:00Z";
+ const sourceClass=input.sourceClass??"synthetic-test-fixture";
+ if(!["synthetic-test-fixture","synthetic-local-stream","unverified-mqtt-payload"].includes(sourceClass))throw new TypeError("sourceClass is not an allowed telemetry provenance label");
+ const createdAt=input.createdAt??normalized.timestamp;
  const hypothesis=createHypothesisRecord({schemaVersion:1,recordType:"hypothesis",id:"hypothesis:iot-telemetry-schema-v1",
   title:"Telemetry schema rejects invalid numeric sensor readings and canonicalizes timestamps",
   statement:"A telemetry message containing finite numeric voltage, current and temperature values within configured demonstration bounds and a parseable timestamp is normalized deterministically; invalid types, ranges or timestamps are rejected.",
@@ -23,8 +24,8 @@ export function runTelemetrySchemaValidation(input={}){
   parameters:{voltage:{value:normalized.voltage,unit:"V"},current:{value:normalized.current,unit:"A"},temperature:{value:normalized.temperature,unit:"degC"}},
   assumptions:hypothesis.assumptions,safetyClass:"low-risk-software",createdAt});
  const result=createResultRecord({schemaVersion:1,recordType:"result",id:"result:iot-telemetry-schema-v1",experimentId:experiment.id,
-  status:"pass",startedAt:createdAt,finishedAt:createdAt,inputHash:hash(normalized),toolVersion:"iot-telemetry-validator@1.0.0",
-  outputs:{normalized,sourceClass:"synthetic-test-fixture",limits:{voltage_V:limits.voltage,current_A:limits.current,temperature_C:limits.temperature}},
+  status:"pass",startedAt:createdAt,finishedAt:createdAt,inputHash:await hash({normalized,sourceClass}),toolVersion:"iot-telemetry-validator@1.0.0",
+  outputs:{normalized,sourceClass,limits:{voltage_V:limits.voltage,current_A:limits.current,temperature_C:limits.temperature}},
   notes:"Validates software schema and canonicalization only; does not attest to physical sensor origin or calibration."});
  const records=[hypothesis,experiment,result];assertResearchReferences(records);
  return {hypothesis,experiment,result,records};
