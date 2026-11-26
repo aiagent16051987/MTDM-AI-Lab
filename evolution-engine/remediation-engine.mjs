@@ -1,13 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const ALLOWED_PREFIXES = ["scripts/", "evolution-engine/"];
+const ALLOWED_PREFIXES = ["scripts/", "evolution-engine/", "research-engine/"];
+const ALLOWED_ROOT_FILES = new Set([
+  "app.js", "advanced-labs.js", "robotics-core.js", "nano-core.mjs",
+  "printing-core.mjs", "printing-lab.js", "research-labs.js",
+  "research-next.js", "visual-circuit.js", "navigation.js"
+]);
 const PROTECTED = /^(\.github\/|package(?:-lock)?\.json$|capabilities\.json$|evolution-engine\/release-policy\.json$)/;
 
 function resolveTarget(root, relative) {
   if (typeof relative !== "string" || !relative || relative.includes("\\") ||
       path.isAbsolute(relative) || relative.split("/").some(part => !part || part === "." || part === "..") ||
-      PROTECTED.test(relative) || !ALLOWED_PREFIXES.some(prefix => relative.startsWith(prefix))) {
+      PROTECTED.test(relative) || !(ALLOWED_ROOT_FILES.has(relative) || ALLOWED_PREFIXES.some(prefix => relative.startsWith(prefix)))) {
     throw new Error("Remediation target is outside the permitted source allowlist: " + String(relative));
   }
   const rootReal = fs.realpathSync(root);
