@@ -98,6 +98,7 @@ C1 out 0 1u
           <div class="chart-wrap compact"><canvas id="sensorChart" aria-label="Temperature telemetry history chart"></canvas></div>
           <div class="iot-thresholds"><strong>Alert thresholds</strong><label>Voltage high (V)<input id="voltageLimit" type="number" min="0.1" max="1000" step="0.1" value="5.8"></label><label>Current high (A)<input id="currentLimit" type="number" min="0.01" max="1000" step="0.1" value="2.0"></label><label>Temperature high (°C)<input id="temperatureLimit" type="number" min="-50" max="500" step="1" value="45"></label></div>
           <div id="sensorAlert" class="iot-alert" role="status">No threshold alerts.</div>
+          <div class="button-row"><button id="validateTelemetry" class="subtle-btn" disabled>Validate latest sample</button><span id="telemetryEvidenceStatus" class="status" role="status">NO EVIDENCE</span></div>
           <div class="button-row"><button id="exportTelemetry" class="subtle-btn" disabled>Export CSV</button><button id="clearTelemetry" class="subtle-btn">Clear history</button></div>
           <pre id="mqttLog" class="log">Waiting for local stream or MQTT messages…</pre>
         </div>
@@ -133,6 +134,7 @@ C1 out 0 1u
         <div class="panel-head"><strong>HOLDOUT EVALUATION</strong><span id="aiEvalStatus" class="status">NOT EVALUATED</span></div>
         <div class="ai-metrics"><div><small>TEST ACCURACY</small><b id="aiAccuracy">—</b></div><div><small>MACRO PRECISION</small><b id="aiPrecision">—</b></div><div><small>MACRO RECALL</small><b id="aiRecall">—</b></div><div><small>MACRO F1</small><b id="aiF1">—</b></div></div>
         <div id="aiConfusion" class="ai-confusion">Train the model to generate a holdout confusion matrix.</div>
+        <p id="aiEvidenceStatus" class="hint" role="status">No evidence record yet. Train the model to validate actual holdout predictions.</p>
         <p class="hint">Rows = actual class · columns = predicted class. Metrics are computed only on the held-out synthetic test set.</p>
       </div>
       <div class="notice"><b>Scientific limitation</b><span>This is a reproducible ML teaching exercise using artificial labels and simulated sensor values. Holdout scores measure agreement with those synthetic rules only—not real equipment fault detection. Real deployment requires representative measured datasets, leakage checks, calibration, drift monitoring, independent validation and safety engineering.</span></div>
@@ -159,7 +161,7 @@ C1 out 0 1u
         <div class="panel-head"><strong>QUANTUM CIRCUIT WORKBENCH</strong><span class="status">1 QUBIT · PURE STATE</span></div>
         <div class="gate-row">
           <button class="subtle-btn" data-gate="H">H</button><button class="subtle-btn" data-gate="X">X</button><button class="subtle-btn" data-gate="Y">Y</button><button class="subtle-btn" data-gate="Z">Z</button><button class="subtle-btn" data-gate="S">S</button><button class="subtle-btn" data-gate="T">T</button>
-          <button id="quantumReset" class="subtle-btn">Reset</button><button id="quantumMeasure" class="primary-btn">Measure</button>
+          <button id="quantumReset" class="subtle-btn">Reset</button><button id="quantumMeasure" class="primary-btn">Measure</button><button id="quantumValidate" class="subtle-btn">Validate gate sequence</button>
         </div>
         <div class="quantum-state" id="quantumState">|ψ⟩ = |0⟩</div>
         <div class="metrics quantum-metrics"><div><small>P(0)</small><b id="quantumP0">100%</b></div><div><small>P(1)</small><b id="quantumP1">0%</b></div></div>
@@ -175,9 +177,15 @@ C1 out 0 1u
         <div class="panel-head"><strong>PARTICLE SIMULATION</strong><span id="nanoStatus" class="status">READY</span></div>
         <canvas id="nanoCanvas" class="lab-canvas nano-canvas" aria-label="2D molecular dynamics particle simulation"></canvas>
         <div class="button-row"><button id="nanoStart" class="primary-btn">Run dynamics</button><button id="nanoStop" class="subtle-btn">Pause</button><button id="nanoReset" class="subtle-btn">Reset particles</button></div>
-        <p id="nanoCount" class="hint">36 particles · reduced Lennard-Jones units</p>
+        <p id="nanoCount" class="hint">36 particles · seeded 2D Lennard-Jones · reduced units</p>
+        <div class="metrics">
+          <div><small>KINETIC ENERGY</small><b id="nanoKinetic">—</b></div>
+          <div><small>POTENTIAL ENERGY</small><b id="nanoPotential">—</b></div>
+          <div><small>TOTAL ENERGY</small><b id="nanoTotal">—</b></div>
+          <div><small>REDUCED T (2D)</small><b id="nanoTemperature">—</b></div>
+        </div>
       </div>
-      <div class="notice"><b>Scientific limitation</b><span>Educational 2D classical Lennard-Jones toy model with reduced units and reflecting boundaries. It is not quantum chemistry, atomistic material validation, molecular biology or a nanorobot simulator. Research work needs validated potentials, ensembles, boundary conditions and convergence checks.</span></div>
+      <div class="notice"><b>Scientific limitation</b><span>Educational 2D classical Lennard-Jones model with seeded initial conditions, velocity-Verlet integration, shifted pair potential and reflecting walls. Energies and temperature are in reduced Lennard-Jones units; this is not a calibrated physical temperature or material model. It is not quantum chemistry, atomistic material validation, molecular biology or a nanorobot simulator. Research use requires validated potentials, ensembles, boundary conditions, finite-size and timestep convergence studies.</span></div>
       <div class="resource-row"><a href="https://www.lammps.org/" target="_blank" rel="noreferrer">LAMMPS molecular dynamics ↗</a></div>
     </section>
 

@@ -1,4 +1,6 @@
 import { simulate } from "@spice-ts/core";
+import {runClassificationMetricsValidation} from "./research-engine/ai-experiment-runner.mjs";
+import {runTelemetrySchemaValidation} from "./research-engine/iot-experiment-runner.mjs";
 const $=id=>document.getElementById(id);
 const examples={
  divider:{title:"Voltage divider · DC operating point",guide:"A 12 V source feeds two series resistors (20 kΩ and 10 kΩ). The output is measured across the lower resistor. Ideal theory: Vout = Vin × R2/(R1+R2) = 4 V.",netlist:`* Voltage divider: theoretical V(out) = 4 V
@@ -121,8 +123,9 @@ function updateSensor(raw,source="local"){
  const points=history.slice(-100).map((p,i)=>({x:i,y:p.temperature}));
  if(points.length>1)plot($("sensorChart"),points);
  $("sensorStatus").textContent=source==="mqtt"?"MQTT DATA":"LOCAL STREAM";
- $("exportTelemetry").disabled=false;alertTelemetry(d);
+ $("exportTelemetry").disabled=false;$("validateTelemetry").disabled=false;alertTelemetry(d);
 }
+$("validateTelemetry").onclick=async()=>{const latest=history.at(-1);if(!latest){$("telemetryEvidenceStatus").textContent="NO SAMPLE";return}const button=$("validateTelemetry");button.disabled=true;$("telemetryEvidenceStatus").textContent="VALIDATING";try{const evidence=await runTelemetrySchemaValidation({sample:{voltage:latest.voltage,current:latest.current,temperature:latest.temperature,timestamp:latest.timestamp},sourceClass:latest.source==="mqtt"?"unverified-mqtt-payload":"synthetic-local-stream"});$("telemetryEvidenceStatus").textContent="EVIDENCE PASS · "+evidence.result.outputs.sourceClass+" · "+evidence.result.inputHash.slice(0,19);$("mqttLog").textContent="Research evidence record created for latest sample. Source: "+evidence.result.outputs.sourceClass+"\nInput digest: "+evidence.result.inputHash+"\nSchema validation only; no device identity or calibration claim.\n\n"+$("mqttLog").textContent;}catch(e){$("telemetryEvidenceStatus").textContent="EVIDENCE ERROR · "+e.message}finally{button.disabled=false}};
 function connectMqtt(){
  const url=$("brokerUrl").value.trim(),topic=$("mqttTopic").value.trim();
  if(!/^wss:\/\//i.test(url))throw Error("Use a secure WSS:// broker URL.");
@@ -238,12 +241,14 @@ $("trainModel").onclick=async()=>{
   pred=model.predict(test);const probs=Array.from(pred.dataSync()),predicted=[];
   for(let i=0;i<data.testY.length;i++){const row=probs.slice(i*3,i*3+3);predicted.push(row.indexOf(Math.max(...row)))}
   const m=scoreClassifier(data.testY,predicted);
+  const aiEvidence=await runClassificationMetricsValidation({actual:data.testY,predicted,classes:3,createdAt:new Date().toISOString()});
+  $("aiEvidenceStatus").textContent="EVIDENCE PASS · "+aiEvidence.result.inputHash.slice(0,19);
   $("aiAccuracy").textContent=(m.accuracy*100).toFixed(1)+"%";$("aiPrecision").textContent=(m.precision*100).toFixed(1)+"%";$("aiRecall").textContent=(m.recall*100).toFixed(1)+"%";$("aiF1").textContent=m.f1.toFixed(3);
   $("aiConfusion").innerHTML="<table><thead><tr><th>Actual ↓ / Predicted →</th><th>Normal</th><th>Warning</th><th>Critical</th></tr></thead><tbody>"+m.matrix.map((row,i)=>"<tr><th>"+["Normal","Warning","Critical"][i]+"</th>"+row.map(n=>"<td>"+n+"</td>").join("")+"</tr>").join("")+"</tbody></table>";
   $("aiEvalStatus").textContent="HOLDOUT COMPLETE";status.textContent="TRAINED";
   log.textContent+="\n\nHoldout test: "+data.testY.length+" samples\nAccuracy: "+(m.accuracy*100).toFixed(1)+"% · Macro F1: "+m.f1.toFixed(3)+"\nDataset seed: 20261123 · Synthetic labels only.";
   $("classify").disabled=false;
- }catch(e){status.textContent="ERROR";$("aiEvalStatus").textContent="NOT EVALUATED";log.textContent=e.message}
+ }catch(e){status.textContent="ERROR";$("aiEvalStatus").textContent="NOT EVALUATED";$("aiEvidenceStatus").textContent="EVIDENCE ERROR · "+e.message;log.textContent=e.message}
  finally{tx?.dispose();ty?.dispose();test?.dispose();pred?.dispose();button.disabled=false}
 };
 $("classify").onclick=()=>{

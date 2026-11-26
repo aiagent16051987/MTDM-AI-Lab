@@ -20,7 +20,8 @@
       ],
       "limitations": [
         "Bounded SPICE subset; not a complete EDA suite or hardware certification.",
-        "Browser execution depends on the production bundle resolving the SPICE dependency."
+        "Browser execution depends on the production bundle resolving the SPICE dependency.",
+        "Research bridge validates a bounded ideal DC voltage-divider fixture against an independent analytical equation, not a physical circuit."
       ]
     },
     {
@@ -29,14 +30,17 @@
       "status": "experimental",
       "publicWorkspace": true,
       "implementation": [
-        "app.js"
+        "app.js",
+        "research-engine/iot-experiment-runner.mjs"
       ],
       "evidence": [
         "scripts/iot-smoke-test.js",
-        "tests/e2e/workspaces.spec.js"
+        "tests/e2e/workspaces.spec.js",
+        "scripts/research-iot-test.mjs"
       ],
       "limitations": [
-        "Synthetic local telemetry and optional public MQTT demonstration; not a production IoT backend or safety controller."
+        "Synthetic local telemetry and optional public MQTT demonstration; not a production IoT backend or safety controller.",
+        "Research evidence can be created from the latest local stream or MQTT payload with explicit source labels; it does not authenticate devices or calibrate sensors."
       ]
     },
     {
@@ -45,14 +49,17 @@
       "status": "experimental",
       "publicWorkspace": true,
       "implementation": [
-        "app.js"
+        "app.js",
+        "research-engine/ai-experiment-runner.mjs"
       ],
       "evidence": [
         "scripts/ai-smoke-test.js",
-        "tests/e2e/workspaces.spec.js"
+        "tests/e2e/workspaces.spec.js",
+        "scripts/research-ai-test.mjs"
       ],
       "limitations": [
-        "Synthetic sensor dataset only; no evidence of real-world predictive performance or calibrated safety probabilities."
+        "Synthetic sensor dataset only; no evidence of real-world predictive performance or calibrated safety probabilities.",
+        "Research evidence is generated from the model's actual synthetic holdout predictions; it still does not validate real-world generalization or calibration."
       ]
     },
     {
@@ -71,7 +78,8 @@
         "scripts/research-experiment-test.mjs"
       ],
       "limitations": [
-        "Planar kinematics and grid planning; no validated motor dynamics, wheel slip, ROS integration or safety-rated control."
+        "Planar kinematics and grid planning; no validated motor dynamics, wheel slip, ROS integration or safety-rated control.",
+        "Research bridge validates an ideal differential-drive kinematic invariant only; it does not validate physical robot dynamics or safety."
       ]
     },
     {
@@ -81,14 +89,17 @@
       "publicWorkspace": true,
       "implementation": [
         "advanced-labs.js",
-        "research-next.js"
+        "research-next.js",
+        "research-engine/quantum-experiment-runner.mjs"
       ],
       "evidence": [
         "scripts/advanced-research-test.js",
+        "scripts/research-quantum-test.mjs",
         "tests/e2e/workspaces.spec.js"
       ],
       "limitations": [
-        "Small state-vector demonstrations; not a fault-tolerant quantum computer simulator or hardware interface."
+        "Small state-vector demonstrations; not a fault-tolerant quantum computer simulator or hardware interface.",
+        "Research bridge validates ideal one-qubit unitary normalization and Bloch-vector invariants only; it does not model hardware noise, decoherence, entanglement, scalable circuits or quantum advantage."
       ]
     },
     {
@@ -97,13 +108,19 @@
       "status": "experimental",
       "publicWorkspace": true,
       "implementation": [
-        "advanced-labs.js"
+        "advanced-labs.js",
+        "nano-core.mjs",
+        "research-engine/nano-experiment-runner.mjs"
       ],
       "evidence": [
-        "tests/e2e/workspaces.spec.js"
+        "scripts/nano-core-test.mjs",
+        "tests/e2e/workspaces.spec.js",
+        "scripts/research-nano-test.mjs"
       ],
       "limitations": [
-        "Reduced 2D Lennard-Jones model; no validated material-specific molecular dynamics or research-grade thermodynamics."
+        "Seeded two-dimensional Lennard-Jones model with velocity-Verlet integration, shifted pair potential and reflecting boundaries; all quantities use reduced units.",
+        "Not validated material-specific molecular dynamics, quantum chemistry, biological nanorobotics or research-grade thermodynamics; physical use requires validated potentials and convergence studies.",
+        "Internal research bridge checks pair-force symmetry and momentum conservation for a bounded seeded 2D reduced-unit fixture; it is not a validated material model."
       ]
     },
     {
@@ -113,17 +130,20 @@
       "publicWorkspace": true,
       "implementation": [
         "printing-lab.js",
-        "printing-core.mjs"
+        "printing-core.mjs",
+        "research-engine/printing-experiment-runner.mjs"
       ],
       "evidence": [
         "scripts/printing-core-test.mjs",
         "scripts/printing-smoke-test.js",
-        "tests/e2e/workspaces.spec.js"
+        "tests/e2e/workspaces.spec.js",
+        "scripts/research-printing-test.mjs"
       ],
       "limitations": [
         "Dimension-aware idealized cube, elliptical-cylinder and L-bracket envelope calculations; no imported CAD mesh, watertightness validation or true slicer toolpath.",
         "FDM/pellet material and throughput use simplified shell, bead-width and layer-height assumptions; other process throughput defaults are illustrative, not machine-validated. Bioprinting is research overview only and is excluded from estimation.",
-        "Not CAD, production slicing, G-code generation, machine control, certified process planning or a supplier quotation."
+        "Not CAD, production slicing, G-code generation, machine control, certified process planning or a supplier quotation.",
+        "Research bridge records deterministic dimension-based estimator outputs with user-supplied process assumptions; it is not CAD mesh validation, slicing or machine calibration."
       ]
     },
     {

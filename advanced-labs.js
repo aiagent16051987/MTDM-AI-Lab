@@ -3,6 +3,7 @@ const log = (id, value) => { const el = $(id); if (el) el.textContent = value; }
 
 // ---------------- Robotics: differential-drive navigation ----------------
 import { planGridPath, stepDiffDrive, wrapAngle } from "./robotics-core.js";
+import {runQuantumUnitaryValidation} from "./research-engine/quantum-experiment-runner.mjs";
 (() => {
   const canvas=$("robotCanvas"); if(!canvas)return;
   const ctx=canvas.getContext("2d");
@@ -91,7 +92,7 @@ import { planGridPath, stepDiffDrive, wrapAngle } from "./robotics-core.js";
 (() => {
   const out = $("quantumState");
   if (!out) return;
-  let a=[1,0], b=[0,0]; // complex amplitudes alpha and beta
+  let a=[1,0], b=[0,0], gateHistory=[]; // complex amplitudes alpha and beta
   const c=(r,i=0)=>[r,i];
   const add=(x,y)=>[x[0]+y[0],x[1]+y[1]];
   const mul=(x,y)=>[x[0]*y[0]-x[1]*y[1],x[0]*y[1]+x[1]*y[0]];
@@ -115,8 +116,9 @@ import { planGridPath, stepDiffDrive, wrapAngle } from "./robotics-core.js";
     S:[[c(1),c(0)],[c(0),c(0,1)]],
     T:[[c(1),c(0)],[c(0),c(Math.SQRT1_2,Math.SQRT1_2)]]
   };
-  document.querySelectorAll("[data-gate]").forEach(btn=>btn.onclick=()=>apply(gates[btn.dataset.gate]));
-  $("quantumReset").onclick=()=>{a=[1,0];b=[0,0];render();log("quantumLog","State reset to |0⟩.")};
+  document.querySelectorAll("[data-gate]").forEach(btn=>btn.onclick=()=>{gateHistory.push(btn.dataset.gate);apply(gates[btn.dataset.gate]);});
+  $("quantumReset").onclick=()=>{a=[1,0];b=[0,0];gateHistory=[];render();log("quantumLog","State reset to |0⟩. Gate history cleared.")};
+  $("quantumValidate").onclick=async()=>{try{const evidence=await runQuantumUnitaryValidation({gates:gateHistory.length?gateHistory:["H"]});const o=evidence.result.outputs;log("quantumLog","RESEARCH VALIDATION · "+evidence.result.status.toUpperCase()+" · P sum "+o.probabilities.sum.toFixed(12)+" · Bloch norm "+o.blochNorm.toFixed(12)+" · "+evidence.result.inputHash);}catch(error){log("quantumLog","VALIDATION ERROR · "+error.message)}};
   $("quantumMeasure").onclick=()=>{
     const p1=b[0]**2+b[1]**2, result=Math.random()<p1?1:0;
     a=result===0?[1,0]:[0,0];b=result===1?[1,0]:[0,0];render();
@@ -125,45 +127,44 @@ import { planGridPath, stepDiffDrive, wrapAngle } from "./robotics-core.js";
   render();
 })();
 
-// ---------------- Nano: educational 2D Lennard-Jones molecular dynamics ----------------
+// ---------------- Nano: deterministic educational 2D Lennard-Jones dynamics ----------------
+import {calculateNanoObservables,createNanoLattice,integrateNanoStep} from "./nano-core.mjs";
 (() => {
   const canvas=$("nanoCanvas"); if(!canvas)return;
   const ctx=canvas.getContext("2d");
-  let particles=[],running=false,last=0;
-  const N=36, dt=0.0015, epsilon=1, sigma=1, cutoff=2.5;
-  const init=()=>{
-    particles=[];
-    const side=6;
-    for(let i=0;i<N;i++){const x=(i%side+0.5)*1.35+0.5,y=(Math.floor(i/side)+0.5)*1.35+0.5;particles.push({x,y,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,fx:0,fy:0})}
-    forces(); draw();
-  };
-  const forces=()=>{
-    particles.forEach(p=>{p.fx=0;p.fy=0});
-    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
-      const p=particles[i],q=particles[j],dx=q.x-p.x,dy=q.y-p.y,r2=dx*dx+dy*dy;
-      if(r2<0.04||r2>cutoff*cutoff)continue;
-      const sr2=sigma*sigma/r2,sr6=sr2*sr2*sr2;
-      const f=24*epsilon*sr6*(2*sr6-1)/r2;
-      const fx=f*dx,fy=f*dy;p.fx-=fx;p.fy-=fy;q.fx+=fx;q.fy+=fy;
-    }
-  };
-  const integrate=()=>{
-    particles.forEach(p=>{p.vx+=.5*p.fx*dt;p.vy+=.5*p.fy*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;
-      if(p.x<0.2||p.x>9.8){p.vx*=-1;p.x=Math.max(.2,Math.min(9.8,p.x))}
-      if(p.y<0.2||p.y>9.8){p.vy*=-1;p.y=Math.max(.2,Math.min(9.8,p.y))}
-    });
-    forces();particles.forEach(p=>{p.vx+=.5*p.fx*dt;p.vy+=.5*p.fy*dt});
-  };
+  const dt=0.0015,model={epsilon:1,sigma:1,cutoff:2.5};
+  let particles=createNanoLattice({seed:20261125}),running=false,last=0;
   const draw=()=>{
-    const w=canvas.width=canvas.clientWidth*devicePixelRatio,h=canvas.height=canvas.clientHeight*devicePixelRatio;
+    const dpr=window.devicePixelRatio||1,w=Math.max(1,Math.round(canvas.clientWidth*dpr)),h=Math.max(1,Math.round(canvas.clientHeight*dpr));
+    if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
     ctx.clearRect(0,0,w,h);ctx.fillStyle="#091321";ctx.fillRect(0,0,w,h);
     const sc=Math.min(w,h)/10;
     particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x*sc,p.y*sc,Math.max(2,sc*.075),0,Math.PI*2);ctx.fillStyle="#5eead4";ctx.fill()});
-    $("nanoCount").textContent=particles.length+" particles · reduced Lennard-Jones units";
+    const o=calculateNanoObservables(particles,model);
+    $("nanoCount").textContent=o.particleCount+" particles · seeded 2D Lennard-Jones · reduced units";
+    $("nanoKinetic").textContent=o.kineticEnergy.toFixed(4);
+    $("nanoPotential").textContent=o.potentialEnergy.toFixed(4);
+    $("nanoTotal").textContent=o.totalEnergy.toFixed(4);
+    $("nanoTemperature").textContent=o.temperature2D.toFixed(4);
   };
-  const frame=now=>{if(!running)return;const elapsed=Math.min((now-last)/1000,.04);last=now;const steps=Math.max(1,Math.min(25,Math.ceil(elapsed/(dt*8))));for(let i=0;i<steps;i++)integrate();draw();requestAnimationFrame(frame)};
-  $("nanoStart").onclick=()=>{if(running)return;running=true;last=performance.now();requestAnimationFrame(frame);log("nanoStatus","RUNNING · 2D toy molecular-dynamics model")};
-  $("nanoStop").onclick=()=>{running=false;log("nanoStatus","PAUSED")};
-  $("nanoReset").onclick=()=>{running=false;init();log("nanoStatus","RESET · initial particle lattice")};
-  init();
+  const frame=now=>{
+    if(!running)return;
+    const elapsed=Math.min(Math.max(0,(now-last)/1000),.04);last=now;
+    const steps=Math.max(1,Math.min(25,Math.ceil(elapsed/(dt*8))));
+    for(let i=0;i<steps;i++)particles=integrateNanoStep(particles,dt,model);
+    draw();requestAnimationFrame(frame);
+  };
+  $("nanoStart").onclick=()=>{
+    if(running)return;
+    running=true;last=performance.now();
+    log("nanoStatus","RUNNING · deterministic 2D velocity-Verlet model");
+    requestAnimationFrame(frame);
+  };
+  $("nanoStop").onclick=()=>{running=false;log("nanoStatus","PAUSED · state retained")};
+  $("nanoReset").onclick=()=>{
+    running=false;particles=createNanoLattice({seed:20261125});draw();
+    log("nanoStatus","RESET · reproducible seeded initial state");
+  };
+  window.addEventListener("pagehide",()=>{running=false});
+  draw();
 })();

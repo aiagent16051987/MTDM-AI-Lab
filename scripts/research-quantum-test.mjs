@@ -1,0 +1,18 @@
+import assert from "node:assert/strict";
+import {runQuantumUnitaryValidation} from "../research-engine/quantum-experiment-runner.mjs";
+const hh=await runQuantumUnitaryValidation({gates:["H","H"]});
+assert.equal(hh.result.status,"pass");
+assert.ok(Math.abs(hh.result.outputs.probabilities.p0-1)<1e-12);
+assert.ok(Math.abs(hh.result.outputs.probabilities.p1)<1e-12);
+assert.equal(hh.result.inputHash,(await runQuantumUnitaryValidation({gates:["H","H"]})).result.inputHash);
+const x=await runQuantumUnitaryValidation({initial:"0",gates:["X"]});
+assert.ok(Math.abs(x.result.outputs.probabilities.p1-1)<1e-12);
+const y=await runQuantumUnitaryValidation({initial:"0",gates:["H","S"]});
+assert.ok(Math.abs(y.result.outputs.blochNorm-1)<1e-12);
+assert.equal(y.result.status,"pass");
+await assert.rejects(()=>runQuantumUnitaryValidation({gates:[]}),/sequence/);
+await assert.rejects(()=>runQuantumUnitaryValidation({gates:["CNOT"]}),/sequence/);
+await assert.rejects(()=>runQuantumUnitaryValidation({gates:["H"],tolerance:0}),/finite and between/);
+await assert.rejects(()=>runQuantumUnitaryValidation({initial:"2"}),/basis state/);
+assert.equal(hh.records.length,3);
+console.log("Research-to-quantum bridge passed: deterministic unitary gate sequence, normalization, measurement probability sum, pure-state Bloch invariant, provenance hash and input rejection.");

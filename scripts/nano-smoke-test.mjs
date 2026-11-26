@@ -1,0 +1,11 @@
+import fs from "node:fs";
+import assert from "node:assert/strict";
+const html=fs.readFileSync(new URL("../index.html",import.meta.url),"utf8");
+const ui=fs.readFileSync(new URL("../advanced-labs.js",import.meta.url),"utf8");
+const core=fs.readFileSync(new URL("../nano-core.mjs",import.meta.url),"utf8");
+for(const id of ["nanoCanvas","nanoStart","nanoStop","nanoReset","nanoKinetic","nanoPotential","nanoTotal","nanoTemperature"])assert(html.includes('id="'+id+'"'),"missing Nano UI element "+id);
+for(const token of ["createNanoLattice","integrateNanoStep","calculateNanoObservables","velocity-Verlet","seed:20261125"])assert(ui.includes(token),"missing Nano runtime feature "+token);
+for(const token of ["lennardJonesPair","calculateLennardJonesForces","calculateNanoObservables","createNanoLattice","integrateNanoStep"])assert(core.includes("function "+token),"missing Nano core API "+token);
+assert(ui.includes('window.addEventListener("pagehide"'),"animation loop must stop on page exit");
+assert(html.includes("reduced Lennard-Jones units")&&html.includes("not a calibrated physical temperature"),"reduced-unit scientific limitation must be disclosed");
+console.log("Nano workspace smoke tests passed: deterministic core wiring, energy observables, reproducible reset, bounded simulation and scientific disclosure.");
