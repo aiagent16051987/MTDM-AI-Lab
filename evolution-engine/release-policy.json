@@ -9,15 +9,18 @@
     "run-deterministic-gap-audit",
     "rank-findings",
     "prepare-improvement-work-items",
-    "run-existing-tests"
+    "run-existing-tests",
+    "execute-reviewed-exact-match-remediation-recipes",
+    "run-full-tests-and-production-build",
+    "open-review-only-pull-request-for-validated-repairs"
   ],
   "approvalRequiredStages": [
-    "generate-or-modify-source-code",
     "install-or-update-dependencies",
     "change-engineering-models-or-safety-rules",
     "modify-workflows-or-permissions",
     "merge-pull-request",
-    "publish-production-release"
+    "publish-production-release",
+    "author-or-enable-remediation-recipes"
   ],
   "requiredGates": [
     "unit-and-integration-tests",
@@ -26,5 +29,24 @@
     "dependency-and-secret-audit",
     "license-and-provenance-review",
     "rollback-reference"
-  ]
+  ],
+  "remediationConstraints": {
+    "exactMatchPrecondition": true,
+    "maxRecipesPerRun": 1,
+    "permittedPathPrefixes": [
+      "scripts/",
+      "evolution-engine/"
+    ],
+    "protectedPaths": [
+      ".github/",
+      "package.json",
+      "package-lock.json",
+      "capabilities.json",
+      "evolution-engine/release-policy.json"
+    ],
+    "rollbackOnAnyValidationFailure": true,
+    "automaticPullRequest": true,
+    "automaticMerge": false,
+    "productionDeployment": false
+  }
 }
