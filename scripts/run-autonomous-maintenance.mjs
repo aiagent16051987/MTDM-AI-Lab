@@ -111,12 +111,18 @@ try {
     blockers: item.result.blockers
   }));
   const blockedEnabledSpecs = existingEvidence.filter(item => item.enabled && !item.result.releaseEligible);
+  const blockedCandidates = existingEvidence.filter(item => item.result.blockers.length > 0);
   if (blockedEnabledSpecs.length) {
     report.evidenceGate.status = "blocked-existing-enabled-specifications";
     report.evidenceGate.blocked += blockedEnabledSpecs.length;
     report.codeGeneration.status = "withheld-evidence-incomplete";
     compiled = [];
+  } else if (blockedCandidates.length) {
+    report.evidenceGate.status = "blocked-candidates-withheld";
+    report.codeGeneration.status = "no-model-compiled-evidence-incomplete";
+    compiled = [];
   } else {
+    report.evidenceGate.status = "evidence-complete-pending-human-approval";
     compiled = compileEnabledSpecs({
       specsDirectory,
       outputDirectory: generatedDir
