@@ -53,7 +53,18 @@ try {
     outputDirectory: generatedDir
   });
   report.codeGeneration.compiled = compiled.map(item => ({ id: item.id, model: path.relative(root, item.modelPath), test: path.relative(root, item.testPath) }));
-  if (compiled.length) report.codeGeneration.status = "compiled-pending-validation";
+  if (compiled.length) {
+    report.codeGeneration.status = "compiled-pending-validation";
+    for (const item of compiled) {
+      const result = spawnSync(process.execPath, [item.testPath], { cwd: root, encoding: "utf8", maxBuffer: 4 * 1024 * 1024 });
+      if (result.status !== 0) {
+        rollbackAll();
+        report.codeGeneration.status = "rolled-back-generated-test-failed";
+        throw new Error("Generated model verification failed: " + item.id + "\\n" + (result.stdout || "") + "\\n" + (result.stderr || ""));
+      }
+    }
+    report.codeGeneration.status = "generated-tests-passed";
+  }
 
   transaction = applyRemediationRecipes({ root, findings: audit.findings, catalog });
   report.remediation.applied = transaction.applied;
@@ -73,7 +84,7 @@ try {
     throw new Error("Post-maintenance capability audit is blocked; automated edits were rolled back.");
   }
 
-  if (compiled.length) report.codeGeneration.status = "generated-and-tested";
+  if (compiled.length) report.codeGeneration.status = "generated-and-validated";
   if (transaction.applied.length) report.remediation.status = "validated";
   if (audit.status === "blocked") throw new Error("Baseline capability audit is blocked; no remediation is eligible for PR creation.");
 
