@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: 22
       - name: Install project dependencies
-        run: npm install --ignore-scripts --no-package-lock
+        run: npm install --ignore-scripts --no-package-lock --fetch-retries=3 --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000
       - name: Run autonomous engineering discovery and validated maintenance
         id: maintenance
         shell: bash
