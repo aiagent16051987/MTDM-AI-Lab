@@ -37,6 +37,8 @@ try {
   const values = imported.calculate();
   assert.equal(values.armatureCurrent, 2);
   assert.equal(values.angularSpeed, 80);
+  assert.equal(imported.modelMetadata.intendedUse, "educational-only");
+  assert.equal(imported.modelMetadata.hardwareControl, false);
   assert.throws(() => imported.calculate({ voltage: 49 }), RangeError);
 
   const malicious = structuredClone(spec);
