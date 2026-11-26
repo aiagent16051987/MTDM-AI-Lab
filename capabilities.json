@@ -40,7 +40,7 @@
       ],
       "limitations": [
         "Synthetic local telemetry and optional public MQTT demonstration; not a production IoT backend or safety controller.",
-        "Research bridge validates bounded synthetic telemetry schema and timestamp normalization only; it does not authenticate or calibrate a physical device."
+        "Research evidence can be created from the latest local stream or MQTT payload with explicit source labels; it does not authenticate devices or calibrate sensors."
       ]
     },
     {
@@ -59,7 +59,7 @@
       ],
       "limitations": [
         "Synthetic sensor dataset only; no evidence of real-world predictive performance or calibrated safety probabilities.",
-        "Research bridge validates confusion-matrix and macro-metric arithmetic on a supplied label fixture; it does not train or validate a real-world model."
+        "Research evidence is generated from the model's actual synthetic holdout predictions; it still does not validate real-world generalization or calibration."
       ]
     },
     {
