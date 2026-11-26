@@ -30,8 +30,8 @@ Each bridge emits a typed hypothesis, experiment and result record, checks refer
 
 ## Current boundaries and remaining gaps
 
-1. IoT remains a local synthetic telemetry demonstration with optional user-consented MQTT publishing. The new bridge validates synthetic telemetry schema only; it has no authenticated device ingestion or hardware-in-the-loop research bridge.
-2. Browser AI evaluation uses a synthetic seeded dataset and local holdout metrics. The new bridge checks confusion-matrix metric arithmetic on a supplied label fixture; it is not a real-world validated model benchmark or evidence of predictive performance.
+1. IoT remains a local synthetic telemetry demonstration with optional user-consented MQTT publishing. The UI can create a provenance-labelled record from the latest local stream or MQTT payload. MQTT is explicitly marked unverified; this does not authenticate devices, calibrate sensors or provide hardware-in-the-loop validation.
+2. Browser AI evaluation uses a synthetic seeded dataset and local holdout metrics. The browser now records confusion-matrix metrics from the model's actual synthetic holdout predictions. This validates metric arithmetic and workflow provenance, not real-world model generalization or predictive performance.
 3. Quantum validation is ideal single-qubit unitary arithmetic only; it does not cover entanglement, density matrices, noise, decoherence or hardware.
 4. Nano validation is a small 2D reduced-unit classical model; it is not material-specific molecular dynamics, quantum chemistry, biological simulation or nanorobotics.
 5. Printing validation records idealized dimension-based estimates; it does not validate CAD meshes, slicing, G-code, machine behaviour or supplier quotes.
@@ -48,7 +48,7 @@ Each bridge emits a typed hypothesis, experiment and result record, checks refer
 
 ## Next engineering priorities
 
-1. Add synthetic AI evaluation as a deterministic, provenance-linked research experiment with a fixed dataset and explicit split/metric definitions.
-2. Add a schema-validated IoT telemetry fixture bridge that distinguishes synthetic samples from authenticated device measurements.
+1. Add real measured, properly licensed and representative datasets to AI evaluation; current evidence covers only the synthetic seeded holdout split and its actual model predictions.
+2. Add opt-in authenticated device ingestion and calibration metadata only after a privacy/security design; current IoT evidence distinguishes synthetic local stream from unverified MQTT payloads.
 3. Expand independent numerical reference tests and convergence/sensitivity analysis where the domain model supports them.
 4. Keep all new bridges behind the shared record contract and capability audit.
