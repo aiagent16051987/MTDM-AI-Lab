@@ -91,22 +91,26 @@ try {
   }
 
   const specsDirectory = path.join(root, "evolution-engine", "generation-specs");
-  const enabledSpecs = fs.readdirSync(specsDirectory).filter(name => name.endsWith(".json")).map(name => ({
+  const allSpecs = fs.readdirSync(specsDirectory).filter(name => name.endsWith(".json")).map(name => ({
     file: name,
     spec: JSON.parse(fs.readFileSync(path.join(specsDirectory, name), "utf8"))
-  })).filter(item => item.spec.enabled === true);
-  const existingEvidence = enabledSpecs.map(item => ({
+  }));
+  const enabledSpecs = allSpecs.filter(item => item.spec.enabled === true);
+  const existingEvidence = allSpecs.map(item => ({
     id: item.spec.id,
     file: item.file,
+    enabled: item.spec.enabled === true,
     result: evaluateEngineeringEvidence(item.spec, { evidenceRoot: root })
   }));
-  report.evidenceGate.existingEnabledSpecs = existingEvidence.map(item => ({
+  report.evidenceGate.existingSpecifications = existingEvidence.map(item => ({
     id: item.id,
+    file: item.file,
+    enabled: item.enabled,
     status: item.result.status,
     releaseEligible: item.result.releaseEligible,
     blockers: item.result.blockers
   }));
-  const blockedEnabledSpecs = existingEvidence.filter(item => !item.result.releaseEligible);
+  const blockedEnabledSpecs = existingEvidence.filter(item => item.enabled && !item.result.releaseEligible);
   if (blockedEnabledSpecs.length) {
     report.evidenceGate.status = "blocked-existing-enabled-specifications";
     report.evidenceGate.blocked += blockedEnabledSpecs.length;
