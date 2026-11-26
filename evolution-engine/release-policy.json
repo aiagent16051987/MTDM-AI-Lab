@@ -12,7 +12,9 @@
     "run-existing-tests",
     "execute-reviewed-exact-match-remediation-recipes",
     "run-full-tests-and-production-build",
-    "open-review-only-pull-request-for-validated-repairs"
+    "open-review-only-pull-request-for-validated-repairs",
+    "compile-approved-declarative-model-specifications",
+    "run-generated-model-verification-tests"
   ],
   "approvalRequiredStages": [
     "install-or-update-dependencies",
@@ -20,7 +22,8 @@
     "modify-workflows-or-permissions",
     "merge-pull-request",
     "publish-production-release",
-    "author-or-enable-remediation-recipes"
+    "author-or-enable-remediation-recipes",
+    "author-or-enable-model-generation-specifications"
   ],
   "requiredGates": [
     "unit-and-integration-tests",
@@ -63,5 +66,28 @@
       "navigation.js"
     ]
   },
-  "automaticPullRequestBranchWrites": true
+  "automaticPullRequestBranchWrites": true,
+  "modelGenerationConstraints": {
+    "sourceFormat": "JSON declarative expression AST; no eval, Function constructor, shell snippets or arbitrary source strings",
+    "allowedOperations": [
+      "add",
+      "sub",
+      "mul",
+      "div",
+      "sqrt",
+      "pow",
+      "abs",
+      "min",
+      "max"
+    ],
+    "maxExpressionDepth": 32,
+    "maxParameters": 32,
+    "maxOutputs": 32,
+    "maxVerificationVectors": 100,
+    "requiresNumericalVerificationVectors": true,
+    "requiresEducationalOnly": true,
+    "hardwareControl": false,
+    "requiresLimitations": true,
+    "automaticExecutionOnlyForEnabledSpecifications": true
+  }
 }
