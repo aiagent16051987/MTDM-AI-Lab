@@ -196,7 +196,7 @@ $("exportTelemetry").onclick=()=>{
  a.href=url;a.download="mtdm-iot-telemetry.csv";a.click();URL.revokeObjectURL(url);
 };
 $("clearTelemetry").onclick=()=>{history=[];sampleIndex=0;$("voltageValue").textContent="—";$("currentValue").textContent="—";$("tempValue").textContent="—";$("sensorStatus").textContent="NO DATA";$("sensorAlert").textContent="No threshold alerts.";$("sensorAlert").classList.remove("is-alert");$("exportTelemetry").disabled=true;$("mqttLog").textContent="Telemetry history cleared.";const c=$("sensorChart").getContext("2d");c.clearRect(0,0,$("sensorChart").width,$("sensorChart").height)};
-let model=null,latestAIValidation=null;
+let model=null;
 function seededRandom(seed){let state=seed>>>0;return()=>{state=(1664525*state+1013904223)>>>0;return state/4294967296}}
 function makeSensorDataset(){
  const rand=seededRandom(20261123),features=[],labels=[];
@@ -242,7 +242,7 @@ $("trainModel").onclick=async()=>{
   for(let i=0;i<data.testY.length;i++){const row=probs.slice(i*3,i*3+3);predicted.push(row.indexOf(Math.max(...row)))}
   const m=scoreClassifier(data.testY,predicted);
   const aiEvidence=await runClassificationMetricsValidation({actual:data.testY,predicted,classes:3,createdAt:new Date().toISOString()});
-  latestAIValidation=aiEvidence;$("aiEvidenceStatus").textContent="EVIDENCE PASS · "+aiEvidence.result.inputHash.slice(0,19);
+  $("aiEvidenceStatus").textContent="EVIDENCE PASS · "+aiEvidence.result.inputHash.slice(0,19);
   $("aiAccuracy").textContent=(m.accuracy*100).toFixed(1)+"%";$("aiPrecision").textContent=(m.precision*100).toFixed(1)+"%";$("aiRecall").textContent=(m.recall*100).toFixed(1)+"%";$("aiF1").textContent=m.f1.toFixed(3);
   $("aiConfusion").innerHTML="<table><thead><tr><th>Actual ↓ / Predicted →</th><th>Normal</th><th>Warning</th><th>Critical</th></tr></thead><tbody>"+m.matrix.map((row,i)=>"<tr><th>"+["Normal","Warning","Critical"][i]+"</th>"+row.map(n=>"<td>"+n+"</td>").join("")+"</tr>").join("")+"</tbody></table>";
   $("aiEvalStatus").textContent="HOLDOUT COMPLETE";status.textContent="TRAINED";
