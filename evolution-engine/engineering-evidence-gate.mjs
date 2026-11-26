@@ -77,12 +77,16 @@ export function evaluateEngineeringEvidence(candidate, { evidenceRoot = process.
         try {
           const root = fs.realpathSync(evidenceRoot);
           const target = path.resolve(root, source.evidenceFile);
-          const actual = fs.realpathSync(target);
-          if (actual !== root && !actual.startsWith(root + path.sep)) {
+          if (target !== root && !target.startsWith(root + path.sep)) {
             blockers.push("evidence-document-path-escapes-root:" + source.id);
           } else {
-            const actualHash = crypto.createHash("sha256").update(fs.readFileSync(actual)).digest("hex");
-            if (actualHash !== source.documentSha256) blockers.push("evidence-document-hash-mismatch:" + source.id);
+            const actual = fs.realpathSync(target);
+            if (actual !== root && !actual.startsWith(root + path.sep)) {
+              blockers.push("evidence-document-path-escapes-root:" + source.id);
+            } else {
+              const actualHash = crypto.createHash("sha256").update(fs.readFileSync(actual)).digest("hex");
+              if (actualHash !== source.documentSha256) blockers.push("evidence-document-hash-mismatch:" + source.id);
+            }
           }
         } catch {
           blockers.push("evidence-document-unavailable:" + source.id);
