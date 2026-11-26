@@ -48,5 +48,6 @@
     "automaticPullRequest": true,
     "automaticMerge": false,
     "productionDeployment": false
-  }
+  },
+  "automaticPullRequestBranchWrites": true
 }
