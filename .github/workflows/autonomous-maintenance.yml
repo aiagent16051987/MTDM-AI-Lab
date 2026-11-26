@@ -25,14 +25,14 @@ jobs:
         with:
           node-version: 22
       - name: Install project dependencies
-        run: npm install --ignore-scripts
+        run: npm install --ignore-scripts --no-package-lock
       - name: Run bounded autonomous maintenance
         run: node scripts/run-autonomous-maintenance.mjs
       - name: Upload maintenance evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: mtdm-autonomous-maintenance-\${{ github.run_number }}
+          name: mtdm-autonomous-maintenance-${{ github.run_number }}
           path: artifacts/autonomous-maintenance/report.json
           if-no-files-found: warn
           retention-days: 30
@@ -40,9 +40,12 @@ jobs:
         if: success()
         uses: peter-evans/create-pull-request@v7
         with:
-          token: \${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: automation/validated-maintenance
           delete-branch: false
+          add-paths: |
+            scripts/
+            evolution-engine/
           commit-message: "Apply validated autonomous maintenance repairs"
           title: "Automated maintenance: validated repair proposal"
           body: |
@@ -56,6 +59,3 @@ jobs:
             - Workflow files, dependencies, capability claims, engineering safety rules, main-branch merge and production deployment are outside autonomous permissions.
 
             Review the maintenance report and inspect every changed line before merging.
-          labels: |
-            automated-maintenance
-            needs-human-review
