@@ -17,19 +17,29 @@ jobs:
     outputs:
       active: ${{ steps.gate.outputs.active }}
     steps:
-      - name: Enforce 48-hour trial window and self-disable after expiry
+      - name: Start a 48-hour trial on first activation and self-disable at expiry
         id: gate
         env:
           GH_TOKEN: ${{ github.token }}
-          TRIAL_END_EPOCH: "1795877471"
         run: |
+          set -euo pipefail
+          variable_url="repos/${GITHUB_REPOSITORY}/actions/variables/MTDM_AUTONOMOUS_TRIAL_START"
+          start="$(gh api "$variable_url" --jq .value 2>/dev/null || true)"
+          if [ -z "$start" ]; then
+            now="$(date -u +%s)"
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/variables" \
+              -f name=MTDM_AUTONOMOUS_TRIAL_START -f value="$now"
+            start="$now"
+            echo "48-hour trial started at first activation: $(date -u -d "@$start" --iso-8601=seconds)"
+          fi
+          end="$((start + 172800))"
           now="$(date -u +%s)"
-          if [ "$now" -lt "$TRIAL_END_EPOCH" ]; then
+          if [ "$now" -lt "$end" ]; then
             echo "active=true" >> "$GITHUB_OUTPUT"
-            echo "48-hour autonomous trial is active."
+            echo "48-hour autonomous trial active; expires $(date -u -d "@$end" --iso-8601=seconds)."
           else
             echo "active=false" >> "$GITHUB_OUTPUT"
-            echo "Trial window expired; disabling this scheduled workflow."
+            echo "Trial expired; disabling this scheduled workflow."
             gh api --method PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/autonomous-maintenance.yml/disable"
           fi
 
@@ -53,7 +63,7 @@ jobs:
           node-version: 22
       - name: Install project dependencies
         run: npm install --ignore-scripts --no-package-lock
-      - name: Run bounded autonomous maintenance
+      - name: Run autonomous engineering discovery and validated maintenance
         run: node scripts/run-autonomous-maintenance.mjs
       - name: Upload maintenance evidence
         if: always()
@@ -63,7 +73,7 @@ jobs:
           path: artifacts/autonomous-maintenance/report.json
           if-no-files-found: warn
           retention-days: 30
-      - name: Create review-only pull request for validated repairs
+      - name: Create review-only pull request for validated proposals and repairs
         if: success()
         uses: peter-evans/create-pull-request@v7
         with:
@@ -80,22 +90,21 @@ jobs:
             robotics-core.js
             nano-core.mjs
             printing-core.mjs
-            printing-lab.mjs
             printing-lab.js
             research-labs.js
             research-next.js
             visual-circuit.js
             navigation.js
-          commit-message: "Apply validated autonomous maintenance repairs"
-          title: "Automated maintenance: validated repair proposal"
+          commit-message: "Apply validated autonomous engineering proposals and maintenance"
+          title: "Automated engineering: validated proposals and maintenance"
           body: |
-            ## Automated maintenance proposal
+            ## Autonomous engineering proposal
 
-            This PR was produced by the bounded MTDM remediation engine.
+            The deterministic engineering discovery engine generated bounded candidate models from reviewed domain templates, checked their numerical vectors and left every proposal disabled pending engineering review.
 
-            - Only maintainer-authored, enabled, exact-match recipes can edit files.
-            - Full project tests and production build must pass before a PR is opened.
-            - Failed validation rolls back every automated edit.
-            - Workflow files, dependencies, capability claims, engineering safety rules, main-branch merge and production deployment are outside autonomous permissions.
+            - The maintenance runtime also compiles previously approved model specifications.
+            - Full project tests and production build must pass before a review PR is opened.
+            - Failed validation rolls back generated proposals, model outputs and automated source edits.
+            - Workflow files, dependencies, engineering safety rules, main-branch merge and production deployment remain outside autonomous permissions.
 
-            Review the maintenance report and inspect every changed line before merging.
+            Inspect model assumptions, source provenance, limitations and every changed line before enabling or merging.
