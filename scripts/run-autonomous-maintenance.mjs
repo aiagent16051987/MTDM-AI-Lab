@@ -3,6 +3,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { auditCapabilities, buildImprovementQueue } from "../evolution-engine/audit.mjs";
 import { applyRemediationRecipes } from "../evolution-engine/remediation-engine.mjs";
+import { compileEnabledSpecs } from "../evolution-engine/model-codegen.mjs";
 
 const root = process.cwd();
 const outputDir = path.join(root, "artifacts", "autonomous-maintenance");
@@ -19,6 +20,7 @@ const report = {
   audit: { status: audit.status, summary: audit.summary },
   queuedFindings: queue.length,
   remediation: { applied: [], changedFiles: [], status: "no-applicable-recipe" },
+  codeGeneration: { compiled: [], status: "no-approved-specifications" },
   validation: { tests: "not-run", build: "not-run" },
   safety: { allowlistedExactPatchesOnly: true, maxFilesPerRun: 1, workflowChanges: false,
     dependencyChanges: false, engineeringSafetyRuleChanges: false, automaticMerge: false,
@@ -27,9 +29,19 @@ const report = {
 
 let transaction;
 try {
+  report.codeGeneration.compiled = compileEnabledSpecs({
+    specsDirectory: path.join(root, "evolution-engine", "generation-specs"),
+    outputDirectory: path.join(root, "generated-simulations")
+  });
+  if (report.codeGeneration.compiled.length) report.codeGeneration.status = "compiled-pending-validation";
   transaction = applyRemediationRecipes({ root, findings: audit.findings, catalog });
   report.remediation.applied = transaction.applied;
   report.remediation.changedFiles = transaction.changedFiles;
+  for (const generated of report.codeGeneration.compiled) {
+    const result = spawnSync(process.execPath, [generated.testPath], { cwd: root, encoding: "utf8", maxBuffer: 4 * 1024 * 1024 });
+    if (result.status !== 0) throw new Error("Generated model test failed: " + generated.id + "\\n" + (result.stdout || "") + "\\n" + (result.stderr || ""));
+  }
+  if (report.codeGeneration.compiled.length) report.codeGeneration.status = "generated-tests-passed";
   if (transaction.applied.length) {
     report.remediation.status = "patched-pending-validation";
     for (const [label, args] of [["tests", ["test"]], ["build", ["run", "build"]]]) {
