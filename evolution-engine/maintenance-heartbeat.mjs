@@ -22,13 +22,16 @@ export function evaluateHeartbeat(previous, current, { expectedIntervalMs = 60 *
 
 export function recordHeartbeat({ statePath, reportPath, success, runId = null, event = "unknown", attemptedAt = new Date().toISOString() }) {
   const previous = fs.existsSync(statePath) ? JSON.parse(fs.readFileSync(statePath, "utf8")) : {};
-  const assessment = evaluateHeartbeat(previous, { attemptedAt });
+  const sameRun = runId !== null && previous.lastAttemptRunId === runId && previous.lastAttemptEvent === event;
+  const runStartedAt = sameRun ? previous.lastAttemptAt : attemptedAt;
+  const scheduler = sameRun && previous.lastSchedulerAssessment ? previous.lastSchedulerAssessment : evaluateHeartbeat(previous, { attemptedAt: runStartedAt });
   const state = {
     schemaVersion: 1,
-    lastAttemptAt: attemptedAt,
+    lastAttemptAt: runStartedAt,
     lastAttemptRunId: runId,
     lastAttemptEvent: event,
     lastAttemptConclusion: success ? "success" : "failure",
+    lastSchedulerAssessment: scheduler,
     lastSuccessAt: success ? attemptedAt : (previous.lastSuccessAt ?? null),
     lastSuccessRunId: success ? runId : (previous.lastSuccessRunId ?? null)
   };
@@ -36,20 +39,14 @@ export function recordHeartbeat({ statePath, reportPath, success, runId = null, 
   fs.mkdirSync(path.dirname(reportPath), { recursive: true });
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2) + "\n");
   const report = {
-    schemaVersion: 1,
-    generatedAt: attemptedAt,
-    runId,
-    event,
-    outcome: success ? "success" : "failure",
-    scheduler: assessment,
-    lastSuccessAt: state.lastSuccessAt,
-    lastSuccessRunId: state.lastSuccessRunId,
+    schemaVersion: 1, generatedAt: attemptedAt, runStartedAt, runId, event,
+    outcome: success ? "success" : "failure", scheduler,
+    lastSuccessAt: state.lastSuccessAt, lastSuccessRunId: state.lastSuccessRunId,
     limitation: "This detects gaps only when a later workflow run starts; it cannot wake a skipped GitHub Actions schedule or guarantee continuous execution."
   };
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + "\n");
   return report;
 }
-
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
   const successArg = process.argv.find(value => value.startsWith("--success="));
   const success = successArg?.slice("--success=".length) === "true";
