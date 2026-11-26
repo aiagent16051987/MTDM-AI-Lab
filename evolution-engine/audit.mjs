@@ -85,7 +85,7 @@ export function auditCapabilities({ root = process.cwd(), registryPath = "capabi
     }
 
     if (capability.status === "implemented" && Array.isArray(capability.evidence) &&
-        !capability.evidence.some(file => /^(tests|scripts)\\//.test(file) && resolveRepositoryFile(root, file))) {
+        !capability.evidence.some(file => /^(tests|scripts)\//.test(file) && resolveRepositoryFile(root, file))) {
       addFinding(findings, "no-executable-evidence:" + id, "high", "verification", "Implemented capability has no existing executable test evidence: " + id);
     }
   }
