@@ -14,7 +14,9 @@
     "run-full-tests-and-production-build",
     "open-review-only-pull-request-for-validated-repairs",
     "compile-approved-declarative-model-specifications",
-    "run-generated-model-verification-tests"
+    "run-generated-model-verification-tests",
+    "evaluate-evidence-completeness-for-every-generated-candidate",
+    "record-evidence-blockers-and-withhold-unverified-candidates-from-release"
   ],
   "approvalRequiredStages": [
     "install-or-update-dependencies",
@@ -31,7 +33,12 @@
     "browser-end-to-end-audit",
     "dependency-and-secret-audit",
     "license-and-provenance-review",
-    "rollback-reference"
+    "rollback-reference",
+    "authoritative-evidence-source-and-provenance-validation",
+    "governing-equation-and-unit-consistency-review",
+    "domain-of-validity-and-uncertainty-analysis",
+    "independent-validation-against-reference-or-experimental-evidence",
+    "evidence-gate-release-eligibility-check"
   ],
   "remediationConstraints": {
     "exactMatchPrecondition": true,
@@ -88,6 +95,9 @@
     "requiresEducationalOnly": true,
     "hardwareControl": false,
     "requiresLimitations": true,
-    "automaticExecutionOnlyForEnabledSpecifications": true
+    "automaticExecutionOnlyForEnabledSpecifications": true,
+    "requiresEvidenceGate": true,
+    "noEvidenceNoRelease": true,
+    "requiresIndependentValidation": true
   }
 }
