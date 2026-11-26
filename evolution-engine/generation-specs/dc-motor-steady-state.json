@@ -120,7 +120,7 @@
     "Not a validated motor design, physical prediction, hardware controller or safety model."
   ],
   "sourceTemplateFile": "evolution-engine/model-templates/dc-motor-steady-state.template.md",
-  "sourceTemplateSha256": "a9ae10099bdc7c407878ed472aecc6c0b80ed76734898fba807389e1867b2a38",
+  "sourceTemplateSha256": "a9f75e07b32c7c407878ed472aecc6c0b80ed76734898fba807389e1867b2a38",
   "governingEquations": "I = T_load / K_t; omega = (V - R*I) / K_e",
   "parameterUnits": {
     "voltage": "V",
