@@ -92,5 +92,24 @@
         ]
       }
     }
+  ],
+  "verification": [
+    {
+      "input": {},
+      "expected": {
+        "armatureCurrent": 2,
+        "angularSpeed": 80
+      }
+    },
+    {
+      "input": {
+        "voltage": 24,
+        "loadTorque": 0.3
+      },
+      "expected": {
+        "armatureCurrent": 3,
+        "angularSpeed": 180
+      }
+    }
   ]
 }
