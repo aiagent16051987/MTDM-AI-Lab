@@ -5,6 +5,7 @@ import { auditCapabilities, buildImprovementQueue } from "../evolution-engine/au
 import { applyRemediationRecipes } from "../evolution-engine/remediation-engine.mjs";
 import { compileEnabledSpecs } from "../evolution-engine/model-codegen.mjs";
 import { discoverEngineeringFeatures } from "../evolution-engine/engineering-discovery.mjs";
+import { evaluateEngineeringEvidence } from "../evolution-engine/engineering-evidence-gate.mjs";
 
 const root = process.cwd();
 const outputDir = path.join(root, "artifacts", "autonomous-maintenance");
@@ -24,11 +25,12 @@ const report = {
   audit: { status: audit.status, summary: audit.summary },
   queuedFindings: queue.length,
   engineeringDiscovery: { status: "not-run", proposed: [], autoEnabled: 0, domainCoverage: ["electronics"] },
+  evidenceGate: { status: "not-run", evaluated: 0, blocked: 0, eligible: 0, results: [] },
   codeGeneration: { compiled: [], status: "no-approved-specifications" },
   remediation: { applied: [], changedFiles: [], status: "no-applicable-recipe" },
   validation: { tests: "not-run", build: "not-run" },
   safety: { allowlistedRecipePatchesOnly: true, declarativeCodeGenerationOnly: true,
-    proposedFeaturesRemainDisabled: true, maxFilesPerRun: 1, workflowChanges: false,
+    proposedFeaturesRemainDisabled: true, evidenceGateRequiredForRelease: true, noEvidenceNoRelease: true, maxFilesPerRun: 1, workflowChanges: false,
     dependencyChanges: false, engineeringSafetyRuleChanges: false, automaticMerge: false,
     productionDeployment: false }
 };
@@ -69,6 +71,7 @@ try {
     maxCandidates: 10
   });
   report.engineeringDiscovery.status = discovery.status;
+  report.evidenceGate.status = "evaluated";
   for (const proposal of discovery.proposals) {
     const destination = path.join(proposalsDir, proposal.id + ".json");
     if (fs.existsSync(destination)) continue;
