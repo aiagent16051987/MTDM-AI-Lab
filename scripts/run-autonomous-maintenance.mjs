@@ -4,11 +4,14 @@ import { spawnSync } from "node:child_process";
 import { auditCapabilities, buildImprovementQueue } from "../evolution-engine/audit.mjs";
 import { applyRemediationRecipes } from "../evolution-engine/remediation-engine.mjs";
 import { compileEnabledSpecs } from "../evolution-engine/model-codegen.mjs";
+import { discoverEngineeringFeatures } from "../evolution-engine/engineering-discovery.mjs";
 
 const root = process.cwd();
 const outputDir = path.join(root, "artifacts", "autonomous-maintenance");
 const generatedDir = path.join(root, "generated-simulations");
+const proposalsDir = path.join(root, "evolution-engine", "proposals");
 fs.mkdirSync(outputDir, { recursive: true });
+fs.mkdirSync(proposalsDir, { recursive: true });
 const reportPath = path.join(outputDir, "report.json");
 const audit = auditCapabilities({ root });
 const queue = buildImprovementQueue(audit);
@@ -20,34 +23,60 @@ const report = {
   generatedAt: new Date().toISOString(),
   audit: { status: audit.status, summary: audit.summary },
   queuedFindings: queue.length,
+  engineeringDiscovery: { status: "not-run", proposed: [], autoEnabled: 0, domainCoverage: ["electronics"] },
   codeGeneration: { compiled: [], status: "no-approved-specifications" },
   remediation: { applied: [], changedFiles: [], status: "no-applicable-recipe" },
   validation: { tests: "not-run", build: "not-run" },
-  safety: { allowlistedRecipePatchesOnly: true, declarativeCodeGenerationOnly: true, maxFilesPerRun: 1, workflowChanges: false,
+  safety: { allowlistedRecipePatchesOnly: true, declarativeCodeGenerationOnly: true,
+    proposedFeaturesRemainDisabled: true, maxFilesPerRun: 1, workflowChanges: false,
     dependencyChanges: false, engineeringSafetyRuleChanges: false, automaticMerge: false,
     productionDeployment: false }
 };
 
 let transaction;
 let compiled = [];
+const createdProposals = [];
 function rollbackAll() {
   if (transaction?.applied.length) transaction.rollback();
   for (const item of compiled) {
     fs.rmSync(item.modelPath, { force: true });
     fs.rmSync(item.testPath, { force: true });
   }
+  for (const file of createdProposals) fs.rmSync(file, { force: true });
 }
 function runNpm(label, args) {
   const result = spawnSync("npm", args, { cwd: root, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
   report.validation[label] = result.status === 0 ? "passed" : "failed";
   if (result.status !== 0) {
     rollbackAll();
-    throw new Error(label + " failed; generated files and automated source edits were rolled back.\n" +
+    throw new Error(label + " failed; generated files, proposals and automated source edits were rolled back.\n" +
       (result.stdout || "") + "\n" + (result.stderr || ""));
   }
 }
 
 try {
+  const knownIds = new Set();
+  for (const directory of [path.join(root, "evolution-engine", "generation-specs"), proposalsDir]) {
+    if (!fs.existsSync(directory)) continue;
+    for (const file of fs.readdirSync(directory).filter(name => name.endsWith(".json"))) {
+      const item = JSON.parse(fs.readFileSync(path.join(directory, file), "utf8"));
+      if (typeof item.id === "string") knownIds.add(item.id);
+    }
+  }
+  const discovery = discoverEngineeringFeatures({
+    existingIds: [...knownIds],
+    domains: ["electronics"],
+    maxCandidates: 10
+  });
+  report.engineeringDiscovery.status = discovery.status;
+  for (const proposal of discovery.proposals) {
+    const destination = path.join(proposalsDir, proposal.id + ".json");
+    if (fs.existsSync(destination)) continue;
+    fs.writeFileSync(destination, JSON.stringify(proposal, null, 2) + "\n", { flag: "wx" });
+    createdProposals.push(destination);
+    report.engineeringDiscovery.proposed.push({ id: proposal.id, file: path.relative(root, destination), verificationVectors: proposal.verification.length });
+  }
+
   compiled = compileEnabledSpecs({
     specsDirectory: path.join(root, "evolution-engine", "generation-specs"),
     outputDirectory: generatedDir
@@ -60,7 +89,7 @@ try {
       if (result.status !== 0) {
         rollbackAll();
         report.codeGeneration.status = "rolled-back-generated-test-failed";
-        throw new Error("Generated model verification failed: " + item.id + "\\n" + (result.stdout || "") + "\\n" + (result.stderr || ""));
+        throw new Error("Generated model verification failed: " + item.id + "\n" + (result.stdout || "") + "\n" + (result.stderr || ""));
       }
     }
     report.codeGeneration.status = "generated-tests-passed";
@@ -71,8 +100,6 @@ try {
   report.remediation.changedFiles = transaction.changedFiles;
   if (transaction.applied.length) report.remediation.status = "patched-pending-validation";
 
-  // Every scheduled/manual run validates the generator, project and production bundle,
-  // even when no remediation recipe or enabled model spec currently exists.
   runNpm("tests", ["test"]);
   runNpm("build", ["run", "build"]);
 
