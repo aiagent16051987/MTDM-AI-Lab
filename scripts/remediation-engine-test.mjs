@@ -7,7 +7,7 @@ import { applyRemediationRecipes } from "../evolution-engine/remediation-engine.
 const root = fs.mkdtempSync(path.join(os.tmpdir(), "mtdm-remediation-"));
 try {
   fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
-  fs.writeFileSync(path.join(root, "scripts", "fixture.mjs"), "const value = 1;\\n");
+  fs.writeFileSync(path.join(root, "scripts", "fixture.mjs"), "const value = 1;\n");
   const findings = [{ id: "known-regression" }];
   const catalog = { schemaVersion: 1, maxAppliedRecipes: 1, recipes: [{
     id: "fixture-safe-repair", enabled: true, findingId: "known-regression",
