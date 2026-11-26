@@ -228,3 +228,23 @@ test("Quantum gate sequence produces research validation evidence", async ({ pag
   await expect(page.locator("#quantumLog")).toContainText("RESEARCH VALIDATION · PASS");
   await expect(page.locator("#quantumLog")).toContainText("P sum 1.000000000000");
 });
+
+test("IoT latest telemetry can be recorded as provenance-labelled research evidence", async ({ page }) => {
+  await page.goto("./");
+  await page.getByRole("tab", { name: /IoT/i }).click();
+  await page.locator("#sensorStart").click();
+  await expect(page.locator("#sensorStatus")).toHaveText("LOCAL STREAM");
+  await page.locator("#validateTelemetry").click();
+  await expect(page.locator("#telemetryEvidenceStatus")).toContainText("EVIDENCE PASS");
+  await expect(page.locator("#telemetryEvidenceStatus")).toContainText("synthetic-local-stream");
+  await page.locator("#sensorStop").click();
+});
+
+test("AI holdout evidence is generated from actual model predictions", async ({ page }) => {
+  await page.goto("./");
+  await page.getByRole("tab", { name: /AI/i }).click();
+  await page.locator("#aiEpochs").fill("5");
+  await page.locator("#trainModel").click();
+  await expect(page.locator("#aiEvidenceStatus")).toContainText("EVIDENCE PASS", { timeout: 90_000 });
+  await expect(page.locator("#aiEvalStatus")).toHaveText("HOLDOUT COMPLETE");
+});
