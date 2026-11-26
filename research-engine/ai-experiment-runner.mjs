@@ -1,7 +1,6 @@
-import crypto from "node:crypto";
 import {createHypothesisRecord,createExperimentRecord,createResultRecord,assertResearchReferences} from "./records.mjs";
-const hash=v=>"sha256:"+crypto.createHash("sha256").update(JSON.stringify(v)).digest("hex");
-export function runClassificationMetricsValidation(input={}){
+const hash=async v=>{const bytes=new TextEncoder().encode(JSON.stringify(v));const digest=await globalThis.crypto.subtle.digest("SHA-256",bytes);return "sha256:"+Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");};
+export async function runClassificationMetricsValidation(input={}){
  const actual=input.actual??[0,0,1,1,2,2],predicted=input.predicted??[0,1,1,1,2,0],classes=input.classes??3;
  if(!Number.isInteger(classes)||classes<2||classes>20)throw new RangeError("classes must be an integer from 2 to 20");
  if(!Array.isArray(actual)||!Array.isArray(predicted)||actual.length<1||actual.length>10000||actual.length!==predicted.length)throw new TypeError("actual and predicted must be equal non-empty bounded arrays");
@@ -27,7 +26,7 @@ export function runClassificationMetricsValidation(input={}){
   parameters:{sampleCount:{value:actual.length,unit:"samples"},classCount:{value:classes,unit:"classes"}},
   assumptions:hypothesis.assumptions,safetyClass:"low-risk-software",createdAt});
  const result=createResultRecord({schemaVersion:1,recordType:"result",id:"result:ai-classification-metrics-v1",experimentId:experiment.id,
-  status:"pass",startedAt:createdAt,finishedAt:createdAt,inputHash:hash({actual,predicted,classes}),toolVersion:"classification-metrics@1.0.0",
+  status:"pass",startedAt:createdAt,finishedAt:createdAt,inputHash:await hash({actual,predicted,classes}),toolVersion:"classification-metrics@1.0.0",
   outputs:metrics,notes:"Metric arithmetic validation only; supplied labels are not evidence of real-world model performance."});
  const records=[hypothesis,experiment,result];assertResearchReferences(records);
  return {hypothesis,experiment,result,records,metrics};
