@@ -13,6 +13,8 @@ const write = (name, value) => {
 const hashA = write("source-a.pdf", "Archived source artifact A for deterministic test fixture.");
 const hashB = write("source-b.pdf", "Archived source artifact B for deterministic test fixture.");
 const templateHash = write("model.template.md", "# Verified test model template\\nVout = Vin * 0.5\\n");
+const checkAHash = write("check-a.txt", "Independent analytic calculation: 12 V multiplied by 0.5 equals 6 V.");
+const checkBHash = write("check-b.txt", "Independent reference implementation result: 2 V multiplied by 0.5 equals 1 V.");
 const candidate = {
   schemaVersion: 1, id: "validated-demo-model", enabled: true, intendedUse: "educational-only", hardwareControl: false,
   parameters: [{ name: "voltage", min: 0, max: 48, default: 12 }],
@@ -25,8 +27,8 @@ const candidate = {
     { id: "source-b", type: "official-documentation", artifactKind: "official-reference", title: "Independent reference B", publisher: "Publisher B", url: "https://b.example.org/reference", accessedAt: "2026-11-26", documentSha256: hashB, evidenceFile: "source-b.pdf" }
   ],
   independentChecks: [
-    { method: "independent-analytic-cross-check", result: "passed", evidenceSourceId: "source-a", tolerance: 1e-9 },
-    { method: "reference-implementation", result: "passed", evidenceSourceId: "source-b", tolerance: 1e-9 }
+    { method: "independent-analytic-cross-check", result: "passed", evidenceSourceId: "source-a", evidenceFile: "check-a.txt", documentSha256: checkAHash, tolerance: 1e-9 },
+    { method: "reference-implementation", result: "passed", evidenceSourceId: "source-b", evidenceFile: "check-b.txt", documentSha256: checkBHash, tolerance: 1e-9 }
   ],
   verification: [{ input: {}, expected: { output: 6 } }, { input: { voltage: 2 }, expected: { output: 1 } }],
   limitations: ["Ideal model only"], sourceTemplateFile: "model.template.md", sourceTemplateSha256: templateHash
@@ -50,6 +52,8 @@ try {
   assert.ok(noCheck.blockers.includes("at-least-two-independent-validation-checks-required"));
   const sameCheck = evaluateEngineeringEvidence({ ...candidate, independentChecks: [candidate.independentChecks[0], { ...candidate.independentChecks[0], evidenceSourceId: "source-b" }] }, { evidenceRoot: root });
   assert.ok(sameCheck.blockers.includes("two-distinct-independent-validation-methods-required"));
+  const missingCheckArchive = evaluateEngineeringEvidence({ ...candidate, independentChecks: candidate.independentChecks.map(check => ({ ...check, evidenceFile: undefined })) }, { evidenceRoot: root });
+  assert.ok(missingCheckArchive.blockers.includes("independent-check-archive-or-hash-missing"));
   const falseClaim = evaluateEngineeringEvidence({ ...candidate, verification: [{ input: {}, expected: { output: 600 } }, candidate.verification[1]] }, { evidenceRoot: root });
   assert.ok(falseClaim.blockers.includes("numerical-replay-mismatch:0:output"));
   const badDate = evaluateEngineeringEvidence({ ...candidate, evidenceSources: [{ ...candidate.evidenceSources[0], accessedAt: "2026-02-31" }, candidate.evidenceSources[1]] }, { evidenceRoot: root });
