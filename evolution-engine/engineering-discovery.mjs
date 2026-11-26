@@ -7,8 +7,8 @@ const templates = [
     title: "LED series resistor design",
     objective: "Estimate resistor value, resistor dissipation and LED current from a DC supply.",
     parameters: [
-      { name: "supplyVoltage", min: 2, max: 48, default: 12 },
-      { name: "ledForwardVoltage", min: 0.5, max: 12, default: 2 },
+      { name: "supplyVoltage", min: 5, max: 48, default: 12 },
+      { name: "ledForwardVoltage", min: 0.5, max: 4.5, default: 2 },
       { name: "targetCurrent", min: 0.001, max: 0.1, default: 0.02 }
     ],
     outputs: [
