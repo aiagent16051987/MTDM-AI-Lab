@@ -38,17 +38,17 @@ try {
       if (result.status !== 0) {
         transaction.rollback();
         report.remediation.status = "rolled-back-validation-failed";
-        throw new Error(label + " failed; all automated edits were rolled back.\\n" + (result.stdout || "") + "\\n" + (result.stderr || ""));
+        throw new Error(label + " failed; all automated edits were rolled back.\n" + (result.stdout || "") + "\n" + (result.stderr || ""));
       }
     }
     report.remediation.status = "validated";
   }
   if (audit.status === "blocked") throw new Error("Baseline capability audit is blocked; no remediation is eligible for PR creation.");
-  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + "\\n");
+  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + "\n");
   console.log(JSON.stringify(report, null, 2));
 } catch (error) {
   report.error = error.message;
-  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + "\\n");
+  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + "\n");
   console.error(error.message);
   process.exitCode = 1;
 }
