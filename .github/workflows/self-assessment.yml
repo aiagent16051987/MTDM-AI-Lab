@@ -23,6 +23,8 @@ jobs:
           node-version: 22
       - name: Run deterministic self-assessment
         run: node scripts/run-self-assessment.mjs
+      - name: Exercise bounded autonomous maintenance runtime
+        run: node scripts/run-autonomous-maintenance.mjs
       - name: Upload assessment and improvement queue
         if: always()
         uses: actions/upload-artifact@v4
