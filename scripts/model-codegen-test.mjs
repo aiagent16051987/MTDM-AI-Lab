@@ -12,6 +12,8 @@ try {
     schemaVersion: 1, enabled: true, id: "dc-motor-steady-state",
     title: "DC motor steady-state model",
     description: "Ideal armature steady-state educational model with bounded inputs.",
+    intendedUse: "educational-only", hardwareControl: false,
+    limitations: ["Ideal steady-state armature equations only.", "Not a validated motor design, hardware controller or safety model."],
     parameters: [
       { name: "voltage", min: 0, max: 48, default: 12 },
       { name: "resistance", min: 0.1, max: 100, default: 2 },
