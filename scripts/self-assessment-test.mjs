@@ -32,7 +32,7 @@ try {
   assert.equal(broken.status,"blocked");
   assert.ok(broken.findings.some(item=>item.id==="research-visibility-policy"));
   assert.ok(broken.findings.some(item=>item.id==="invalid-file:electronics:escape.js"));
-  assert.ok(broken.findings.some(item=>item.id==="navigation-unregistered:research"));
+  assert.ok(broken.findings.some(item=>item.id==="navigation-missing:research"));
 } finally {
   fs.rmSync(temp,{recursive:true,force:true});
   fs.rmSync(outside,{recursive:true,force:true});
