@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "enabled": false,
+  "enabled": true,
   "id": "dc-motor-steady-state",
   "title": "DC motor steady-state model",
-  "description": "Ideal armature steady-state educational model with bounded inputs. Disabled until a maintainer reviews and enables it.",
-  "reviewStatus": "not-approved",
+  "description": "Ideal armature steady-state educational model with bounded inputs; not for hardware control.",
+  "reviewStatus": "engineering-review-passed",
   "parameters": [
     {
       "name": "voltage",
@@ -111,5 +111,12 @@
         "angularSpeed": 180
       }
     }
+  ],
+  "intendedUse": "educational-only",
+  "hardwareControl": false,
+  "limitations": [
+    "Ideal steady-state armature equations only; ignores inductance, saturation, brush drop, friction, thermal effects, transient response and controller dynamics.",
+    "Torque and back-EMF constants are supplied independently; users must use consistent SI units.",
+    "Not a validated motor design, physical prediction, hardware controller or safety model."
   ]
 }
