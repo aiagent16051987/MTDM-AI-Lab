@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 
 const IDENTIFIER = /^[A-Za-z][A-Za-z0-9_]*$/;
 const OPS = new Set(["add", "sub", "mul", "div", "sqrt", "pow", "abs", "min", "max"]);
@@ -62,6 +63,29 @@ function validateSpec(spec) {
     if (typeof output.unit !== "string" || output.unit.length > 32) throw new Error("Every output requires a short unit label");
     compileExpression(output.expression, new Set(spec.parameters.map(item => item.name)));
   }
+  if (!Array.isArray(spec.verification) || spec.verification.length < 1 || spec.verification.length > 100) {
+    throw new Error("Every generated model requires 1–100 approved verification vectors");
+  }
+  const parameterMap = new Map(spec.parameters.map(item => [item.name, item]));
+  const outputNames = new Set(spec.outputs.map(item => item.name));
+  for (const [index, vector] of spec.verification.entries()) {
+    if (!vector || typeof vector !== "object" || !vector.input || !vector.expected ||
+        typeof vector.input !== "object" || typeof vector.expected !== "object") {
+      throw new Error("Invalid verification vector at index " + index);
+    }
+    for (const [name, value] of Object.entries(vector.input)) {
+      const parameter = parameterMap.get(name);
+      if (!parameter || !Number.isFinite(value) || value < parameter.min || value > parameter.max) {
+        throw new Error("Verification input outside approved bounds: " + name);
+      }
+    }
+    for (const [name, value] of Object.entries(vector.expected)) {
+      if (!outputNames.has(name) || !Number.isFinite(value)) throw new Error("Invalid expected verification output: " + name);
+    }
+    if (Object.keys(vector.expected).length !== spec.outputs.length) throw new Error("Each verification vector must specify every output");
+    const tolerance = vector.tolerance ?? 1e-9;
+    if (!Number.isFinite(tolerance) || tolerance <= 0 || tolerance > 0.01) throw new Error("Verification tolerance must be in (0, 0.01]");
+  }
   return names;
 }
 
@@ -80,10 +104,11 @@ function makeModelSource(spec, names) {
   ).join("\n");
   const result = spec.outputs.map(output => JSON.stringify(output.name) + ": " + output.name).join(", ");
   const defaults = spec.parameters.map(parameter => JSON.stringify(parameter.name) + ": " + parameter.default).join(", ");
+  const sourceHash = crypto.createHash("sha256").update(JSON.stringify(spec)).digest("hex");
   return [
     "// Generated deterministically from an approved MTDM model specification.",
     "// Do not edit generated output directly; update the source specification and regenerate.",
-    "export const modelMetadata = Object.freeze(" + JSON.stringify({ id: spec.id, title: spec.title, description: spec.description, outputs: spec.outputs.map(({name,unit})=>({name,unit})) }) + ");",
+    "export const modelMetadata = Object.freeze(" + JSON.stringify({ id: spec.id, title: spec.title, description: spec.description, sourceSpecSha256: sourceHash, outputs: spec.outputs.map(({name,unit})=>({name,unit})) }) + ");",
     "export const defaultInput = Object.freeze({" + defaults + "});",
     "export function calculate(input = defaultInput) {",
     "  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new TypeError('Model input must be an object');",
@@ -104,13 +129,27 @@ function makeTestSource(spec, outputPath) {
     "assert.ok(Number.isFinite(result[" + JSON.stringify(output.name) + "]));"
   ).join("\n");
   const boundary = spec.parameters[0];
+  const vectors = spec.verification.map((vector, index) => {
+    const input = JSON.stringify(vector.input);
+    const expected = vector.expected;
+    const tolerance = vector.tolerance ?? 1e-9;
+    const checks = Object.entries(expected).map(([name, value]) =>
+      "assert.ok(Math.abs(actual[" + JSON.stringify(name) + "] - " + value + ") <= " + tolerance +
+      ", " + JSON.stringify("verification vector " + index + " output " + name + " mismatch") + ");"
+    ).join("\n");
+    return "const actual" + index + " = calculate(" + input + ");\n" +
+      "const expected" + index + " = " + JSON.stringify(expected) + ";\n" +
+      checks.replaceAll("actual[", "actual" + index + "[");
+  }).join("\n");
   return [
     "import assert from 'node:assert/strict';",
     "import { calculate, defaultInput, modelMetadata } from " + JSON.stringify("./" + path.basename(outputPath)) + ";",
     "assert.equal(modelMetadata.id, " + JSON.stringify(spec.id) + ");",
+    "assert.match(modelMetadata.sourceSpecSha256, /^[a-f0-9]{64}$/);",
     "assert.deepEqual(defaultInput, " + defaults + ");",
     "const result = calculate();",
     outputChecks,
+    vectors,
     "assert.throws(() => calculate({ " + JSON.stringify(boundary.name) + ": " + (boundary.min - Math.max(1, Math.abs(boundary.min))) + " }), RangeError);",
     "assert.throws(() => calculate({ unexpected: 1 }), TypeError);",
     "console.log('PASS generated model: " + spec.id + "');"
