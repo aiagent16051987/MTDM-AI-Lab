@@ -33,6 +33,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Record maintenance attempt before dependency installation
+        run: node evolution-engine/maintenance-heartbeat.mjs --success=false
       - name: Install project dependencies
         run: npm install --ignore-scripts --no-package-lock --fetch-retries=3 --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000
       - name: Run autonomous engineering discovery and validated maintenance
