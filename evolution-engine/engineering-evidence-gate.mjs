@@ -49,8 +49,22 @@ export function evaluateEngineeringEvidence(candidate, { evidenceRoot = process.
       !Array.isArray(candidate.outputs) || !candidate.outputs.length) blockers.push("missing-model-parameters-or-outputs");
   const parameters = Array.isArray(candidate.parameters) ? candidate.parameters : [];
   const outputs = Array.isArray(candidate.outputs) ? candidate.outputs : [];
-  const parameterNames = new Set(parameters.map(parameter => parameter?.name).filter(name => typeof name === "string"));
-  const outputNames = new Set(outputs.map(output => output?.name).filter(name => typeof name === "string"));
+  const parameterNames = new Set();
+  const outputNames = new Set();
+  for (const parameter of parameters) {
+    if (!parameter || typeof parameter.name !== "string" || !/^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(parameter.name) ||
+        parameterNames.has(parameter.name) || !Number.isFinite(parameter.min) || !Number.isFinite(parameter.max) ||
+        parameter.min >= parameter.max || !Number.isFinite(parameter.default) ||
+        parameter.default < parameter.min || parameter.default > parameter.max) {
+      blockers.push("invalid-or-duplicate-model-parameter");
+    } else parameterNames.add(parameter.name);
+  }
+  for (const output of outputs) {
+    if (!output || typeof output.name !== "string" || !/^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(output.name) ||
+        outputNames.has(output.name) || typeof output.unit !== "string" || !output.unit.trim()) {
+      blockers.push("invalid-or-duplicate-model-output");
+    } else outputNames.add(output.name);
+  }
 
   if (!Array.isArray(candidate.evidenceSources) || candidate.evidenceSources.length < 2) {
     blockers.push("at-least-two-independent-authoritative-evidence-sources-required");
@@ -138,7 +152,32 @@ export function evaluateEngineeringEvidence(candidate, { evidenceRoot = process.
           typeof check.evidenceSourceId !== "string" || !check.evidenceSourceId ||
           !Number.isFinite(check.tolerance) || check.tolerance < 0) blockers.push("invalid-independent-validation-record");
       else if (!candidate.evidenceSources?.some(source => source.id === check.evidenceSourceId)) blockers.push("independent-check-source-not-found");
-      else { methods.add(check.method); checkedSources.add(check.evidenceSourceId); }
+      else {
+        methods.add(check.method);
+        checkedSources.add(check.evidenceSourceId);
+        if (typeof check.evidenceFile !== "string" || !check.evidenceFile.trim() ||
+            !/^[a-f0-9]{64}$/.test(check.documentSha256 || "")) {
+          blockers.push("independent-check-archive-or-hash-missing");
+        } else {
+          try {
+            const root = fs.realpathSync(evidenceRoot);
+            const target = path.resolve(root, check.evidenceFile);
+            if (target !== root && !target.startsWith(root + path.sep)) {
+              blockers.push("independent-check-path-escapes-root");
+            } else {
+              const actual = fs.realpathSync(target);
+              if (actual !== root && !actual.startsWith(root + path.sep)) {
+                blockers.push("independent-check-path-escapes-root");
+              } else {
+                const actualHash = crypto.createHash("sha256").update(fs.readFileSync(actual)).digest("hex");
+                if (actualHash !== check.documentSha256) blockers.push("independent-check-hash-mismatch");
+              }
+            }
+          } catch {
+            blockers.push("independent-check-archive-unavailable");
+          }
+        }
+      }
     }
     if (methods.size < 2) blockers.push("two-distinct-independent-validation-methods-required");
     if (checkedSources.size < 2) blockers.push("independent-checks-must-use-two-distinct-sources");
