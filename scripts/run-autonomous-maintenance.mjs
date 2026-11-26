@@ -23,7 +23,7 @@ const report = {
   codeGeneration: { compiled: [], status: "no-approved-specifications" },
   remediation: { applied: [], changedFiles: [], status: "no-applicable-recipe" },
   validation: { tests: "not-run", build: "not-run" },
-  safety: { allowlistedExactPatchesOnly: true, maxFilesPerRun: 1, workflowChanges: false,
+  safety: { allowlistedRecipePatchesOnly: true, declarativeCodeGenerationOnly: true, maxFilesPerRun: 1, workflowChanges: false,
     dependencyChanges: false, engineeringSafetyRuleChanges: false, automaticMerge: false,
     productionDeployment: false }
 };
