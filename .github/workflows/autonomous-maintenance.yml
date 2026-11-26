@@ -46,6 +46,17 @@ jobs:
           add-paths: |
             scripts/
             evolution-engine/
+            research-engine/
+            app.js
+            advanced-labs.js
+            robotics-core.js
+            nano-core.mjs
+            printing-core.mjs
+            printing-lab.js
+            research-labs.js
+            research-next.js
+            visual-circuit.js
+            navigation.js
           commit-message: "Apply validated autonomous maintenance repairs"
           title: "Automated maintenance: validated repair proposal"
           body: |
