@@ -44,6 +44,11 @@ function compileExpression(node, parameterNames, depth = 0) {
 function validateSpec(spec) {
   if (!spec || spec.schemaVersion !== 1 || spec.enabled !== true) throw new Error("Only enabled schema-v1 generation specs can compile");
   if (typeof spec.id !== "string" || !/^[a-z][a-z0-9-]{0,62}$/.test(spec.id)) throw new Error("Invalid model id slug: " + String(spec.id));
+  if (spec.intendedUse !== "educational-only" || spec.hardwareControl !== false ||
+      !Array.isArray(spec.limitations) || spec.limitations.length < 1 ||
+      spec.limitations.some(item => typeof item !== "string" || !item.trim() || item.length > 300)) {
+    throw new Error("Generated models must declare educational-only use, disable hardware control and list limitations");
+  }
   if (!Array.isArray(spec.parameters) || !spec.parameters.length || spec.parameters.length > 32) throw new Error("A model needs 1–32 parameters");
   if (!Array.isArray(spec.outputs) || !spec.outputs.length || spec.outputs.length > 32) throw new Error("A model needs 1–32 outputs");
   const names = new Set();
@@ -108,7 +113,7 @@ function makeModelSource(spec, names) {
   return [
     "// Generated deterministically from an approved MTDM model specification.",
     "// Do not edit generated output directly; update the source specification and regenerate.",
-    "export const modelMetadata = Object.freeze(" + JSON.stringify({ id: spec.id, title: spec.title, description: spec.description, sourceSpecSha256: sourceHash, outputs: spec.outputs.map(({name,unit})=>({name,unit})) }) + ");",
+    "export const modelMetadata = Object.freeze(" + JSON.stringify({ id: spec.id, title: spec.title, description: spec.description, intendedUse: spec.intendedUse, hardwareControl: spec.hardwareControl, limitations: spec.limitations, sourceSpecSha256: sourceHash, outputs: spec.outputs.map(({name,unit})=>({name,unit})) }) + ");",
     "export const defaultInput = Object.freeze({" + defaults + "});",
     "export function calculate(input = defaultInput) {",
     "  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new TypeError('Model input must be an object');",
