@@ -35,7 +35,9 @@
     "maxRecipesPerRun": 1,
     "permittedPathPrefixes": [
       "scripts/",
-      "evolution-engine/"
+      "evolution-engine/",
+      "research-engine/",
+      "approved-root-engineering-modules"
     ],
     "protectedPaths": [
       ".github/",
@@ -47,7 +49,19 @@
     "rollbackOnAnyValidationFailure": true,
     "automaticPullRequest": true,
     "automaticMerge": false,
-    "productionDeployment": false
+    "productionDeployment": false,
+    "permittedRootFiles": [
+      "app.js",
+      "advanced-labs.js",
+      "robotics-core.js",
+      "nano-core.mjs",
+      "printing-core.mjs",
+      "printing-lab.js",
+      "research-labs.js",
+      "research-next.js",
+      "visual-circuit.js",
+      "navigation.js"
+    ]
   },
   "automaticPullRequestBranchWrites": true
 }
