@@ -3,17 +3,44 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 * * * *"
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 concurrency:
   group: mtdm-autonomous-maintenance
   cancel-in-progress: false
 jobs:
-  inspect-repair-and-propose:
+  trial-gate:
     if: github.repository == 'aiagent16051987/MTDM-AI-Lab'
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    outputs:
+      active: ${{ steps.gate.outputs.active }}
+    steps:
+      - name: Enforce 48-hour trial window and self-disable after expiry
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRIAL_END_EPOCH: "1795877471"
+        run: |
+          now="$(date -u +%s)"
+          if [ "$now" -lt "$TRIAL_END_EPOCH" ]; then
+            echo "active=true" >> "$GITHUB_OUTPUT"
+            echo "48-hour autonomous trial is active."
+          else
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            echo "Trial window expired; disabling this scheduled workflow."
+            gh api --method PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/autonomous-maintenance.yml/disable"
+          fi
+
+  inspect-repair-and-propose:
+    needs: trial-gate
+    if: needs.trial-gate.outputs.active == 'true'
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout default branch
         uses: actions/checkout@v4
@@ -53,6 +80,7 @@ jobs:
             robotics-core.js
             nano-core.mjs
             printing-core.mjs
+            printing-lab.mjs
             printing-lab.js
             research-labs.js
             research-next.js
