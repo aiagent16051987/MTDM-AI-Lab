@@ -73,7 +73,7 @@ try {
   report.engineeringDiscovery.status = discovery.status;
   report.evidenceGate.status = "evaluated";
   for (const proposal of discovery.proposals) {
-    const evidence = evaluateEngineeringEvidence(proposal);
+    const evidence = evaluateEngineeringEvidence(proposal, { evidenceRoot: root });
     report.evidenceGate.evaluated += 1;
     if (evidence.blockers.length) report.evidenceGate.blocked += 1;
     if (evidence.releaseEligible) report.evidenceGate.eligible += 1;
@@ -98,7 +98,7 @@ try {
   const existingEvidence = enabledSpecs.map(item => ({
     id: item.spec.id,
     file: item.file,
-    result: evaluateEngineeringEvidence(item.spec)
+    result: evaluateEngineeringEvidence(item.spec, { evidenceRoot: root })
   }));
   report.evidenceGate.existingEnabledSpecs = existingEvidence.map(item => ({
     id: item.id,
