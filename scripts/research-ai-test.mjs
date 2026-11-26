@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {runClassificationMetricsValidation} from "../research-engine/ai-experiment-runner.mjs";
-const a=runClassificationMetricsValidation(),b=runClassificationMetricsValidation();
+const a=await runClassificationMetricsValidation(),b=await runClassificationMetricsValidation();
 assert.equal(a.result.status,"pass");
 assert.equal(a.result.inputHash,b.result.inputHash);
 assert.deepEqual(a.metrics,b.metrics);
@@ -9,6 +9,6 @@ assert.ok(a.metrics.accuracy>=0&&a.metrics.accuracy<=1);
 for(const key of ["macroPrecision","macroRecall","macroF1"])assert.ok(a.metrics[key]>=0&&a.metrics[key]<=1);
 assert.equal(a.metrics.confusionMatrix.flat().reduce((s,v)=>s+v,0),6);
 assert.equal(a.records.length,3);
-assert.throws(()=>runClassificationMetricsValidation({actual:[0],predicted:[]}),/equal non-empty/);
-assert.throws(()=>runClassificationMetricsValidation({actual:[0],predicted:[3]}),/class labels/);
+await assert.rejects(()=>runClassificationMetricsValidation({actual:[0],predicted:[]}),/equal non-empty/);
+await assert.rejects(()=>runClassificationMetricsValidation({actual:[0],predicted:[3]}),/class labels/);
 console.log("Research-to-AI bridge passed: deterministic confusion matrix, macro metrics, bounded labels, reproducible input digest and synthetic fixture disclosure.");
