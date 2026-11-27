@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { simulateQuantumCircuit } from "../quantum-core.mjs";
+import { simulateQuantumCircuit, sampleQuantumMeasurements } from "../quantum-core.mjs";
 
 const bell = simulateQuantumCircuit({
   qubits: 2,
@@ -60,4 +60,28 @@ assert.throws(() => simulateQuantumCircuit({ qubits: 1, operations: [{ gate: "H"
 
 const repeated = simulateQuantumCircuit({ qubits: 2, operations: [{ gate: "H", target: 0 }, { gate: "CNOT", control: 0, target: 1 }] });
 assert.equal(repeated.inputHash, bell.inputHash);
+
+import { sampleQuantumMeasurements } from "../quantum-core.mjs";
+
+const bellSamples = sampleQuantumMeasurements(bell, { shots: 20000, seed: 12345 });
+assert.equal(Object.values(bellSamples.counts).reduce((a, b) => a + b, 0), 20000);
+assert.equal(bellSamples.counts["01"], 0);
+assert.equal(bellSamples.counts["10"], 0);
+assert.ok(Math.abs(bellSamples.frequencies["00"] - 0.5) < 0.02);
+assert.ok(Math.abs(bellSamples.frequencies["11"] - 0.5) < 0.02);
+assert.deepEqual(
+  sampleQuantumMeasurements(bell, { shots: 20000, seed: 12345 }).counts,
+  bellSamples.counts
+);
+const firstOnly = sampleQuantumMeasurements(bell, { shots: 1000, seed: 7, measuredQubits: [0] });
+assert.deepEqual(Object.keys(firstOnly.counts), ["0", "1"]);
+assert.ok(Math.abs(firstOnly.frequencies["0"] - 0.5) < 0.06);
+const reversedOrder = sampleQuantumMeasurements(ghz, { shots: 100, seed: 9, measuredQubits: [2, 0] });
+assert.deepEqual(Object.keys(reversedOrder.counts), ["00", "11"]);
+assert.throws(() => sampleQuantumMeasurements(bell, { shots: 0 }), /shots/);
+assert.throws(() => sampleQuantumMeasurements(bell, { shots: 100, seed: -1 }), /seed/);
+assert.throws(() => sampleQuantumMeasurements(bell, { shots: 100, measuredQubits: [0, 0] }), /measuredQubits/);
+assert.throws(() => sampleQuantumMeasurements(bell, { shots: 100, measuredQubits: [2] }), /measuredQubits/);
+assert.throws(() => sampleQuantumMeasurements({ ...bell, stateVector: [[1, 0], [1, 0], [0, 0], [0, 0]] }), /normalized/);
+
 console.log("Quantum core tests passed: Bell/GHZ entanglement, complex amplitudes, gates, rotations, SWAP, normalization, deterministic provenance and invalid-input rejection.");
