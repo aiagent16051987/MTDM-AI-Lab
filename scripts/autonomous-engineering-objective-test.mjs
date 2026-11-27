@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { buildAutonomousEngineeringPlan } from "../evolution-engine/autonomous-engineering-objective.mjs";
+import { buildAutonomousEngineeringPlan } from "../evolution-engine/autonomous-engineering-plan.mjs";
 
 const objective = JSON.parse(fs.readFileSync(new URL("../evolution-engine/autonomous-engineering-objective.json", import.meta.url), "utf8"));
 const capabilities = ["robotics","electronics","nano","printing","ai"].map(id => ({id,status:"experimental"}));
