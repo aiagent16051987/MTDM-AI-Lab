@@ -75,6 +75,151 @@ const templates = [
       "Educational circuit-analysis model only; verify component ratings and circuit operating conditions independently."
     ]
   }
+
+  ,
+  {
+    id: "iot-duty-cycle-energy-budget", domain: "iot",
+    title: "IoT duty-cycle energy budget",
+    objective: "Estimate average load current and ideal battery runtime for a duty-cycled device.",
+    parameters: [
+      { name: "activeCurrent", min: 0.001, max: 5, default: 0.08 },
+      { name: "sleepCurrent", min: 0.000001, max: 0.1, default: 0.0001 },
+      { name: "activeFraction", min: 0.001, max: 1, default: 0.1 },
+      { name: "capacity", min: 10, max: 50000, default: 2000 }
+    ],
+    outputs: [
+      { name: "averageCurrent", unit: "A", expression: { op: "add", args: [
+        { op: "mul", args: [{ param: "activeCurrent" }, { param: "activeFraction" }] },
+        { op: "mul", args: [{ param: "sleepCurrent" }, { op: "sub", args: [1, { param: "activeFraction" }] }] }
+      ] } },
+      { name: "idealRuntime", unit: "h", expression: { op: "div", args: [
+        { param: "capacity" }, { op: "mul", args: [
+          1000, { op: "add", args: [
+            { op: "mul", args: [{ param: "activeCurrent" }, { param: "activeFraction" }] },
+            { op: "mul", args: [{ param: "sleepCurrent" }, { op: "sub", args: [1, { param: "activeFraction" }] }] }
+          ] }
+        ] }
+      ] } }
+    ],
+    verification: [
+      { input: {}, expected: { averageCurrent: 0.00809, idealRuntime: 247.21878862793572 }, tolerance: 1e-8 },
+      { input: { activeFraction: 0.5, activeCurrent: 0.1, sleepCurrent: 0.001, capacity: 1000 }, expected: { averageCurrent: 0.0505, idealRuntime: 19.801980198019802 }, tolerance: 1e-10 }
+    ],
+    limitations: ["Assumes fixed active/sleep currents and a constant duty fraction; excludes radio startup peaks, regulator losses, battery voltage cutoff, ageing and temperature.", "Idealized energy budget only; not a battery-life guarantee or device power-integrity analysis."]
+  },
+  {
+    id: "ai-classification-confusion-metrics", domain: "ai",
+    title: "Classification confusion-matrix metrics",
+    objective: "Calculate accuracy, precision and recall from bounded binary-classification counts.",
+    parameters: [
+      { name: "truePositive", min: 0, max: 1000000, default: 80 },
+      { name: "trueNegative", min: 0, max: 1000000, default: 90 },
+      { name: "falsePositive", min: 0, max: 1000000, default: 10 },
+      { name: "falseNegative", min: 0, max: 1000000, default: 20 }
+    ],
+    outputs: [
+      { name: "accuracy", unit: "ratio", expression: { op: "div", args: [
+        { op: "add", args: [{ param: "truePositive" }, { param: "trueNegative" }] },
+        { op: "add", args: [{ param: "truePositive" }, { param: "trueNegative" }, { param: "falsePositive" }, { param: "falseNegative" }] }
+      ] } },
+      { name: "precision", unit: "ratio", expression: { op: "div", args: [
+        { param: "truePositive" }, { op: "add", args: [{ param: "truePositive" }, { param: "falsePositive" }] }
+      ] } },
+      { name: "recall", unit: "ratio", expression: { op: "div", args: [
+        { param: "truePositive" }, { op: "add", args: [{ param: "truePositive" }, { param: "falseNegative" }] }
+      ] } }
+    ],
+    verification: [
+      { input: {}, expected: { accuracy: 0.85, precision: 0.8888888888888888, recall: 0.8 }, tolerance: 1e-10 },
+      { input: { truePositive: 50, trueNegative: 40, falsePositive: 10, falseNegative: 0 }, expected: { accuracy: 0.9, precision: 0.8333333333333334, recall: 1 }, tolerance: 1e-10 }
+    ],
+    limitations: ["Counts must come from a correctly separated evaluation set; the estimator does not assess data leakage, class representativeness, calibration or deployment drift.", "Undefined zero-denominator cases are rejected by numerical verification; metrics do not establish real-world model quality."]
+  },
+  {
+    id: "robotics-differential-drive-kinematics", domain: "robotics",
+    title: "Differential-drive chassis kinematics",
+    objective: "Map left/right wheel angular speed to ideal planar linear and angular chassis velocity.",
+    parameters: [
+      { name: "leftWheelSpeed", min: -200, max: 200, default: 10 },
+      { name: "rightWheelSpeed", min: -200, max: 200, default: 10 },
+      { name: "wheelRadius", min: 0.01, max: 1, default: 0.05 },
+      { name: "wheelBase", min: 0.05, max: 5, default: 0.3 }
+    ],
+    outputs: [
+      { name: "linearVelocity", unit: "m/s", expression: { op: "div", args: [
+        { op: "mul", args: [{ op: "add", args: [{ param: "leftWheelSpeed" }, { param: "rightWheelSpeed" }] }, { param: "wheelRadius" }] }, 2
+      ] } },
+      { name: "angularVelocity", unit: "rad/s", expression: { op: "div", args: [
+        { op: "mul", args: [{ op: "sub", args: [{ param: "rightWheelSpeed" }, { param: "leftWheelSpeed" }] }, { param: "wheelRadius" }] }, { param: "wheelBase" }
+      ] } }
+    ],
+    verification: [
+      { input: {}, expected: { linearVelocity: 0.5, angularVelocity: 0 } },
+      { input: { leftWheelSpeed: 8, rightWheelSpeed: 12, wheelRadius: 0.1, wheelBase: 0.5 }, expected: { linearVelocity: 1, angularVelocity: 0.8 } }
+    ],
+    limitations: ["Ideal planar kinematics only; excludes wheel slip, actuator dynamics, backlash, terrain interaction, localization and collision constraints.", "Not a motor controller, physical robot dynamics model or safety-rated motion planner."]
+  },
+  {
+    id: "quantum-single-qubit-probability-check", domain: "quantum",
+    title: "Single-qubit probability normalization check",
+    objective: "Check normalization and population imbalance for a supplied two-outcome qubit measurement distribution.",
+    parameters: [
+      { name: "probabilityZero", min: 0, max: 1, default: 0.75 },
+      { name: "probabilityOne", min: 0, max: 1, default: 0.25 }
+    ],
+    outputs: [
+      { name: "normalization", unit: "ratio", expression: { op: "add", args: [{ param: "probabilityZero" }, { param: "probabilityOne" }] } },
+      { name: "populationImbalance", unit: "ratio", expression: { op: "sub", args: [{ param: "probabilityZero" }, { param: "probabilityOne" }] } }
+    ],
+    verification: [
+      { input: {}, expected: { normalization: 1, populationImbalance: 0.5 } },
+      { input: { probabilityZero: 0.5, probabilityOne: 0.5 }, expected: { normalization: 1, populationImbalance: 0 } }
+    ],
+    limitations: ["Evaluates supplied measurement probabilities only; does not simulate amplitudes, phase, gates, entanglement, noise or hardware.", "A normalized pair of probabilities is not evidence of quantum advantage or a complete quantum-state model."]
+  },
+  {
+    id: "nano-harmonic-pair-displacement", domain: "nano",
+    title: "Reduced-coordinate harmonic pair model",
+    objective: "Calculate restoring force and potential energy for a one-dimensional harmonic displacement coordinate.",
+    parameters: [
+      { name: "effectiveSpringConstant", min: 0.001, max: 1000000, default: 2 },
+      { name: "displacement", min: -100, max: 100, default: 0.5 }
+    ],
+    outputs: [
+      { name: "restoringForce", unit: "model-force", expression: { op: "mul", args: [-1, { param: "effectiveSpringConstant" }, { param: "displacement" }] } },
+      { name: "potentialEnergy", unit: "model-energy", expression: { op: "div", args: [
+        { op: "mul", args: [{ param: "effectiveSpringConstant" }, { param: "displacement" }, { param: "displacement" }] }, 2
+      ] } }
+    ],
+    verification: [
+      { input: {}, expected: { restoringForce: -1, potentialEnergy: 0.25 } },
+      { input: { effectiveSpringConstant: 4, displacement: -0.25 }, expected: { restoringForce: 1, potentialEnergy: 0.125 } }
+    ],
+    limitations: ["Generic harmonic-coordinate teaching model with model units; no molecular force field, electronic structure, solvent, temperature or atomistic parameterization is supplied.", "Not molecular dynamics, nanorobot design, material prediction or a validated nanoscale physical model."]
+  },
+  {
+    id: "manufacturing-rectangular-build-volume", domain: "manufacturing",
+    title: "Rectangular build-volume estimate",
+    objective: "Estimate ideal geometric volume and nominal deposited mass from bounded dimensions and material density.",
+    parameters: [
+      { name: "length", min: 0.1, max: 1000, default: 20 },
+      { name: "width", min: 0.1, max: 1000, default: 10 },
+      { name: "height", min: 0.1, max: 1000, default: 5 },
+      { name: "density", min: 0.0001, max: 0.1, default: 0.00124 }
+    ],
+    outputs: [
+      { name: "volume", unit: "mm3", expression: { op: "mul", args: [{ param: "length" }, { param: "width" }, { param: "height" }] } },
+      { name: "nominalMass", unit: "g", expression: { op: "mul", args: [
+        { op: "mul", args: [{ param: "length" }, { param: "width" }, { param: "height" }] }, { param: "density" }
+      ] } }
+    ],
+    verification: [
+      { input: {}, expected: { volume: 1000, nominalMass: 1.24 } },
+      { input: { length: 10, width: 10, height: 10, density: 0.0027 }, expected: { volume: 1000, nominalMass: 2.7 } }
+    ],
+    limitations: ["Ideal solid rectangular envelope only; excludes infill, supports, porosity, shrinkage, anisotropy, process losses and actual CAD geometry.", "Density and dimensions must use compatible units; not a slicer, machine-time estimator or certified process plan."]
+  }
+
 ];
 
 function clone(value) {
