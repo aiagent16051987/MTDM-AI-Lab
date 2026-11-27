@@ -39,7 +39,7 @@ const report = {
   remediation: { applied: [], changedFiles: [], status: "no-applicable-recipe" },
   validation: { tests: "not-run", build: "not-run" },
   safety: { allowlistedRecipePatchesOnly: true, declarativeCodeGenerationOnly: true,
-    proposedFeaturesRemainDisabled: true, evidenceGateRequiredForRelease: true, noEvidenceNoRelease: true, maxFilesPerRun: 1, workflowChanges: false,
+    proposedFeaturesRemainDisabled: true, evidenceGateRequiredForRelease: true, noEvidenceNoRelease: true, maxAutomatedSourceFilesPerRun: 1, maxDiscoveryProposalsPerRun: 10, workflowChanges: false,
     dependencyChanges: false, engineeringSafetyRuleChanges: false, automaticMerge: false,
     productionDeployment: false }
 };
