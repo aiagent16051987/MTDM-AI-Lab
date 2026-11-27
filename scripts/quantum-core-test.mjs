@@ -61,7 +61,6 @@ assert.throws(() => simulateQuantumCircuit({ qubits: 1, operations: [{ gate: "H"
 const repeated = simulateQuantumCircuit({ qubits: 2, operations: [{ gate: "H", target: 0 }, { gate: "CNOT", control: 0, target: 1 }] });
 assert.equal(repeated.inputHash, bell.inputHash);
 
-import { sampleQuantumMeasurements } from "../quantum-core.mjs";
 
 const bellSamples = sampleQuantumMeasurements(bell, { shots: 20000, seed: 12345 });
 assert.equal(Object.values(bellSamples.counts).reduce((a, b) => a + b, 0), 20000);
