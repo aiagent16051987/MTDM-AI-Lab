@@ -57,7 +57,8 @@ export function runBoundedEngineeringAgent({
       typeof validate !== "function" || typeof diagnose !== "function") {
     throw new TypeError("Engineering agent requires tasks, trusted adapters and validation callbacks");
   }
-  if (!Number.isInteger(startIndex) || startIndex < 0) throw new TypeError("startIndex must be a non-negative integer");\n  const registry = new Map();
+  if (!Number.isInteger(startIndex) || startIndex < 0) throw new TypeError("startIndex must be a non-negative integer");
+  const registry = new Map();
   for (const adapter of adapters) {
     if (!adapter || !ID.test(adapter.id || "") || typeof adapter.supports !== "function" ||
         typeof adapter.propose !== "function" || registry.has(adapter.id)) {
@@ -67,7 +68,9 @@ export function runBoundedEngineeringAgent({
   }
 
   const results = [];
-  for (const task of tasks.slice(0, budget.maxTasks)) {
+  const selectedCount = Math.min(tasks.length, budget.maxTasks);
+  const selectedTasks = Array.from({ length: selectedCount }, (_, index) => tasks[(startIndex + index) % tasks.length]);
+  for (const task of selectedTasks) {
     const adapter = [...registry.values()].find(item => item.supports(task));
     if (!adapter) {
       results.push({ taskId: task?.taskId || null, status: "blocked-no-trusted-specialist-adapter", attempts: 0, changedFiles: [] });
@@ -125,6 +128,8 @@ export function runBoundedEngineeringAgent({
     mode: "trusted-adapter-bounded-execution",
     requestedTasks: tasks.length,
     processedTasks: results.length,
+    deferredTasks: Math.max(0, tasks.length - results.length),
+    nextIndex: tasks.length ? (startIndex + selectedCount) % tasks.length : 0,
     results,
     safety: { arbitrarySourceExecution: false, generatedShellCommands: false, dependencyChanges: false,
       workflowChanges: false, hardwareControl: false, automaticMerge: false, automaticRelease: false,
