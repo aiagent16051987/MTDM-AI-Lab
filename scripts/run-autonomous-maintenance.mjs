@@ -17,6 +17,16 @@ const proposalsDir = path.join(root, "evolution-engine", "proposals");
 fs.mkdirSync(outputDir, { recursive: true });
 fs.mkdirSync(proposalsDir, { recursive: true });
 const reportPath = path.join(outputDir, "report.json");
+function resolveAgentFile(relative) {
+  const rootReal = fs.realpathSync(root);
+  const candidate = path.resolve(rootReal, relative);
+  if (!candidate.startsWith(rootReal + path.sep)) throw new Error("Engineering agent path escapes workspace");
+  const actual = fs.realpathSync(candidate);
+  if (!actual.startsWith(rootReal + path.sep) || !fs.statSync(actual).isFile()) {
+    throw new Error("Engineering agent target is not a regular repository file");
+  }
+  return actual;
+}
 const audit = auditCapabilities({ root });
 const queue = buildImprovementQueue(audit);
 const catalog = JSON.parse(fs.readFileSync(path.join(root, "evolution-engine", "remediation-catalog.json"), "utf8"));
@@ -99,8 +109,8 @@ try {
   const agentExecution = runBoundedEngineeringAgent({
     tasks: autonomousEngineeringPlan.tasks,
     adapters: [],
-    readFile: file => fs.readFileSync(path.join(root, file), "utf8"),
-    writeFile: (file, content) => fs.writeFileSync(path.join(root, file), content, "utf8"),
+    readFile: file => fs.readFileSync(resolveAgentFile(file), "utf8"),
+    writeFile: (file, content) => fs.writeFileSync(resolveAgentFile(file), content, "utf8"),
     validate: () => ({ passed: false, code: "no-specialist-adapter", summary: "No domain specialist adapter is registered." }),
     diagnose: () => ({ retryable: false, rootCause: "No trusted implementation adapter is registered for this workstream." }),
     root,
