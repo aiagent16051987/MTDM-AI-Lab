@@ -103,13 +103,18 @@ try {
     writeFile: (file, content) => fs.writeFileSync(path.join(root, file), content, "utf8"),
     validate: () => ({ passed: false, code: "no-specialist-adapter", summary: "No domain specialist adapter is registered." }),
     diagnose: () => ({ retryable: false, rootCause: "No trusted implementation adapter is registered for this workstream." }),
-    root
+    root,
+    startIndex: autonomousEngineeringPlan.tasks.length
+      ? Number(process.env.GITHUB_RUN_NUMBER || 0) % autonomousEngineeringPlan.tasks.length
+      : 0
   });
   const agentExecutionPath = path.join(outputDir, "engineering-agent-execution.json");
   fs.writeFileSync(agentExecutionPath, JSON.stringify(agentExecution, null, 2) + "\n");
   report.engineeringAgentExecution = {
     mode: agentExecution.mode,
     processedTasks: agentExecution.processedTasks,
+    deferredTasks: agentExecution.deferredTasks,
+    nextIndex: agentExecution.nextIndex,
     validatedCandidates: agentExecution.results.filter(item => item.status === "candidate-validated-pending-human-review").length,
     blockedTasks: agentExecution.results.filter(item => item.status.startsWith("blocked-")).length,
     reportFile: path.relative(root, agentExecutionPath),
