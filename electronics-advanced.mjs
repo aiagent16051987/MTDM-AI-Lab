@@ -15,7 +15,10 @@ export function solveDCNetwork({nodes,resistors,sources=[],diodes=[],ground=0,ma
   for(const d of ds){const v=voltages[d.p]-voltages[d.n],ev=Math.max(-40,Math.min(40,v/d.nvt)),current=d.is*Math.expm1(ev),g=Math.max(d.is*Math.exp(ev)/d.nvt,1e-12),equiv=current-g*v;stampG(d.p,d.n,g);if(idx.has(d.p))b[idx.get(d.p)]-=equiv;if(idx.has(d.n))b[idx.get(d.n)]+=equiv}
   src.forEach((s,j)=>{const k=unknown.length+j;if(idx.has(s.p)){A[idx.get(s.p)][k]+=1;A[k][idx.get(s.p)]+=1}if(idx.has(s.n)){A[idx.get(s.n)][k]-=1;A[k][idx.get(s.n)]-=1}b[k]=s.voltage});
   const solution=gaussian(A,b),next=new Array(nodes).fill(0);unknown.forEach((node,i)=>next[node]=solution[i]);
-  const error=Math.max(...next.map((v,i)=>Math.abs(v-voltages[i])));voltages=next;if(error<tolerance)break;
+  // Damped Newton updates prevent a near-zero initial diode conductance from causing a large first-step overshoot.
+  const damping=ds.length?0.5:1;
+  const updated=next.map((value,i)=>voltages[i]+damping*(value-voltages[i]));
+  const error=Math.max(...updated.map((v,i)=>Math.abs(v-voltages[i])));voltages=updated;if(error<tolerance)break;
  }
  if(iterations===maxIterations)throw new Error("nonlinear operating point did not converge");
  const resistorCurrents=res.map(r=>({p:r.p,n:r.n,current:(voltages[r.p]-voltages[r.n])/r.ohms}));
