@@ -64,8 +64,8 @@ assert.equal(repeated.inputHash, bell.inputHash);
 
 const bellSamples = sampleQuantumMeasurements(bell, { shots: 20000, seed: 12345 });
 assert.equal(Object.values(bellSamples.counts).reduce((a, b) => a + b, 0), 20000);
-assert.equal(bellSamples.counts["01"], 0);
-assert.equal(bellSamples.counts["10"], 0);
+assert.equal(bellSamples.counts["01"] ?? 0, 0);
+assert.equal(bellSamples.counts["10"] ?? 0, 0);
 assert.ok(Math.abs(bellSamples.frequencies["00"] - 0.5) < 0.02);
 assert.ok(Math.abs(bellSamples.frequencies["11"] - 0.5) < 0.02);
 assert.deepEqual(
