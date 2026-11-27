@@ -5,26 +5,32 @@ function validateObjective(objective) {
       objective.domains.length !== 5 || !Array.isArray(objective.crossCuttingGates) ||
       !objective.safety || objective.safety.automaticMerge !== false ||
       objective.safety.automaticProductionRelease !== false ||
-      objective.safety.hardwareControl !== false) {
+      objective.safety.hardwareControl !== false ||
+      objective.safety.arbitrarySourceExecution !== false ||
+      objective.safety.evalOrFunctionConstructor !== false ||
+      objective.safety.shellCommandGeneration !== false) {
     throw new TypeError("Invalid autonomous engineering objective or unsafe policy");
   }
   const ids = new Set();
+  const workstreamIds = new Set();
   for (const domain of objective.domains) {
     if (!VALID_ID.test(domain?.id || "") || !VALID_ID.test(domain?.capabilityId || "") ||
         ids.has(domain.id) || !Array.isArray(domain.workstreams) || !domain.workstreams.length) {
       throw new TypeError("Invalid or duplicate objective domain");
     }
     ids.add(domain.id);
-    const workstreamIds = new Set();
     for (const stream of domain.workstreams) {
       if (!VALID_ID.test(stream?.id || "") || workstreamIds.has(stream.id) ||
           typeof stream.target !== "string" || !stream.target.trim() ||
           !Array.isArray(stream.acceptance) || stream.acceptance.length < 2 ||
           stream.acceptance.some(item => typeof item !== "string" || !item.trim())) {
-        throw new TypeError("Invalid objective workstream: " + domain.id);
+        throw new TypeError("Invalid or duplicate objective workstream: " + domain.id);
       }
       workstreamIds.add(stream.id);
     }
+  }
+  if (objective.domains.reduce((sum, domain) => sum + domain.workstreams.length, 0) !== 21) {
+    throw new TypeError("Objective workstream coverage is incomplete");
   }
   return true;
 }
@@ -34,11 +40,11 @@ export function buildAutonomousEngineeringPlan({ objective, capabilities, audit 
   if (!Array.isArray(capabilities) || !audit || !Array.isArray(audit.findings)) {
     throw new TypeError("Capabilities and audit findings are required");
   }
+  const relatedFindings = audit.findings.filter(item =>
+    item.category === "verification" || item.category === "evidence" || item.category === "integrity");
   const tasks = [];
   for (const domain of objective.domains) {
     const capability = capabilities.find(item => item?.id === domain.capabilityId);
-    const relatedFindings = audit.findings.filter(item =>
-      item.category === "verification" || item.category === "evidence" || item.category === "integrity");
     for (const stream of domain.workstreams) {
       const implemented = capability?.status === "implemented";
       tasks.push({
