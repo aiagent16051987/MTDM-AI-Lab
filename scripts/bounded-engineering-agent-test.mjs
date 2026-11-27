@@ -54,4 +54,14 @@ assert.throws(() => runBoundedEngineeringAgent({
   readFile, writeFile, validate: () => ({ passed: true }), diagnose: () => ({ retryable: false })
 }), /precondition failed/);
 
-console.log("PASS — bounded adapter execution, patch allowlist, retries, rollback, budgets and human-review gate.");
+const rotated = runBoundedEngineeringAgent({
+  tasks: [task, { ...task, taskId: "robotics:pid", domain: "robotics" }],
+  adapters: [], readFile, writeFile,
+  validate: () => ({ passed: true }), diagnose: () => ({ retryable: false }),
+  startIndex: 1
+});
+assert.equal(rotated.results[0].taskId, "robotics:pid");
+assert.equal(rotated.nextIndex, 0);
+assert.equal(rotated.deferredTasks, 1);
+
+console.log("PASS — bounded adapter execution, task rotation, patch allowlist, retries, rollback, budgets and human-review gate.");
