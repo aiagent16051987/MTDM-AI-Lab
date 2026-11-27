@@ -70,6 +70,15 @@ jobs:
             artifacts/autonomous-maintenance/heartbeat.json
           if-no-files-found: warn
           retention-days: 30
+      - name: Ensure generated simulation staging directory exists
+        if: success()
+        shell: bash
+        run: |
+          mkdir -p generated-simulations
+          if [ ! -f generated-simulations/.gitkeep ]; then
+            printf '%s\\n' 'Generated model outputs are created only from approved declarative specifications.' > generated-simulations/.gitkeep
+          fi
+          test -f generated-simulations/.gitkeep
       - name: Create review-only pull request for validated proposals and repairs
         if: success()
         uses: peter-evans/create-pull-request@v7
