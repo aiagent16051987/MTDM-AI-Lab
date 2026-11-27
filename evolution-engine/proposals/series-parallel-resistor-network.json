@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "id": "series-parallel-resistor-network",
+  "title": "Two-branch resistor network equivalent",
+  "description": "Calculate equivalent resistance, source current and total power for a series resistor feeding a parallel pair.",
+  "domain": "electronics",
+  "reviewStatus": "proposed-not-reviewed",
+  "parameters": [
+    {
+      "name": "seriesResistance",
+      "min": 0.1,
+      "max": 100000,
+      "default": 100
+    },
+    {
+      "name": "branchA",
+      "min": 0.1,
+      "max": 100000,
+      "default": 1000
+    },
+    {
+      "name": "branchB",
+      "min": 0.1,
+      "max": 100000,
+      "default": 1000
+    },
+    {
+      "name": "supplyVoltage",
+      "min": 0,
+      "max": 1000,
+      "default": 12
+    }
+  ],
+  "outputs": [
+    {
+      "name": "parallelResistance",
+      "unit": "ohm",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "op": "mul",
+            "args": [
+              {
+                "param": "branchA"
+              },
+              {
+                "param": "branchB"
+              }
+            ]
+          },
+          {
+            "op": "add",
+            "args": [
+              {
+                "param": "branchA"
+              },
+              {
+                "param": "branchB"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "equivalentResistance",
+      "unit": "ohm",
+      "expression": {
+        "op": "add",
+        "args": [
+          {
+            "param": "seriesResistance"
+          },
+          {
+            "op": "div",
+            "args": [
+              {
+                "op": "mul",
+                "args": [
+                  {
+                    "param": "branchA"
+                  },
+                  {
+                    "param": "branchB"
+                  }
+                ]
+              },
+              {
+                "op": "add",
+                "args": [
+                  {
+                    "param": "branchA"
+                  },
+                  {
+                    "param": "branchB"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "sourceCurrent",
+      "unit": "A",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "param": "supplyVoltage"
+          },
+          {
+            "op": "add",
+            "args": [
+              {
+                "param": "seriesResistance"
+              },
+              {
+                "op": "div",
+                "args": [
+                  {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "param": "branchA"
+                      },
+                      {
+                        "param": "branchB"
+                      }
+                    ]
+                  },
+                  {
+                    "op": "add",
+                    "args": [
+                      {
+                        "param": "branchA"
+                      },
+                      {
+                        "param": "branchB"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "verification": [
+    {
+      "input": {},
+      "expected": {
+        "parallelResistance": 500,
+        "equivalentResistance": 600,
+        "sourceCurrent": 0.02
+      }
+    },
+    {
+      "input": {
+        "seriesResistance": 0.1,
+        "branchA": 100,
+        "branchB": 100,
+        "supplyVoltage": 10
+      },
+      "expected": {
+        "parallelResistance": 50,
+        "equivalentResistance": 50.1,
+        "sourceCurrent": 0.1996007984031936
+      },
+      "tolerance": 1e-8
+    }
+  ],
+  "intendedUse": "educational-only",
+  "hardwareControl": false,
+  "limitations": [
+    "Assumes ideal resistors and an ideal DC source; ignores tolerances, temperature coefficients, wiring and source impedance.",
+    "Power and individual branch currents are not yet calculated in this candidate.",
+    "Educational circuit-analysis model only; verify component ratings and circuit operating conditions independently."
+  ],
+  "generatedBy": "mtdm-deterministic-engineering-discovery",
+  "sourceTemplateSha256": "14d57eee95b64fbdb5c3a90972b144dd8979089966eeac360513efcd9cedb56a",
+  "approvalRequired": true
+}

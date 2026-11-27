@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "id": "nano-harmonic-pair-displacement",
+  "title": "Reduced-coordinate harmonic pair model",
+  "description": "Calculate restoring force and potential energy for a one-dimensional harmonic displacement coordinate.",
+  "domain": "nano",
+  "reviewStatus": "proposed-not-reviewed",
+  "parameters": [
+    {
+      "name": "effectiveSpringConstant",
+      "min": 0.001,
+      "max": 1000000,
+      "default": 2
+    },
+    {
+      "name": "displacement",
+      "min": -100,
+      "max": 100,
+      "default": 0.5
+    }
+  ],
+  "outputs": [
+    {
+      "name": "restoringForce",
+      "unit": "model-force",
+      "expression": {
+        "op": "mul",
+        "args": [
+          -1,
+          {
+            "param": "effectiveSpringConstant"
+          },
+          {
+            "param": "displacement"
+          }
+        ]
+      }
+    },
+    {
+      "name": "potentialEnergy",
+      "unit": "model-energy",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "op": "mul",
+            "args": [
+              {
+                "param": "effectiveSpringConstant"
+              },
+              {
+                "param": "displacement"
+              },
+              {
+                "param": "displacement"
+              }
+            ]
+          },
+          2
+        ]
+      }
+    }
+  ],
+  "verification": [
+    {
+      "input": {},
+      "expected": {
+        "restoringForce": -1,
+        "potentialEnergy": 0.25
+      }
+    },
+    {
+      "input": {
+        "effectiveSpringConstant": 4,
+        "displacement": -0.25
+      },
+      "expected": {
+        "restoringForce": 1,
+        "potentialEnergy": 0.125
+      }
+    }
+  ],
+  "intendedUse": "educational-only",
+  "hardwareControl": false,
+  "limitations": [
+    "Generic harmonic-coordinate teaching model with model units; no molecular force field, electronic structure, solvent, temperature or atomistic parameterization is supplied.",
+    "Not molecular dynamics, nanorobot design, material prediction or a validated nanoscale physical model."
+  ],
+  "generatedBy": "mtdm-deterministic-engineering-discovery",
+  "sourceTemplateSha256": "4a07161f9e4785bcdd889f3911f5667ad006e0e9e13409daec883f47e5453923",
+  "approvalRequired": true
+}

@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "id": "iot-duty-cycle-energy-budget",
+  "title": "IoT duty-cycle energy budget",
+  "description": "Estimate average load current and ideal battery runtime for a duty-cycled device.",
+  "domain": "iot",
+  "reviewStatus": "proposed-not-reviewed",
+  "parameters": [
+    {
+      "name": "activeCurrent",
+      "min": 0.001,
+      "max": 5,
+      "default": 0.08
+    },
+    {
+      "name": "sleepCurrent",
+      "min": 0.000001,
+      "max": 0.1,
+      "default": 0.0001
+    },
+    {
+      "name": "activeFraction",
+      "min": 0.001,
+      "max": 1,
+      "default": 0.1
+    },
+    {
+      "name": "capacity",
+      "min": 10,
+      "max": 50000,
+      "default": 2000
+    }
+  ],
+  "outputs": [
+    {
+      "name": "averageCurrent",
+      "unit": "A",
+      "expression": {
+        "op": "add",
+        "args": [
+          {
+            "op": "mul",
+            "args": [
+              {
+                "param": "activeCurrent"
+              },
+              {
+                "param": "activeFraction"
+              }
+            ]
+          },
+          {
+            "op": "mul",
+            "args": [
+              {
+                "param": "sleepCurrent"
+              },
+              {
+                "op": "sub",
+                "args": [
+                  1,
+                  {
+                    "param": "activeFraction"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "idealRuntime",
+      "unit": "h",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "param": "capacity"
+          },
+          {
+            "op": "mul",
+            "args": [
+              1000,
+              {
+                "op": "add",
+                "args": [
+                  {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "param": "activeCurrent"
+                      },
+                      {
+                        "param": "activeFraction"
+                      }
+                    ]
+                  },
+                  {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "param": "sleepCurrent"
+                      },
+                      {
+                        "op": "sub",
+                        "args": [
+                          1,
+                          {
+                            "param": "activeFraction"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "verification": [
+    {
+      "input": {},
+      "expected": {
+        "averageCurrent": 0.00809,
+        "idealRuntime": 247.2187886279357
+      },
+      "tolerance": 1e-8
+    },
+    {
+      "input": {
+        "activeFraction": 0.5,
+        "activeCurrent": 0.1,
+        "sleepCurrent": 0.001,
+        "capacity": 1000
+      },
+      "expected": {
+        "averageCurrent": 0.0505,
+        "idealRuntime": 19.801980198019802
+      },
+      "tolerance": 1e-10
+    }
+  ],
+  "intendedUse": "educational-only",
+  "hardwareControl": false,
+  "limitations": [
+    "Assumes fixed active/sleep currents and a constant duty fraction; excludes radio startup peaks, regulator losses, battery voltage cutoff, ageing and temperature.",
+    "Idealized energy budget only; not a battery-life guarantee or device power-integrity analysis."
+  ],
+  "generatedBy": "mtdm-deterministic-engineering-discovery",
+  "sourceTemplateSha256": "3069a2a8b0559de1a9dd1f077787b709b564e61e8eb4dde378dd41a227067143",
+  "approvalRequired": true
+}
