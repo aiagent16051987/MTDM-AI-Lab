@@ -8,6 +8,7 @@ import { discoverEngineeringFeatures } from "../evolution-engine/engineering-dis
 import { evaluateEngineeringEvidence } from "../evolution-engine/engineering-evidence-gate.mjs";
 import { buildDomainWorkPlan } from "../evolution-engine/domain-work-planner.mjs";
 import { buildAutonomousEngineeringPlan } from "../evolution-engine/autonomous-engineering-plan.mjs";
+import { runBoundedEngineeringAgent } from "../evolution-engine/bounded-engineering-agent.mjs";
 
 const root = process.cwd();
 const outputDir = path.join(root, "artifacts", "autonomous-maintenance");
@@ -95,6 +96,26 @@ try {
     capabilities: capabilityRegistry.capabilities,
     audit
   });
+  const agentExecution = runBoundedEngineeringAgent({
+    tasks: autonomousEngineeringPlan.tasks,
+    adapters: [],
+    readFile: file => fs.readFileSync(path.join(root, file), "utf8"),
+    writeFile: (file, content) => fs.writeFileSync(path.join(root, file), content, "utf8"),
+    validate: () => ({ passed: false, code: "no-specialist-adapter", summary: "No domain specialist adapter is registered." }),
+    diagnose: () => ({ retryable: false, rootCause: "No trusted implementation adapter is registered for this workstream." }),
+    root
+  });
+  const agentExecutionPath = path.join(outputDir, "engineering-agent-execution.json");
+  fs.writeFileSync(agentExecutionPath, JSON.stringify(agentExecution, null, 2) + "\\n");
+  report.engineeringAgentExecution = {
+    mode: agentExecution.mode,
+    processedTasks: agentExecution.processedTasks,
+    validatedCandidates: agentExecution.results.filter(item => item.status === "candidate-validated-pending-human-review").length,
+    blockedTasks: agentExecution.results.filter(item => item.status.startsWith("blocked-")).length,
+    reportFile: path.relative(root, agentExecutionPath),
+    safety: agentExecution.safety,
+    limitation: agentExecution.limitation
+  };
   const objectivePlanPath = path.join(outputDir, "engineering-objective-plan.json");
   fs.writeFileSync(objectivePlanPath, JSON.stringify(autonomousEngineeringPlan, null, 2) + "\n");
   report.autonomousEngineeringObjective = {
