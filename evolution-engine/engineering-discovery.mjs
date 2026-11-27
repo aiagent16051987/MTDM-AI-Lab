@@ -225,24 +225,29 @@ function clone(value) {
 }
 
 function validateCandidate(candidate) {
-  if (!candidate || !/^[a-z][a-z0-9-]{0,62}$/.test(candidate.id)) throw new Error("Invalid candidate identifier");
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate) ||
+      !/^[a-z][a-z0-9-]{0,62}$/.test(candidate.id)) throw new Error("Invalid candidate identifier");
   if (!Array.isArray(candidate.parameters) || !candidate.parameters.length || !Array.isArray(candidate.outputs) || !candidate.outputs.length) {
     throw new Error("Candidate must declare bounded parameters and outputs");
   }
   const names = new Set();
   for (const parameter of candidate.parameters) {
-    if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(parameter.name) || names.has(parameter.name)) throw new Error("Invalid or duplicate parameter");
+    if (!parameter || typeof parameter !== "object" ||
+        !/^[A-Za-z][A-Za-z0-9_]*$/.test(parameter.name) || names.has(parameter.name)) throw new Error("Invalid or duplicate parameter");
     names.add(parameter.name);
     if (![parameter.min, parameter.max, parameter.default].every(Number.isFinite) ||
         parameter.min > parameter.default || parameter.default > parameter.max) throw new Error("Invalid parameter bounds");
   }
   for (const output of candidate.outputs) {
-    if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(output.name) || names.has(output.name) ||
-        typeof output.unit !== "string" || !output.unit) throw new Error("Invalid or duplicate output");
+    if (!output || typeof output !== "object" ||
+        !/^[A-Za-z][A-Za-z0-9_]*$/.test(output.name) || names.has(output.name) ||
+        typeof output.unit !== "string" || !output.unit.trim()) throw new Error("Invalid or duplicate output");
     names.add(output.name);
     validateAst(output.expression, new Set(candidate.parameters.map(p => p.name)));
   }
-  if (!candidate.verification?.length || candidate.verification.length > 100) throw new Error("Numerical verification vectors are required");
+  if (!Array.isArray(candidate.verification) || !candidate.verification.length || candidate.verification.length > 100) {
+    throw new Error("Numerical verification vectors are required");
+  }
   return true;
 }
 
@@ -251,9 +256,12 @@ function validateAst(node, params, depth = 0) {
   if (typeof node === "number" && Number.isFinite(node)) return;
   if (!node || typeof node !== "object" || Array.isArray(node)) throw new Error("Invalid expression node");
   if (Object.hasOwn(node, "param")) {
-    if (!params.has(node.param)) throw new Error("Unknown parameter reference: " + node.param);
+    if (Object.keys(node).length !== 1 || typeof node.param !== "string" || !params.has(node.param)) {
+      throw new Error("Unknown or malformed parameter reference");
+    }
     return;
   }
+  if (Object.keys(node).some(key => key !== "op" && key !== "args")) throw new Error("Unexpected expression property");
   const arity = { add: [2, 16], sub: [2, 2], mul: [2, 16], div: [2, 2] }[node.op];
   if (!arity || !Array.isArray(node.args) || node.args.length < arity[0] || node.args.length > arity[1]) throw new Error("Unsupported AST operation or arity");
   node.args.forEach(child => validateAst(child, params, depth + 1));
@@ -273,7 +281,25 @@ function evaluate(node, input) {
 }
 
 function verify(candidate) {
+  const parameterNames = new Set(candidate.parameters.map(parameter => parameter.name));
+  const outputNames = new Set(candidate.outputs.map(output => output.name));
   for (const [index, vector] of candidate.verification.entries()) {
+    if (!vector || typeof vector !== "object" || Array.isArray(vector) ||
+        !vector.input || typeof vector.input !== "object" || Array.isArray(vector.input) ||
+        !vector.expected || typeof vector.expected !== "object" || Array.isArray(vector.expected)) {
+      throw new Error("Malformed verification vector " + index);
+    }
+    if (Object.keys(vector.input).some(name => !parameterNames.has(name))) {
+      throw new Error("Unknown verification input at vector " + index);
+    }
+    if (Object.keys(vector.expected).length !== outputNames.size ||
+        Object.keys(vector.expected).some(name => !outputNames.has(name))) {
+      throw new Error("Verification output set must exactly match model outputs at vector " + index);
+    }
+    const tolerance = vector.tolerance ?? 1e-9;
+    if (!Number.isFinite(tolerance) || tolerance < 0 || tolerance > 0.01) {
+      throw new Error("Invalid verification tolerance at vector " + index);
+    }
     const input = Object.fromEntries(candidate.parameters.map(p => [p.name, p.default]));
     Object.assign(input, vector.input);
     for (const p of candidate.parameters) if (!Number.isFinite(input[p.name]) || input[p.name] < p.min || input[p.name] > p.max) {
@@ -282,7 +308,6 @@ function verify(candidate) {
     for (const output of candidate.outputs) {
       const actual = evaluate(output.expression, input);
       const expected = vector.expected[output.name];
-      const tolerance = vector.tolerance ?? 1e-9;
       if (!Number.isFinite(actual) || !Number.isFinite(expected) || Math.abs(actual - expected) > tolerance) {
         throw new Error("Numerical verification failed: " + candidate.id + "/" + output.name + " vector " + index + " actual=" + actual + " expected=" + expected);
       }
