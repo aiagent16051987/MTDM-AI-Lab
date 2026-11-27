@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "id": "mtdm-five-domain-autonomous-engineering",
+  "title": "Five-domain autonomous engineering development objective",
+  "purpose": "Upgrade the maintenance system from deterministic proposal generation into a disciplined engineering development pipeline that can plan, implement, debug, validate and submit reviewable improvements across five engineering domains.",
+  "domains": [
+    {
+      "id": "robotics",
+      "capabilityId": "robotics",
+      "workstreams": [
+        {
+          "id": "rigid-body-dynamics-3d",
+          "target": "3D rigid-body dynamics with explicit coordinate frames, inertia tensors, rotational integration and conservation diagnostics",
+          "acceptance": [
+            "SI units and coordinate-frame conventions are explicit",
+            "Independent analytic benchmark cases cover translation and rotation",
+            "Numerical convergence and energy/momentum drift are measured"
+          ]
+        },
+        {
+          "id": "contact-and-friction",
+          "target": "Contact constraints, Coulomb friction and stable collision response",
+          "acceptance": [
+            "Contact normal and tangential force conventions are explicit",
+            "Static/kinetic friction and limiting cases are tested",
+            "Penetration, energy injection and solver convergence are bounded"
+          ]
+        },
+        {
+          "id": "inverse-kinematics",
+          "target": "Numerically stable inverse kinematics for bounded serial manipulators",
+          "acceptance": [
+            "Forward-kinematics cross-checks validate returned solutions",
+            "Joint limits, singularities and unreachable targets are handled",
+            "Residual and convergence criteria are reported"
+          ]
+        },
+        {
+          "id": "trajectory-optimization",
+          "target": "Constraint-aware trajectory optimization with dynamics and actuator bounds",
+          "acceptance": [
+            "Objective, constraints and units are documented",
+            "Feasibility and optimality residuals are reported",
+            "Deterministic benchmark trajectories are reproducible"
+          ]
+        },
+        {
+          "id": "swarm-coordination",
+          "target": "Multi-agent swarm coordination and collision-aware formation behaviours",
+          "acceptance": [
+            "Agent count and communication assumptions are bounded",
+            "Collision/separation invariants are tested",
+            "Seeded scenarios report convergence and failure cases"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "electronics",
+      "capabilityId": "electronics",
+      "workstreams": [
+        {
+          "id": "mosfet-bjt-device-models",
+          "target": "Bounded MOSFET and BJT compact device models with documented operating regions",
+          "acceptance": [
+            "Model equations and parameter units are explicit",
+            "Operating-region and limiting-case tests match reference equations",
+            "Model scope and temperature limitations are declared"
+          ]
+        },
+        {
+          "id": "nonlinear-transient",
+          "target": "Robust nonlinear transient circuit analysis with Newton iteration and adaptive time stepping",
+          "acceptance": [
+            "Convergence, damping and timestep controls are observable",
+            "Diode and transistor circuits are cross-checked against reference solutions",
+            "Singular, stiff and non-convergent cases fail safely"
+          ]
+        },
+        {
+          "id": "ac-small-signal",
+          "target": "Linearized AC small-signal analysis around a validated DC operating point",
+          "acceptance": [
+            "Jacobian linearization is checked against finite differences",
+            "Complex frequency response and units are validated",
+            "Operating-point failure blocks AC analysis"
+          ]
+        },
+        {
+          "id": "switching-converters",
+          "target": "Switched power-converter models with cycle-level and averaged analysis",
+          "acceptance": [
+            "Switch states, energy balance and losses are accounted for",
+            "Buck/boost benchmark cases are independently checked",
+            "Numerical timestep and stability limits are explicit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nano",
+      "capabilityId": "nano",
+      "workstreams": [
+        {
+          "id": "three-dimensional-md",
+          "target": "3D molecular dynamics with validated integrators and reproducible ensembles",
+          "acceptance": [
+            "3D periodic and non-periodic boundary cases are tested",
+            "Energy, momentum and timestep convergence diagnostics are reported",
+            "Seeded trajectories are reproducible"
+          ]
+        },
+        {
+          "id": "periodic-boundaries",
+          "target": "Periodic boundary conditions and minimum-image neighbour handling",
+          "acceptance": [
+            "Boundary crossing and minimum-image edge cases are tested",
+            "Cutoff and box-size constraints are enforced",
+            "Pair symmetry and momentum conservation are verified"
+          ]
+        },
+        {
+          "id": "electrostatics",
+          "target": "Bounded electrostatic interactions with a documented long-range approximation",
+          "acceptance": [
+            "Charge neutrality and boundary assumptions are explicit",
+            "Reference configurations are independently checked",
+            "Finite-size and approximation errors are reported"
+          ]
+        },
+        {
+          "id": "force-field-validation",
+          "target": "Force-field parameter validation against authoritative reference datasets",
+          "acceptance": [
+            "Parameter provenance and units are recorded",
+            "Energy/force consistency is checked numerically",
+            "Independent structures and sensitivity tests are required"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "manufacturing",
+      "capabilityId": "printing",
+      "workstreams": [
+        {
+          "id": "mesh-import-validation",
+          "target": "Arbitrary triangle-mesh import, topology checks and geometric validation",
+          "acceptance": [
+            "Watertightness, manifold and self-intersection checks are reported",
+            "Units, coordinate transforms and mesh bounds are validated",
+            "Invalid meshes are rejected with actionable diagnostics"
+          ]
+        },
+        {
+          "id": "slicing-and-toolpaths",
+          "target": "Layer slicing, perimeter/infill generation and deterministic toolpath planning",
+          "acceptance": [
+            "Cross-section geometry is validated against reference meshes",
+            "Toolpaths respect machine and process constraints",
+            "Geometric error and path continuity are measured"
+          ]
+        },
+        {
+          "id": "gcode-generation",
+          "target": "Machine-profile-bound G-code generation and static verification",
+          "acceptance": [
+            "Machine profiles and supported commands are allowlisted",
+            "Travel, extrusion, temperature and bounds checks are enforced",
+            "No machine execution or hardware control is enabled"
+          ]
+        },
+        {
+          "id": "thermal-and-stress",
+          "target": "Thermal process modelling and bounded residual-stress estimation",
+          "acceptance": [
+            "Governing assumptions and boundary conditions are explicit",
+            "Mesh/time convergence and energy checks are reported",
+            "Results are cross-checked against analytical or published benchmarks"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ai",
+      "capabilityId": "ai",
+      "workstreams": [
+        {
+          "id": "neural-network-backpropagation",
+          "target": "Reproducible neural-network training with correct backpropagation and gradient checks",
+          "acceptance": [
+            "Analytic gradients match finite-difference checks",
+            "Train/validation/test splits prevent leakage",
+            "Seeded training is reproducible and loss behaviour is reported"
+          ]
+        },
+        {
+          "id": "cnn-training",
+          "target": "Bounded convolutional neural-network layers and training for small datasets",
+          "acceptance": [
+            "Convolution, padding, stride and gradient kernels have reference tests",
+            "Tensor shapes and memory budgets are validated",
+            "Dataset provenance and limitations are reported"
+          ]
+        },
+        {
+          "id": "optimizers",
+          "target": "SGD, momentum, RMSProp and Adam with explicit optimizer-state handling",
+          "acceptance": [
+            "Update equations match authoritative references",
+            "Numerical edge cases and convergence benchmarks are tested",
+            "Hyperparameters and optimizer state are serialized reproducibly"
+          ]
+        },
+        {
+          "id": "evaluation-and-reproducibility",
+          "target": "Leakage-aware evaluation, calibration diagnostics and reproducible experiment records",
+          "acceptance": [
+            "Metrics include uncertainty and class-imbalance diagnostics where applicable",
+            "Repeated seeded runs and data splits are recorded",
+            "Model claims are bounded by dataset and validation scope"
+          ]
+        }
+      ]
+    }
+  ],
+  "crossCuttingGates": [
+    "equations-and-dimensional-analysis",
+    "SI-units-and-coordinate-conventions",
+    "solver-stability-and-convergence",
+    "independent-reference-benchmarks",
+    "boundary-and-adversarial-tests",
+    "uncertainty-and-validity-domain",
+    "deterministic-reproducibility",
+    "provenance-and-limitations",
+    "complete-regression-and-browser-tests",
+    "human-review-before-merge-or-release"
+  ],
+  "safety": {
+    "arbitrarySourceExecution": false,
+    "evalOrFunctionConstructor": false,
+    "shellCommandGeneration": false,
+    "hardwareControl": false,
+    "automaticMerge": false,
+    "automaticProductionRelease": false,
+    "workflowAndPermissionChangesRequireHumanApproval": true,
+    "dependenciesRequireHumanApproval": true,
+    "failClosedOnMissingEvidence": true
+  }
+}

@@ -7,6 +7,7 @@ import { compileEnabledSpecs } from "../evolution-engine/model-codegen.mjs";
 import { discoverEngineeringFeatures } from "../evolution-engine/engineering-discovery.mjs";
 import { evaluateEngineeringEvidence } from "../evolution-engine/engineering-evidence-gate.mjs";
 import { buildDomainWorkPlan } from "../evolution-engine/domain-work-planner.mjs";
+import { buildAutonomousEngineeringPlan } from "../evolution-engine/autonomous-engineering-plan.mjs";
 
 const root = process.cwd();
 const outputDir = path.join(root, "artifacts", "autonomous-maintenance");
@@ -34,6 +35,7 @@ const report = {
   queuedFindings: queue.length,
   engineeringDiscovery: { status: "not-run", proposed: [], autoEnabled: 0, domainCoverage: [] },
   domainWorkPlan: { status: "not-run", workItems: [] },
+  autonomousEngineeringObjective: { status: "not-run", objectiveId: null, domainCount: 0, workstreamCount: 0, completedTasks: 0, planFile: null },
   evidenceGate: { status: "not-run", evaluated: 0, blocked: 0, eligible: 0, results: [] },
   codeGeneration: { compiled: [], status: "no-approved-specifications" },
   remediation: { applied: [], changedFiles: [], status: "no-applicable-recipe" },
@@ -87,6 +89,23 @@ try {
     executableTestReferences: item.executableTestReferences
   }));
   report.domainWorkPlan = domainWorkPlan;
+  const engineeringObjective = JSON.parse(fs.readFileSync(path.join(root, "evolution-engine", "autonomous-engineering-objective.json"), "utf8"));
+  const autonomousEngineeringPlan = buildAutonomousEngineeringPlan({
+    objective: engineeringObjective,
+    capabilities: capabilityRegistry.capabilities,
+    audit
+  });
+  const objectivePlanPath = path.join(outputDir, "engineering-objective-plan.json");
+  fs.writeFileSync(objectivePlanPath, JSON.stringify(autonomousEngineeringPlan, null, 2) + "\n");
+  report.autonomousEngineeringObjective = {
+    status: autonomousEngineeringPlan.status,
+    objectiveId: autonomousEngineeringPlan.objectiveId,
+    domainCount: autonomousEngineeringPlan.domainCount,
+    workstreamCount: autonomousEngineeringPlan.workstreamCount,
+    completedTasks: autonomousEngineeringPlan.completedTasks,
+    planFile: path.relative(root, objectivePlanPath),
+    limitation: autonomousEngineeringPlan.limitation
+  };
   report.evidenceGate.status = "evaluated";
   for (const proposal of discovery.proposals) {
     const evidence = evaluateEngineeringEvidence(proposal, { evidenceRoot: root });
