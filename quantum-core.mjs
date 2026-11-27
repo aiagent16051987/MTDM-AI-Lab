@@ -190,3 +190,80 @@ export function simulateQuantumCircuit(input = {}) {
   }
   return result;
 }
+
+export function sampleQuantumMeasurements(simulation, { shots = 1024, seed = 20261127, measuredQubits } = {}) {
+  if (!simulation || typeof simulation !== "object" || !Number.isInteger(simulation.qubits) ||
+      simulation.qubits < 1 || simulation.qubits > 8 ||
+      !Array.isArray(simulation.stateVector) || simulation.stateVector.length !== 2 ** simulation.qubits) {
+    throw new TypeError("A valid state-vector simulation result is required");
+  }
+  if (!Number.isInteger(shots) || shots < 1 || shots > 1000000) {
+    throw new RangeError("shots must be an integer from 1 to 1000000");
+  }
+  if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) {
+    throw new RangeError("seed must be an unsigned 32-bit integer");
+  }
+  const qubits = measuredQubits ?? Array.from({ length: simulation.qubits }, (_, index) => index);
+  if (!Array.isArray(qubits) || qubits.length < 1 || qubits.length > simulation.qubits ||
+      qubits.some(q => !Number.isInteger(q) || q < 0 || q >= simulation.qubits) ||
+      new Set(qubits).size !== qubits.length) {
+    throw new RangeError("measuredQubits must contain unique valid qubit indices");
+  }
+  const state = simulation.stateVector.map((amplitude, index) => {
+    if (!Array.isArray(amplitude) || amplitude.length !== 2 || !amplitude.every(Number.isFinite)) {
+      throw new TypeError("Invalid complex amplitude at state index " + index);
+    }
+    return amplitude;
+  });
+  const norm = state.reduce((sum, amplitude) => sum + magnitudeSquared(amplitude), 0);
+  if (!Number.isFinite(norm) || Math.abs(norm - 1) > 1e-8) {
+    throw new RangeError("Measurement requires a normalized state vector");
+  }
+
+  const outcomes = new Map();
+  for (let basis = 0; basis < state.length; basis++) {
+    const bits = qubits.map(q => (basis >> (simulation.qubits - 1 - q)) & 1).join("");
+    outcomes.set(bits, (outcomes.get(bits) ?? 0) + magnitudeSquared(state[basis]));
+  }
+  const ordered = [...outcomes.entries()].sort(([a], [b]) => a.localeCompare(b));
+  const total = ordered.reduce((sum, [, probability]) => sum + probability, 0);
+  if (!Number.isFinite(total) || total <= 0) throw new RangeError("Invalid measurement probability distribution");
+  const distribution = ordered.map(([bits, probability]) => ({ bits, probability: probability / total }));
+  let randomState = (seed >>> 0) || 0x6d2b79f5;
+  const random = () => {
+    randomState ^= randomState << 13;
+    randomState ^= randomState >>> 17;
+    randomState ^= randomState << 5;
+    return (randomState >>> 0) / 4294967296;
+  };
+  const counts = Object.fromEntries(distribution.map(item => [item.bits, 0]));
+  const cumulative = [];
+  let running = 0;
+  for (const item of distribution) {
+    running += item.probability;
+    cumulative.push(running);
+  }
+  for (let shot = 0; shot < shots; shot++) {
+    const draw = random();
+    let selected = cumulative.findIndex(boundary => draw < boundary);
+    if (selected < 0) selected = cumulative.length - 1;
+    counts[distribution[selected].bits]++;
+  }
+  const frequencies = Object.fromEntries(Object.entries(counts).map(([bits, count]) => [bits, count / shots]));
+  const standardErrors = Object.fromEntries(distribution.map(item => [
+    item.bits, Math.sqrt(item.probability * (1 - item.probability) / shots)
+  ]));
+  return {
+    qubitsMeasured: [...qubits],
+    shots,
+    seed: seed >>> 0,
+    counts,
+    frequencies,
+    theoreticalProbabilities: Object.fromEntries(distribution.map(item => [item.bits, item.probability])),
+    standardErrors,
+    inputHash: "sha256:" + crypto.createHash("sha256").update(JSON.stringify(canonical({
+      qubits: simulation.qubits, stateVector: state, measuredQubits: qubits, shots, seed: seed >>> 0
+    }))).digest("hex"),
+    note: "Samples are pseudorandom classical draws from the supplied ideal state-vector probabilities; no physical measurement or hardware interaction occurs."
+  };
+}
