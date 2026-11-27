@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "id": "ai-classification-confusion-metrics",
+  "title": "Classification confusion-matrix metrics",
+  "description": "Calculate accuracy, precision and recall from bounded binary-classification counts.",
+  "domain": "ai",
+  "reviewStatus": "proposed-not-reviewed",
+  "parameters": [
+    {
+      "name": "truePositive",
+      "min": 0,
+      "max": 1000000,
+      "default": 80
+    },
+    {
+      "name": "trueNegative",
+      "min": 0,
+      "max": 1000000,
+      "default": 90
+    },
+    {
+      "name": "falsePositive",
+      "min": 0,
+      "max": 1000000,
+      "default": 10
+    },
+    {
+      "name": "falseNegative",
+      "min": 0,
+      "max": 1000000,
+      "default": 20
+    }
+  ],
+  "outputs": [
+    {
+      "name": "accuracy",
+      "unit": "ratio",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "op": "add",
+            "args": [
+              {
+                "param": "truePositive"
+              },
+              {
+                "param": "trueNegative"
+              }
+            ]
+          },
+          {
+            "op": "add",
+            "args": [
+              {
+                "param": "truePositive"
+              },
+              {
+                "param": "trueNegative"
+              },
+              {
+                "param": "falsePositive"
+              },
+              {
+                "param": "falseNegative"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "precision",
+      "unit": "ratio",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "param": "truePositive"
+          },
+          {
+            "op": "add",
+            "args": [
+              {
+                "param": "truePositive"
+              },
+              {
+                "param": "falsePositive"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "recall",
+      "unit": "ratio",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "param": "truePositive"
+          },
+          {
+            "op": "add",
+            "args": [
+              {
+                "param": "truePositive"
+              },
+              {
+                "param": "falseNegative"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "verification": [
+    {
+      "input": {},
+      "expected": {
+        "accuracy": 0.85,
+        "precision": 0.8888888888888888,
+        "recall": 0.8
+      },
+      "tolerance": 1e-10
+    },
+    {
+      "input": {
+        "truePositive": 50,
+        "trueNegative": 40,
+        "falsePositive": 10,
+        "falseNegative": 0
+      },
+      "expected": {
+        "accuracy": 0.9,
+        "precision": 0.8333333333333334,
+        "recall": 1
+      },
+      "tolerance": 1e-10
+    }
+  ],
+  "intendedUse": "educational-only",
+  "hardwareControl": false,
+  "limitations": [
+    "Counts must come from a correctly separated evaluation set; the estimator does not assess data leakage, class representativeness, calibration or deployment drift.",
+    "Undefined zero-denominator cases are rejected by numerical verification; metrics do not establish real-world model quality."
+  ],
+  "generatedBy": "mtdm-deterministic-engineering-discovery",
+  "sourceTemplateSha256": "96f0d10146b2a1bc224c1485ccb9df95be24fe049c829db97a736accec26df84",
+  "approvalRequired": true
+}

@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "id": "led-series-resistor-design",
+  "title": "LED series resistor design",
+  "description": "Estimate resistor value, resistor dissipation and LED current from a DC supply.",
+  "domain": "electronics",
+  "reviewStatus": "proposed-not-reviewed",
+  "parameters": [
+    {
+      "name": "supplyVoltage",
+      "min": 5,
+      "max": 48,
+      "default": 12
+    },
+    {
+      "name": "ledForwardVoltage",
+      "min": 0.5,
+      "max": 4.5,
+      "default": 2
+    },
+    {
+      "name": "targetCurrent",
+      "min": 0.001,
+      "max": 0.1,
+      "default": 0.02
+    }
+  ],
+  "outputs": [
+    {
+      "name": "resistance",
+      "unit": "ohm",
+      "expression": {
+        "op": "div",
+        "args": [
+          {
+            "op": "sub",
+            "args": [
+              {
+                "param": "supplyVoltage"
+              },
+              {
+                "param": "ledForwardVoltage"
+              }
+            ]
+          },
+          {
+            "param": "targetCurrent"
+          }
+        ]
+      }
+    },
+    {
+      "name": "resistorPower",
+      "unit": "W",
+      "expression": {
+        "op": "mul",
+        "args": [
+          {
+            "op": "sub",
+            "args": [
+              {
+                "param": "supplyVoltage"
+              },
+              {
+                "param": "ledForwardVoltage"
+              }
+            ]
+          },
+          {
+            "param": "targetCurrent"
+          }
+        ]
+      }
+    }
+  ],
+  "verification": [
+    {
+      "input": {},
+      "expected": {
+        "resistance": 500,
+        "resistorPower": 0.2
+      }
+    },
+    {
+      "input": {
+        "supplyVoltage": 5,
+        "ledForwardVoltage": 2,
+        "targetCurrent": 0.01
+      },
+      "expected": {
+        "resistance": 300,
+        "resistorPower": 0.03
+      }
+    }
+  ],
+  "intendedUse": "educational-only",
+  "hardwareControl": false,
+  "limitations": [
+    "Assumes a constant LED forward voltage and ideal DC supply; LED forward voltage varies with current, temperature and device bin.",
+    "Does not select a standard resistor series or apply resistor derating and tolerance.",
+    "Educational pre-design estimate only; verify the actual LED datasheet, thermal conditions and component ratings."
+  ],
+  "generatedBy": "mtdm-deterministic-engineering-discovery",
+  "sourceTemplateSha256": "5af9e0d4f54bc4b84739a98672115ce7126cb5d84d87a9edb5898dc7ea6a363e",
+  "approvalRequired": true
+}

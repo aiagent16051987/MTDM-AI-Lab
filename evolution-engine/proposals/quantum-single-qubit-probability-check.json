@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "id": "quantum-single-qubit-probability-check",
+  "title": "Single-qubit probability normalization check",
+  "description": "Check normalization and population imbalance for a supplied two-outcome qubit measurement distribution.",
+  "domain": "quantum",
+  "reviewStatus": "proposed-not-reviewed",
+  "parameters": [
+    {
+      "name": "probabilityZero",
+      "min": 0,
+      "max": 1,
+      "default": 0.75
+    },
+    {
+      "name": "probabilityOne",
+      "min": 0,
+      "max": 1,
+      "default": 0.25
+    }
+  ],
+  "outputs": [
+    {
+      "name": "normalization",
+      "unit": "ratio",
+      "expression": {
+        "op": "add",
+        "args": [
+          {
+            "param": "probabilityZero"
+          },
+          {
+            "param": "probabilityOne"
+          }
+        ]
+      }
+    },
+    {
+      "name": "populationImbalance",
+      "unit": "ratio",
+      "expression": {
+        "op": "sub",
+        "args": [
+          {
+            "param": "probabilityZero"
+          },
+          {
+            "param": "probabilityOne"
+          }
+        ]
+      }
+    }
+  ],
+  "verification": [
+    {
+      "input": {},
+      "expected": {
+        "normalization": 1,
+        "populationImbalance": 0.5
+      }
+    },
+    {
+      "input": {
+        "probabilityZero": 0.5,
+        "probabilityOne": 0.5
+      },
+      "expected": {
+        "normalization": 1,
+        "populationImbalance": 0
+      }
+    }
+  ],
+  "intendedUse": "educational-only",
+  "hardwareControl": false,
+  "limitations": [
+    "Evaluates supplied measurement probabilities only; does not simulate amplitudes, phase, gates, entanglement, noise or hardware.",
+    "A normalized pair of probabilities is not evidence of quantum advantage or a complete quantum-state model."
+  ],
+  "generatedBy": "mtdm-deterministic-engineering-discovery",
+  "sourceTemplateSha256": "e4e3abc98e673145419eaf986776723a0c6ed4c24998bebf2386481c3547bae7",
+  "approvalRequired": true
+}
