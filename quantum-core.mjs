@@ -225,7 +225,7 @@ export function sampleQuantumMeasurements(simulation, { shots = 1024, seed = 202
     const bits = qubits.map(q => (basis >> (simulation.qubits - 1 - q)) & 1).join("");
     outcomes.set(bits, (outcomes.get(bits) ?? 0) + magnitudeSquared(state[basis]));
   }
-  const ordered = [...outcomes.entries()].filter(([, probability]) => probability > 0).sort(([a], [b]) => a.localeCompare(b));
+  const ordered = [...outcomes.entries()].filter(([, probability]) => probability > 0).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
   const total = ordered.reduce((sum, [, probability]) => sum + probability, 0);
   if (!Number.isFinite(total) || total <= 0) throw new RangeError("Invalid measurement probability distribution");
   const distribution = ordered.map(([bits, probability]) => ({ bits, probability: probability / total }));
