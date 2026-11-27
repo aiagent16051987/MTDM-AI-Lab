@@ -106,7 +106,7 @@ try {
     root
   });
   const agentExecutionPath = path.join(outputDir, "engineering-agent-execution.json");
-  fs.writeFileSync(agentExecutionPath, JSON.stringify(agentExecution, null, 2) + "\\n");
+  fs.writeFileSync(agentExecutionPath, JSON.stringify(agentExecution, null, 2) + "\n");
   report.engineeringAgentExecution = {
     mode: agentExecution.mode,
     processedTasks: agentExecution.processedTasks,
