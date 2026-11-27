@@ -76,7 +76,7 @@ const firstOnly = sampleQuantumMeasurements(bell, { shots: 1000, seed: 7, measur
 assert.deepEqual(Object.keys(firstOnly.counts), ["0", "1"]);
 assert.ok(Math.abs(firstOnly.frequencies["0"] - 0.5) < 0.06);
 const reversedOrder = sampleQuantumMeasurements(ghz, { shots: 100, seed: 9, measuredQubits: [2, 0] });
-assert.deepEqual(Object.keys(reversedOrder.counts), ["00", "11"]);
+assert.deepEqual(Object.keys(reversedOrder.counts).sort(), ["00", "11"]);
 assert.throws(() => sampleQuantumMeasurements(bell, { shots: 0 }), /shots/);
 assert.throws(() => sampleQuantumMeasurements(bell, { shots: 100, seed: -1 }), /seed/);
 assert.throws(() => sampleQuantumMeasurements(bell, { shots: 100, measuredQubits: [0, 0] }), /measuredQubits/);
