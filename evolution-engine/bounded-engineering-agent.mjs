@@ -48,7 +48,7 @@ function applyPatch(patch, readFile, writeFile) {
 
 export function runBoundedEngineeringAgent({
   tasks, adapters, readFile, writeFile, validate, diagnose,
-  root = ".", limits = {}, allowedPrefixes = DEFAULT_ALLOWED_PREFIXES
+  root = ".", limits = {}, allowedPrefixes = DEFAULT_ALLOWED_PREFIXES, startIndex = 0
 }) {
   const budget = { maxTasks: 1, maxAttempts: 2, maxFiles: 1, maxPatchBytes: 12000, ...limits };
   validateLimits(budget);
@@ -57,7 +57,7 @@ export function runBoundedEngineeringAgent({
       typeof validate !== "function" || typeof diagnose !== "function") {
     throw new TypeError("Engineering agent requires tasks, trusted adapters and validation callbacks");
   }
-  const registry = new Map();
+  if (!Number.isInteger(startIndex) || startIndex < 0) throw new TypeError("startIndex must be a non-negative integer");\n  const registry = new Map();
   for (const adapter of adapters) {
     if (!adapter || !ID.test(adapter.id || "") || typeof adapter.supports !== "function" ||
         typeof adapter.propose !== "function" || registry.has(adapter.id)) {
