@@ -65,4 +65,35 @@ const expandedBudget = discoverEngineeringFeatures({
 assert.equal(expandedBudget.proposals.length, 9);
 assert.equal(expandedBudget.proposals.filter(item => item.domain === "electronics").length, 3);
 
-console.log("PASS — deterministic engineering feature discovery, numerical verification, deduplication and safety rejection.");
+const unknownInput = structuredClone(result.proposals[0]);
+unknownInput.verification[0].input = { supplyVoltage: 12, ghostParameter: 1 };
+assert.throws(() => validateEngineeringProposal(unknownInput), /Unknown verification input/);
+const missingOutput = structuredClone(result.proposals[0]);
+delete missingOutput.verification[0].expected.resistorPower;
+assert.throws(() => validateEngineeringProposal(missingOutput), /output set must exactly match/);
+const extraOutput = structuredClone(result.proposals[0]);
+extraOutput.verification[0].expected.unmodelledOutput = 42;
+assert.throws(() => validateEngineeringProposal(extraOutput), /output set must exactly match/);
+const badTolerance = structuredClone(result.proposals[0]);
+badTolerance.verification[0].tolerance = 0.1;
+assert.throws(() => validateEngineeringProposal(badTolerance), /Invalid verification tolerance/);
+const nanExpected = structuredClone(result.proposals[0]);
+nanExpected.verification[0].expected.resistance = Number.NaN;
+assert.throws(() => validateEngineeringProposal(nanExpected), /Numerical verification failed/);
+const malformedParameter = structuredClone(result.proposals[0]);
+malformedParameter.parameters[0] = null;
+assert.throws(() => validateEngineeringProposal(malformedParameter), /Invalid or duplicate parameter/);
+const extraAstProperty = structuredClone(result.proposals[0]);
+extraAstProperty.outputs[0].expression.unreviewed = "ignored";
+assert.throws(() => validateEngineeringProposal(extraAstProperty), /Unexpected expression property/);
+const malformedAstReference = structuredClone(result.proposals[0]);
+malformedAstReference.outputs[0].expression = { param: "supplyVoltage", ignored: true };
+assert.throws(() => validateEngineeringProposal(malformedAstReference), /malformed parameter reference/);
+const emptyVectors = structuredClone(result.proposals[0]);
+emptyVectors.verification = [];
+assert.throws(() => validateEngineeringProposal(emptyVectors), /Numerical verification vectors are required/);
+const negativeTolerance = structuredClone(result.proposals[0]);
+negativeTolerance.verification[0].tolerance = -1;
+assert.throws(() => validateEngineeringProposal(negativeTolerance), /Invalid verification tolerance/);
+
+console.log("PASS — deterministic discovery, strict model contracts, malformed AST rejection, complete vector validation and safety controls.");
