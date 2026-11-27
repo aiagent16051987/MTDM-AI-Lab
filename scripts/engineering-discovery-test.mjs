@@ -47,4 +47,22 @@ assert.equal(allDomains.summary.autoEnabled, 0);
 assert.ok(allDomains.proposals.every(item => item.enabled === false && item.hardwareControl === false));
 for (const proposal of allDomains.proposals) assert.equal(validateEngineeringProposal(proposal), true);
 assert.ok(allDomains.proposals.length >= 8);
+const balanced = discoverEngineeringFeatures({
+  existingIds: [],
+  domains: ["electronics", "iot", "ai", "robotics", "quantum", "nano", "manufacturing"],
+  maxCandidates: 7
+});
+assert.equal(balanced.proposals.length, 7);
+assert.deepEqual(
+  balanced.proposals.map(item => item.domain),
+  ["electronics", "iot", "ai", "robotics", "quantum", "nano", "manufacturing"]
+);
+const expandedBudget = discoverEngineeringFeatures({
+  existingIds: [],
+  domains: ["electronics", "iot", "ai", "robotics", "quantum", "nano", "manufacturing"],
+  maxCandidates: 9
+});
+assert.equal(expandedBudget.proposals.length, 9);
+assert.equal(expandedBudget.proposals.filter(item => item.domain === "electronics").length, 3);
+
 console.log("PASS — deterministic engineering feature discovery, numerical verification, deduplication and safety rejection.");
