@@ -74,9 +74,7 @@ const templates = [
       "Power and individual branch currents are not yet calculated in this candidate.",
       "Educational circuit-analysis model only; verify component ratings and circuit operating conditions independently."
     ]
-  }
-
-  ,
+  },
   {
     id: "iot-duty-cycle-energy-budget", domain: "iot",
     title: "IoT duty-cycle energy budget",
