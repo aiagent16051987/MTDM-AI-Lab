@@ -111,8 +111,23 @@ try {
     adapters: [],
     readFile: file => fs.readFileSync(resolveAgentFile(file), "utf8"),
     writeFile: (file, content) => fs.writeFileSync(resolveAgentFile(file), content, "utf8"),
-    validate: () => ({ passed: false, code: "no-specialist-adapter", summary: "No domain specialist adapter is registered." }),
-    diagnose: () => ({ retryable: false, rootCause: "No trusted implementation adapter is registered for this workstream." }),
+    validate: () => {
+      const tests = spawnSync("npm", ["test"], { cwd: root, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
+      if (tests.status !== 0) return { passed: false, code: "regression-tests-failed",
+        summary: (tests.stderr || tests.stdout || "Regression suite failed").slice(-6000) };
+      const build = spawnSync("npm", ["run", "build"], { cwd: root, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
+      if (build.status !== 0) return { passed: false, code: "production-build-failed",
+        summary: (build.stderr || build.stdout || "Production build failed").slice(-6000) };
+      const postAudit = auditCapabilities({ root });
+      if (postAudit.status === "blocked") return { passed: false, code: "post-change-audit-blocked",
+        summary: JSON.stringify(postAudit.summary) };
+      return { passed: true, evidence: { regressionTests: "passed", productionBuild: "passed", postChangeAudit: "passed" } };
+    },
+    diagnose: ({ failure, attempt }) => ({
+      retryable: attempt < 2 && ["regression-tests-failed", "production-build-failed"].includes(failure.code),
+      rootCause: failure.code,
+      diagnosticExcerpt: failure.summary.slice(-6000)
+    }),
     root,
     startIndex: autonomousEngineeringPlan.tasks.length
       ? Number(process.env.GITHUB_RUN_NUMBER || 0) % autonomousEngineeringPlan.tasks.length
