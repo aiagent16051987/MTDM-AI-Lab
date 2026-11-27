@@ -35,6 +35,13 @@ jobs:
           node-version: 22
       - name: Record maintenance attempt before dependency installation
         run: node evolution-engine/maintenance-heartbeat.mjs --success=false
+      - name: Cache npm download data
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node22-npm-
       - name: Install project dependencies
         run: npm install --ignore-scripts --no-package-lock --fetch-retries=3 --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000
       - name: Run autonomous engineering discovery and validated maintenance

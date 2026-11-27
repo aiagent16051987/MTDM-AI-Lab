@@ -6,6 +6,7 @@ import { applyRemediationRecipes } from "../evolution-engine/remediation-engine.
 import { compileEnabledSpecs } from "../evolution-engine/model-codegen.mjs";
 import { discoverEngineeringFeatures } from "../evolution-engine/engineering-discovery.mjs";
 import { evaluateEngineeringEvidence } from "../evolution-engine/engineering-evidence-gate.mjs";
+import { buildDomainWorkPlan } from "../evolution-engine/domain-work-planner.mjs";
 
 const root = process.cwd();
 const outputDir = path.join(root, "artifacts", "autonomous-maintenance");
@@ -17,6 +18,13 @@ const reportPath = path.join(outputDir, "report.json");
 const audit = auditCapabilities({ root });
 const queue = buildImprovementQueue(audit);
 const catalog = JSON.parse(fs.readFileSync(path.join(root, "evolution-engine", "remediation-catalog.json"), "utf8"));
+const inventionRegistry = JSON.parse(fs.readFileSync(path.join(root, "research-engine", "registry.json"), "utf8"));
+const capabilityRegistry = JSON.parse(fs.readFileSync(path.join(root, "capabilities.json"), "utf8"));
+const domains = inventionRegistry.inventionDomains;
+if (!Array.isArray(domains) || !domains.length || domains.some(domain => typeof domain !== "string") ||
+    new Set(domains).size !== domains.length || !Array.isArray(capabilityRegistry.capabilities)) {
+  throw new Error("Domain or capability registry is invalid; maintenance must fail closed.");
+}
 const report = {
   schemaVersion: 1,
   runId: process.env.GITHUB_RUN_ID || null,
@@ -24,13 +32,14 @@ const report = {
   generatedAt: new Date().toISOString(),
   audit: { status: audit.status, summary: audit.summary },
   queuedFindings: queue.length,
-  engineeringDiscovery: { status: "not-run", proposed: [], autoEnabled: 0, domainCoverage: ["electronics"] },
+  engineeringDiscovery: { status: "not-run", proposed: [], autoEnabled: 0, domainCoverage: [] },
+  domainWorkPlan: { status: "not-run", workItems: [] },
   evidenceGate: { status: "not-run", evaluated: 0, blocked: 0, eligible: 0, results: [] },
   codeGeneration: { compiled: [], status: "no-approved-specifications" },
   remediation: { applied: [], changedFiles: [], status: "no-applicable-recipe" },
   validation: { tests: "not-run", build: "not-run" },
   safety: { allowlistedRecipePatchesOnly: true, declarativeCodeGenerationOnly: true,
-    proposedFeaturesRemainDisabled: true, evidenceGateRequiredForRelease: true, noEvidenceNoRelease: true, maxFilesPerRun: 1, workflowChanges: false,
+    proposedFeaturesRemainDisabled: true, evidenceGateRequiredForRelease: true, noEvidenceNoRelease: true, maxAutomatedSourceFilesPerRun: 1, maxDiscoveryProposalsPerRun: 10, workflowChanges: false,
     dependencyChanges: false, engineeringSafetyRuleChanges: false, automaticMerge: false,
     productionDeployment: false }
 };
@@ -67,10 +76,17 @@ try {
   }
   const discovery = discoverEngineeringFeatures({
     existingIds: [...knownIds],
-    domains: ["electronics"],
+    domains,
     maxCandidates: 10
   });
   report.engineeringDiscovery.status = discovery.status;
+  const domainWorkPlan = buildDomainWorkPlan({ domains, capabilities: capabilityRegistry.capabilities, discovery, audit });
+  report.engineeringDiscovery.domainCoverage = domainWorkPlan.workItems.map(item => ({
+    domain: item.domain, capabilityStatus: item.capabilityStatus,
+    deterministicCandidates: item.deterministicCandidates,
+    executableTestReferences: item.executableTestReferences
+  }));
+  report.domainWorkPlan = domainWorkPlan;
   report.evidenceGate.status = "evaluated";
   for (const proposal of discovery.proposals) {
     const evidence = evaluateEngineeringEvidence(proposal, { evidenceRoot: root });
