@@ -295,7 +295,28 @@ export function discoverEngineeringFeatures({ existingIds = [], domains = ["elec
     throw new TypeError("Invalid discovery request");
   }
   const existing = new Set(existingIds);
-  const selected = templates.filter(item => domains.includes(item.domain) && !existing.has(item.id)).slice(0, maxCandidates);
+  const availableByDomain = new Map(domains.map(domain => [
+    domain,
+    templates.filter(item => item.domain === domain && !existing.has(item.id))
+  ]));
+  // Round-robin selection prevents an early, template-rich domain from starving
+  // other registered domains when the per-run proposal budget is reached.
+  const selected = [];
+  const domainOffsets = new Map(domains.map(domain => [domain, 0]));
+  while (selected.length < maxCandidates) {
+    let addedThisRound = false;
+    for (const domain of domains) {
+      if (selected.length >= maxCandidates) break;
+      const candidates = availableByDomain.get(domain) || [];
+      const offset = domainOffsets.get(domain) || 0;
+      if (offset < candidates.length) {
+        selected.push(candidates[offset]);
+        domainOffsets.set(domain, offset + 1);
+        addedThisRound = true;
+      }
+    }
+    if (!addedThisRound) break;
+  }
   const proposals = selected.map(template => {
     const candidate = {
       schemaVersion: 1,
