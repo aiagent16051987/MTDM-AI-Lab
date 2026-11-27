@@ -74,6 +74,7 @@ jobs:
             scripts/
             evolution-engine/
             research-engine/
+            generated-simulations/
             app.js
             advanced-labs.js
             robotics-core.js
