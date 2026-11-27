@@ -7,6 +7,8 @@ import { compileEnabledSpecs } from "../evolution-engine/model-codegen.mjs";
 import { discoverEngineeringFeatures } from "../evolution-engine/engineering-discovery.mjs";
 import { evaluateEngineeringEvidence } from "../evolution-engine/engineering-evidence-gate.mjs";
 import { buildDomainWorkPlan } from "../evolution-engine/domain-work-planner.mjs";
+import { buildAutonomousEngineeringPlan } from "../evolution-engine/autonomous-engineering-plan.mjs";
+import { runBoundedEngineeringAgent } from "../evolution-engine/bounded-engineering-agent.mjs";
 
 const root = process.cwd();
 const outputDir = path.join(root, "artifacts", "autonomous-maintenance");
@@ -15,6 +17,16 @@ const proposalsDir = path.join(root, "evolution-engine", "proposals");
 fs.mkdirSync(outputDir, { recursive: true });
 fs.mkdirSync(proposalsDir, { recursive: true });
 const reportPath = path.join(outputDir, "report.json");
+function resolveAgentFile(relative) {
+  const rootReal = fs.realpathSync(root);
+  const candidate = path.resolve(rootReal, relative);
+  if (!candidate.startsWith(rootReal + path.sep)) throw new Error("Engineering agent path escapes workspace");
+  const actual = fs.realpathSync(candidate);
+  if (!actual.startsWith(rootReal + path.sep) || !fs.statSync(actual).isFile()) {
+    throw new Error("Engineering agent target is not a regular repository file");
+  }
+  return actual;
+}
 const audit = auditCapabilities({ root });
 const queue = buildImprovementQueue(audit);
 const catalog = JSON.parse(fs.readFileSync(path.join(root, "evolution-engine", "remediation-catalog.json"), "utf8"));
@@ -34,6 +46,7 @@ const report = {
   queuedFindings: queue.length,
   engineeringDiscovery: { status: "not-run", proposed: [], autoEnabled: 0, domainCoverage: [] },
   domainWorkPlan: { status: "not-run", workItems: [] },
+  autonomousEngineeringObjective: { status: "not-run", objectiveId: null, domainCount: 0, workstreamCount: 0, completedTasks: 0, planFile: null },
   evidenceGate: { status: "not-run", evaluated: 0, blocked: 0, eligible: 0, results: [] },
   codeGeneration: { compiled: [], status: "no-approved-specifications" },
   remediation: { applied: [], changedFiles: [], status: "no-applicable-recipe" },
@@ -87,6 +100,63 @@ try {
     executableTestReferences: item.executableTestReferences
   }));
   report.domainWorkPlan = domainWorkPlan;
+  const engineeringObjective = JSON.parse(fs.readFileSync(path.join(root, "evolution-engine", "autonomous-engineering-objective.json"), "utf8"));
+  const autonomousEngineeringPlan = buildAutonomousEngineeringPlan({
+    objective: engineeringObjective,
+    capabilities: capabilityRegistry.capabilities,
+    audit
+  });
+  const agentExecution = runBoundedEngineeringAgent({
+    tasks: autonomousEngineeringPlan.tasks,
+    adapters: [],
+    readFile: file => fs.readFileSync(resolveAgentFile(file), "utf8"),
+    writeFile: (file, content) => fs.writeFileSync(resolveAgentFile(file), content, "utf8"),
+    validate: () => {
+      const tests = spawnSync("npm", ["test"], { cwd: root, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
+      if (tests.status !== 0) return { passed: false, code: "regression-tests-failed",
+        summary: (tests.stderr || tests.stdout || "Regression suite failed").slice(-6000) };
+      const build = spawnSync("npm", ["run", "build"], { cwd: root, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
+      if (build.status !== 0) return { passed: false, code: "production-build-failed",
+        summary: (build.stderr || build.stdout || "Production build failed").slice(-6000) };
+      const postAudit = auditCapabilities({ root });
+      if (postAudit.status === "blocked") return { passed: false, code: "post-change-audit-blocked",
+        summary: JSON.stringify(postAudit.summary) };
+      return { passed: true, evidence: { regressionTests: "passed", productionBuild: "passed", postChangeAudit: "passed" } };
+    },
+    diagnose: ({ failure, attempt }) => ({
+      retryable: attempt < 2 && ["regression-tests-failed", "production-build-failed"].includes(failure.code),
+      rootCause: failure.code,
+      diagnosticExcerpt: failure.summary.slice(-6000)
+    }),
+    root,
+    startIndex: autonomousEngineeringPlan.tasks.length
+      ? Number(process.env.GITHUB_RUN_NUMBER || 0) % autonomousEngineeringPlan.tasks.length
+      : 0
+  });
+  const agentExecutionPath = path.join(outputDir, "engineering-agent-execution.json");
+  fs.writeFileSync(agentExecutionPath, JSON.stringify(agentExecution, null, 2) + "\n");
+  report.engineeringAgentExecution = {
+    mode: agentExecution.mode,
+    processedTasks: agentExecution.processedTasks,
+    deferredTasks: agentExecution.deferredTasks,
+    nextIndex: agentExecution.nextIndex,
+    validatedCandidates: agentExecution.results.filter(item => item.status === "candidate-validated-pending-human-review").length,
+    blockedTasks: agentExecution.results.filter(item => item.status.startsWith("blocked-")).length,
+    reportFile: path.relative(root, agentExecutionPath),
+    safety: agentExecution.safety,
+    limitation: agentExecution.limitation
+  };
+  const objectivePlanPath = path.join(outputDir, "engineering-objective-plan.json");
+  fs.writeFileSync(objectivePlanPath, JSON.stringify(autonomousEngineeringPlan, null, 2) + "\n");
+  report.autonomousEngineeringObjective = {
+    status: autonomousEngineeringPlan.status,
+    objectiveId: autonomousEngineeringPlan.objectiveId,
+    domainCount: autonomousEngineeringPlan.domainCount,
+    workstreamCount: autonomousEngineeringPlan.workstreamCount,
+    completedTasks: autonomousEngineeringPlan.completedTasks,
+    planFile: path.relative(root, objectivePlanPath),
+    limitation: autonomousEngineeringPlan.limitation
+  };
   report.evidenceGate.status = "evaluated";
   for (const proposal of discovery.proposals) {
     const evidence = evaluateEngineeringEvidence(proposal, { evidenceRoot: root });

@@ -1,0 +1,11 @@
+import assert from "node:assert/strict";
+import {solveDCNetwork,simulateRCTransient} from "../electronics-advanced.mjs";
+const divider=solveDCNetwork({nodes:3,resistors:[{p:1,n:2,ohms:20000},{p:2,n:0,ohms:10000}],sources:[{p:1,n:0,voltage:12}]});
+assert.ok(Math.abs(divider.voltages[1]-12)<1e-10);assert.ok(Math.abs(divider.voltages[2]-4)<1e-10);
+const diode=solveDCNetwork({nodes:3,resistors:[{p:1,n:2,ohms:1000}],sources:[{p:1,n:0,voltage:5}],diodes:[{p:2,n:0,is:1e-12,nvt:.02585}]});
+assert.ok(diode.voltages[2]>.5&&diode.voltages[2]<.9);assert.ok(diode.diodeCurrents[0].current>0);
+const rc=simulateRCTransient({voltage:5,resistance:1000,capacitance:1e-6,duration:.005,step:.0001});
+assert.ok(Math.abs(rc.points.at(-1).voltage-5*(1-Math.exp(-5)))<1e-10);
+assert.throws(()=>solveDCNetwork({nodes:2,resistors:[{p:0,n:1,ohms:0}]}),RangeError);
+assert.throws(()=>simulateRCTransient({voltage:5,resistance:0,capacitance:1e-6,duration:1,step:.1}),RangeError);
+console.log("Electronics advanced tests passed: MNA DC divider, nonlinear Shockley diode operating point, analytic RC transient and invalid circuit rejection.");
