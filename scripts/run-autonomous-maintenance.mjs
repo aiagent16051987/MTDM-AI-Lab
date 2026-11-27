@@ -96,7 +96,7 @@ try {
     audit
   });
   const objectivePlanPath = path.join(outputDir, "engineering-objective-plan.json");
-  fs.writeFileSync(objectivePlanPath, JSON.stringify(autonomousEngineeringPlan, null, 2) + "\\n");
+  fs.writeFileSync(objectivePlanPath, JSON.stringify(autonomousEngineeringPlan, null, 2) + "\n");
   report.autonomousEngineeringObjective = {
     status: autonomousEngineeringPlan.status,
     objectiveId: autonomousEngineeringPlan.objectiveId,
